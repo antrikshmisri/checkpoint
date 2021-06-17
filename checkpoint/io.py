@@ -39,7 +39,7 @@ class IO:
             )
 
         self.setup()
-    
+
     def setup(self):
         """Get the nested files, folders
         """
