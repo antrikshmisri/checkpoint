@@ -5,6 +5,7 @@ from os.path import join as pjoin
 import os
 import numpy.testing as npt
 
+
 def test_io():
 
     with InTemporaryDirectory() as tdir:
@@ -21,6 +22,6 @@ def test_io():
 
         with npt.assert_raises(IOError):
             invalid_io = io.IO(path='invalid_path', mode='a')
-        
+
         with npt.assert_raises(ValueError):
-                invalid_io = io.IO(path=tdir, mode='invalid_mode')
+            invalid_io = io.IO(path=tdir, mode='invalid_mode')

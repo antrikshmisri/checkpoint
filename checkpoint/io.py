@@ -64,9 +64,8 @@ class IO:
         """
         with open(file, 'r') as f:
             content = f.read()
-        
-        return content
 
+        return content
 
     def write(self, file, mode, content):
         """ Write some content into a file
