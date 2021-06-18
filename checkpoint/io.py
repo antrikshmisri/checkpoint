@@ -41,8 +41,11 @@ class IO:
         self.setup()
 
     def setup(self):
-        """Get the nested files, folders
+        """Setup the IO class
         """
+        self.mode_mappings = {'a': [*'rwxa'],
+                              'm': [*'rwa'],
+                              's': [*'ra']}
 
         for path, subdirs, files in os.walk(self.path):
             if all(dir not in path for dir in self.ignore_dirs):
@@ -51,8 +54,35 @@ class IO:
                     self.files.append(pjoin(path, file))
                     self.sub_dirs.append(pjoin(path, dir))
 
-    def read(self):
-        pass
+    def read(self, file):
+        """Read the content of a file
 
-    def write(self):
-        pass
+        Parameters
+        ----------
+        file: str
+            Name of the file
+        """
+        with open(file, 'r') as f:
+            content = f.read()
+
+        return content
+
+    def write(self, file, mode, content):
+        """ Write some content into a file
+
+        Parameters
+        ----------
+        file: str
+            Name of the file
+        mode: str
+            Mode of operation
+        content: str
+            Content to write in the file
+        """
+        if mode not in self.mode_mappings[self.mode]:
+            raise IOError(
+                f'Mode {mode} not allowed with IO mode {self.mode}'
+            )
+
+        with open(file, mode) as f:
+            f.write(content)
