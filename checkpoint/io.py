@@ -4,7 +4,7 @@ import os
 
 
 class IO:
-    """ Class to perform Input/Output opreations
+    """Class to perform Input/Output opreations.
 
     Provides methods to perform various IO operations
     in the target directory.
@@ -21,7 +21,7 @@ class IO:
     """
 
     def __init__(self, path=os.getcwd(), mode="a", ignore_dirs=[]):
-        """Initialize the IO class
+        """Initialize the IO class.
 
         Parameters
         ----------
@@ -65,7 +65,7 @@ class IO:
         self.update_paths(self._path)
 
     def update_paths(self, path):
-        """Update the paths of files, sub_dirs w.r.t the path
+        """Update the paths of files, sub_dirs w.r.t the path.
 
         Parameters
         ----------
@@ -83,7 +83,7 @@ class IO:
                     self.sub_dirs.append(pjoin(path, dir))
 
     def read(self, file):
-        """Read the content of a file
+        """Read the content of a file.
 
         Parameters
         ----------
@@ -96,7 +96,7 @@ class IO:
         return content
 
     def write(self, file, mode, content):
-        """Write some content into a file
+        """Write some content into a file.
 
         Parameters
         ----------
@@ -121,7 +121,7 @@ class IO:
 
     @path.setter
     def path(self, path):
-        """Set the value of the current path
+        """Set the value of the current path.
 
         Parameters
         ----------
@@ -137,7 +137,7 @@ class IO:
 
     @mode.setter
     def mode(self, mode):
-        """Set the value of the IO mode
+        """Set the value of the IO mode.
 
         Parameters
         ----------
