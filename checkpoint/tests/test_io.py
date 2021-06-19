@@ -16,7 +16,7 @@ def test_io():
 
         npt.assert_equal(simple_io.path, tdir)
         npt.assert_equal(simple_io.mode, 's')
-        rmtree(pjoin(tdir, 'temp')) # Remove the temporary directory
+        rmtree(pjoin(tdir, 'temp'))  # Remove the temporary directory
 
         a_io = io.IO(path=tdir, mode='a')
         a_io.write(file=pjoin(tdir, 'temp.txt'), mode='x', content='Temporary File')

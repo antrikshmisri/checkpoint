@@ -53,11 +53,11 @@ class IO:
             raise ValueError(
                 f'{self.mode} is not a valid IO operation mode'
             )
-        
+
         self.setup()
 
     def setup(self):
-        """Setup the IO class"""
+        """Setup the IO class."""
         self.mode_mappings = {'a': [*'rwxa'],
                               'm': [*'rwa'],
                               's': [*'ra']}
@@ -114,11 +114,11 @@ class IO:
 
         with open(file, mode) as f:
             f.write(content)
-    
+
     @property
     def path(self):
         return self._path
-    
+
     @path.setter
     def path(self, path):
         """Set the value of the current path
@@ -130,11 +130,11 @@ class IO:
         """
         self._path = path
         self.update_paths(self._path)
-    
+
     @property
     def mode(self):
         return self._mode
-    
+
     @mode.setter
     def mode(self, mode):
         """Set the value of the IO mode
