@@ -43,8 +43,8 @@ class IO:
     def setup(self):
         """Setup the IO class
         """
-        self.mode_mappings = {'a': [*'rwxa'],
-                              'm': [*'rwa'],
+        self.mode_mappings = {'a': [*'rwxa', 'wb+', 'w+', 'rb+'],
+                              'm': [*'rwa', 'wb', 'rb'],
                               's': [*'ra']}
 
         for path, subdirs, files in os.walk(self.path):
@@ -54,15 +54,17 @@ class IO:
                     self.files.append(pjoin(path, file))
                     self.sub_dirs.append(pjoin(path, dir))
 
-    def read(self, file):
+    def read(self, file, mode='r'):
         """Read the content of a file
 
         Parameters
         ----------
         file: str
             Name of the file
+        mode: str, optional
+            Mode of operation
         """
-        with open(file, 'r') as f:
+        with open(file, mode) as f:
             content = f.read()
 
         return content
