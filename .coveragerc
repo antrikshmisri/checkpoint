@@ -1,0 +1,8 @@
+[run]
+branch = True
+source = checkpoint
+include = */checkpoint/*
+omit =
+    */setup.py
+[report]
+show_missing = True
