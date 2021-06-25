@@ -57,9 +57,10 @@ class IO:
         self.setup()
 
     def setup(self):
-        """Setup the IO class."""
-        self.mode_mappings = {'a': [*'rwxa'],
-                              'm': [*'rwa'],
+        """Setup the IO class
+        """
+        self.mode_mappings = {'a': [*'rwxa', 'wb+', 'w+', 'rb+'],
+                              'm': [*'rwa', 'wb', 'rb'],
                               's': [*'ra']}
 
         self.update_paths(self._path)
@@ -82,8 +83,8 @@ class IO:
                     self.files.append(pjoin(path, file))
                     self.sub_dirs.append(pjoin(path, dir))
 
-    def read(self, file, mode):
-        """Read the content of a file.
+    def read(self, file, mode='r'):
+        """Read the content of a file
 
         Parameters
         ----------
