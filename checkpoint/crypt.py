@@ -30,7 +30,7 @@ class Crypt:
     """
     def __init__(self, key, iterations=1):
         """Initialize the class
-        
+
         Parameters
         ----------
         key: str
@@ -56,7 +56,7 @@ class Crypt:
             content = self._fernet.encrypt(content)
 
         return content
-    
+
     def decrypt(self, file):
         """Decrypt a specific file
 
@@ -69,5 +69,5 @@ class Crypt:
         content = _io.read(file, mode='rb+')
         for i in range(self.iterations):
             content = self._fernet.decrypt(content)
-        
+
         return content

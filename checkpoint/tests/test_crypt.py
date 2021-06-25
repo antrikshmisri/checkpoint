@@ -7,13 +7,13 @@ from tempfile import TemporaryDirectory as InTemporaryDirectory
 
 
 def test_generate_key():
-    
+
     with InTemporaryDirectory() as tdir:
         key_name = 'secret_key'
         key = crypt.generate_key(key_name, tdir)
 
         npt.assert_equal(isfile(pjoin(tdir, f'{key_name}.key')), True)
-        
+
         with open(pjoin(tdir, f'{key_name}.key'), 'rb') as k:
             key_value = k.read()
             npt.assert_equal(key, key_value)
@@ -21,7 +21,7 @@ def test_generate_key():
 
 
 def test_crypt():
-    
+
     with InTemporaryDirectory() as tdir:
         IO = io.IO(tdir)
         key_name = 'secret_key'
@@ -34,7 +34,7 @@ def test_crypt():
         with open(pjoin(tdir, 'temp.txt'), 'w+') as f:
             f.write(content)
             f.close()
-        
+
         temp_path = pjoin(tdir, 'temp.txt')
         encrypted = _crypt.encrypt(temp_path)
         IO.write(temp_path, 'wb+', encrypted)
