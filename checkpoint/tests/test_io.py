@@ -35,5 +35,7 @@ def test_io():
             _ = io.IO(path=tdir, mode='invalid_mode')
             simple_io.mode_mapping = ['s', 'wb+', 'third_invalid_value']
 
+        npt.assert_equal(simple_io.mode_mappings, simple_io.mode_mapping)
+
         simple_io.mode_mapping = ['s', 'wb+']
         npt.assert_equal('wb+' in simple_io.mode_mappings['s'], True)
