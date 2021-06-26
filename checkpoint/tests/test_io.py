@@ -29,7 +29,15 @@ def test_io():
             s_io.write(file=pjoin(tdir, 'temp.txt'), mode='w', content="Invalid Permission")
 
         with npt.assert_raises(IOError):
-            invalid_io = io.IO(path='invalid_path', mode='a')
+            _ = io.IO(path='invalid_path', mode='a')
 
         with npt.assert_raises(ValueError):
-            invalid_io = io.IO(path=tdir, mode='invalid_mode')
+            _ = io.IO(path=tdir, mode='invalid_mode')
+
+        with npt.assert_raises(ValueError):
+            simple_io.mode_mapping = ['s', 'wb+', 'third_invalid_value']
+
+        npt.assert_equal(simple_io.mode_mappings, simple_io.mode_mapping)
+
+        simple_io.mode_mapping = ['s', 'wb+']
+        npt.assert_equal('wb+' in simple_io.mode_mappings['s'], True)

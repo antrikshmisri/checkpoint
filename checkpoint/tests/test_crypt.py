@@ -1,7 +1,6 @@
 from genericpath import isfile
 from checkpoint import crypt, io
 from os.path import join as pjoin
-import os
 import numpy.testing as npt
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 

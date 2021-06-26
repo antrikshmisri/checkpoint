@@ -156,3 +156,28 @@ class IO:
             raise ValueError(
                 f'{self._mode} is not a valid IO operation mode'
             )
+
+    @property
+    def mode_mapping(self):
+        return self.mode_mappings
+
+    @mode_mapping.setter
+    def mode_mapping(self, io_mode):
+        """Add a IO permission to a specific mode
+
+        Parameters
+        ----------
+        io_mode: Iterable
+            Iterable that packs the mode, IO permission
+            Valid values are
+            `a`: IO has all permissions (R/W/X/A)
+            `m`: IO has moderate permissions (R/W/A)
+            `s`: IO has limited permissions (R/A)
+        """
+        if len(io_mode) != 2:
+            raise ValueError(
+                f'Iterable {io_mode} can have max two values packed'
+            )
+
+        mode, io_permission = io_mode
+        self.mode_mappings[mode].append(io_permission)
