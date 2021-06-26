@@ -160,7 +160,7 @@ class IO:
     @property
     def mode_mapping(self):
         return self.mode_mappings
-    
+
     @mode_mapping.setter
     def mode_mapping(self, io_mode):
         """Add a IO permission to a specific mode
@@ -178,6 +178,6 @@ class IO:
             raise ValueError(
                 f'Iterable {io_mode} can have max two values packed'
             )
-            
+
         mode, io_permission = io_mode
         self.mode_mappings[mode].append(io_permission)
