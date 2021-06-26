@@ -167,12 +167,17 @@ class IO:
 
         Parameters
         ----------
-        mode: Iterable
+        io_mode: Iterable
             Iterable that packs the mode, IO permission
             Valid values are
             `a`: IO has all permissions (R/W/X/A)
             `m`: IO has moderate permissions (R/W/A)
             `s`: IO has limited permissions (R/A)
         """
+        if len(io_mode) != 2:
+            raise ValueError(
+                f'Iterable {io_mode} can have max two values packed'
+            )
+            
         mode, io_permission = io_mode
         self.mode_mappings[mode].append(io_permission)
