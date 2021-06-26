@@ -52,7 +52,7 @@ class Crypt:
         """
         _io = io.IO()
         content = _io.read(file, mode='rb+')
-        for i in range(self.iterations):
+        for _ in range(self.iterations):
             content = self._fernet.encrypt(content)
 
         return content
@@ -67,7 +67,7 @@ class Crypt:
         """
         _io = io.IO()
         content = _io.read(file, mode='rb+')
-        for i in range(self.iterations):
+        for _ in range(self.iterations):
             content = self._fernet.decrypt(content)
 
         return content
