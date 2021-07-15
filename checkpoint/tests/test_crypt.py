@@ -11,7 +11,7 @@ def test_generate_key():
         key_name = 'secret_key.key'
         invalid_key = 'secret_key.txt'
         key = crypt.generate_key(key_name, tdir)
-        
+
         with npt.assert_raises(ValueError):
             _ = crypt.generate_key(invalid_key, tdir)
 

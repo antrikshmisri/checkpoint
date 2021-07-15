@@ -77,6 +77,6 @@ class Crypt:
         content = self._io.read(file, mode='rb')
         for _ in range(self.iterations):
             content = self._fernet.decrypt(content)
-        
+
         self._io.write(file, 'wb', content)
         return content
