@@ -27,7 +27,7 @@ def test_io():
         s_io = io.IO(path=tdir, mode='s')
         with npt.assert_raises(IOError):
             s_io.write(file=pjoin(tdir, 'temp.txt'), mode='w', content="Invalid Permission")
-        
+
         with npt.assert_raises(IOError):
             s_io.read(file=pjoin(tdir, 'temp.txt'), mode='w')
 
