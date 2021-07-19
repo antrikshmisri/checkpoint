@@ -1,6 +1,7 @@
+import os
 from os.path import join as pjoin
 from os.path import isdir
-import os
+
 
 
 class IO:
@@ -61,7 +62,7 @@ class IO:
         """
         self.mode_mappings = {'a': [*'rwxa', 'wb+', 'w+', 'rb+'],
                               'm': [*'rwa', 'wb', 'rb'],
-                              's': [*'ra']}
+                              's': [*'ra', 'rb']}
 
         self.update_paths(self._path)
 
@@ -93,6 +94,11 @@ class IO:
         mode: str, optional
             Mode of operation
         """
+        if mode not in self.mode_mappings[self.mode]:
+            raise IOError(
+                f'Mode {mode} not allowed with IO mode {self.mode}'
+            )
+
         with open(file, mode) as f:
             content = f.read()
 
