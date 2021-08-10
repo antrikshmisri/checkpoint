@@ -1,6 +1,7 @@
 """Module that provides utility functions/classes."""
 from os import getcwd
 from os.path import isfile, dirname
+import json
 from checkpoint.io import IO
 from inspect import stack, getmodule
 
@@ -47,7 +48,7 @@ class Logger:
         self.log_mode = log_mode
         self.log_colors = LogColors()
 
-    def log(self, msg, color=None):
+    def log(self, msg, color=None, as_obj=False):
         """Log a message.
 
         Parameters
@@ -59,7 +60,10 @@ class Logger:
         """
         _callee = stack()[1]
         _mod = getmodule(_callee[0])
-        msg = f'[{_mod.__name__}]: {msg} \n'
+        if as_obj:
+            msg = {_mod.__file__: msg}
+        else:
+            msg = f'[{_mod.__file__}]: {msg} \n'
 
         if self.log_mode == 't':
             if color is None:
@@ -67,4 +71,9 @@ class Logger:
             else:
                 print(color + msg + LogColors.ENDC)
         elif self.log_mode == 'f':
-            self._io.write(self._handler, 'a', msg)
+            if not as_obj:
+                self._io.write(self._handler, 'a', msg)
+            else:
+                with self._io.open(self._handler, 'a') as f:
+                    json.dump(msg, f)
+                    f.write('\n')
