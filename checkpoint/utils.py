@@ -1,7 +1,9 @@
 """Module that provides utility functions/classes."""
+from os import getcwd
 from os.path import isfile, dirname
 from checkpoint.io import IO
 from inspect import stack, getmodule
+
 
 class LogColors:
     """Provides colors for terminal logs."""
@@ -36,7 +38,12 @@ class Logger:
             self._io_mode = 'm'
         
         self._handler = handler
-        self._io = IO(path=dirname(self._handler), mode=self._io_mode)
+        self._log_dir_path = dirname(self._handler)
+
+        if not self._log_dir_path:
+            self._log_dir_path = getcwd()
+
+        self._io = IO(path=self._log_dir_path, mode=self._io_mode)
         self.log_mode = log_mode
         self.log_colors = LogColors()
     
@@ -52,7 +59,7 @@ class Logger:
         """
         _callee = stack()[1]
         _mod = getmodule(_callee[0])
-        msg = f'[{_mod}]: {msg} \n'
+        msg = f'[{_mod.__name__}]: {msg} \n'
 
         if self.log_mode == 't':
             if color is None:
