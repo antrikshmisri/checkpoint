@@ -22,7 +22,7 @@ class Logger:
     """Provides logging utility functions."""
     def __init__(self, handler='logs.log', log_mode='t'):
         """Initialize the logger.
-        
+
         Parameters
         ----------
         handler : str
@@ -36,7 +36,7 @@ class Logger:
             self._io_mode = 'a'
         else:
             self._io_mode = 'm'
-        
+
         self._handler = handler
         self._log_dir_path = dirname(self._handler)
 
@@ -46,10 +46,10 @@ class Logger:
         self._io = IO(path=self._log_dir_path, mode=self._io_mode)
         self.log_mode = log_mode
         self.log_colors = LogColors()
-    
-    def _log(self, msg, color=None):
+
+    def log(self, msg, color=None):
         """Log a message.
-        
+
         Parameters
         ----------
         msg : str
@@ -68,4 +68,3 @@ class Logger:
                 print(color + msg + LogColors.ENDC)
         elif self.log_mode == 'f':
             self._io.write(self._handler, 'a', msg)
-
