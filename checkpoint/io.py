@@ -123,7 +123,7 @@ class IO:
 
         with open(file, mode) as f:
             f.write(content)
-    
+
     def open(self, file, mode):
         """Open a file in a given mode.
 

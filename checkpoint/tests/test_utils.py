@@ -9,14 +9,13 @@ from checkpoint import utils
 from checkpoint.io import IO
 
 
-
 @pytest.fixture
 def file_path(request):
     return str(request.node.fspath)
 
 
 def test_logger(capsys, file_path):
-    
+
     with InTemporaryDirectory() as tdir:
         log_file_path = pjoin(tdir, 'logs.log')
         log_message = 'This is a test message'
@@ -44,4 +43,3 @@ def test_logger(capsys, file_path):
         message += '\n'
         logged_message = io.read(pjoin(tdir, log_file_path))
         npt.assert_equal(logged_message, message)
-
