@@ -21,25 +21,25 @@ class LogColors:
 
 class Logger:
     """Provides logging utility functions."""
-    def __init__(self, handler='logs.log', log_mode='t'):
+    def __init__(self, file_path='logs.log', log_mode='t'):
         """Initialize the logger.
 
         Parameters
         ----------
-        handler : str
+        file_path : str
             Path to the log file.
-        mode : str
+        log_mode : str
             Log mode, can take values `t` or `f`.
             `t`: log in terminal
             `f`: log in file
         """
-        if not isfile(handler):
+        if not isfile(file_path):
             self._io_mode = 'a'
         else:
             self._io_mode = 'm'
 
-        self._handler = handler
-        self._log_dir_path = dirname(self._handler)
+        self._file_path = file_path
+        self._log_dir_path = dirname(self._file_path)
 
         if not self._log_dir_path:
             self._log_dir_path = getcwd()
@@ -57,6 +57,8 @@ class Logger:
             Message to log.
         color : str
             Escape sequence of the color.
+        as_obj : bool
+            If True, the message will be logged as an object.
         """
         _callee = stack()[1]
         _mod = getmodule(_callee[0])
@@ -72,8 +74,8 @@ class Logger:
                 print(color + msg + LogColors.ENDC)
         elif self.log_mode == 'f':
             if not as_obj:
-                self._io.write(self._handler, 'a', msg)
+                self._io.write(self._file_path, 'a', msg)
             else:
-                with self._io.open(self._handler, 'a') as f:
+                with self._io.open(self._file_path, 'a') as f:
                     json.dump(msg, f)
                     f.write('\n')
