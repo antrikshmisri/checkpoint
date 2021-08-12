@@ -25,6 +25,10 @@ def test_io():
 
         npt.assert_equal(content, 'Temporary File')
         file_path = pjoin(tdir, 'temp.txt')
+
+        with npt.assert_raises(ValueError):
+            _ = a_io.open(file_path, mode='invalid mode')
+
         content = a_io.open(file_path, mode='r').read()
         npt.assert_equal(content, 'Temporary File')
 
