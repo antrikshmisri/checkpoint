@@ -1,3 +1,4 @@
+from checkpoint.tests.test_utils import file_path
 from checkpoint import io
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 from os.path import join as pjoin
@@ -22,6 +23,9 @@ def test_io():
         a_io.write(file=pjoin(tdir, 'temp.txt'), mode='x', content='Temporary File')
         content = a_io.read(file=pjoin(tdir, 'temp.txt'))
 
+        npt.assert_equal(content, 'Temporary File')
+        file_path = pjoin(tdir, 'temp.txt')
+        content = a_io.open(file_path, mode='r').read()
         npt.assert_equal(content, 'Temporary File')
 
         s_io = io.IO(path=tdir, mode='s')
