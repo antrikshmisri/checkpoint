@@ -1,10 +1,10 @@
-from checkpoint.tests.test_utils import file_path
-from checkpoint import io
-from tempfile import TemporaryDirectory as InTemporaryDirectory
-from os.path import join as pjoin
 import os
+from os.path import join as pjoin
 import numpy.testing as npt
 from shutil import rmtree
+from tempfile import TemporaryDirectory as InTemporaryDirectory
+from checkpoint import io
+
 
 def test_io():
 
