@@ -124,6 +124,23 @@ class IO:
         with open(file, mode) as f:
             f.write(content)
 
+    def open(self, file, mode):
+        """Open a file in a given mode.
+
+        Parameters
+        ----------
+        file: str
+            Name of the file
+        mode: str
+            Mode of operation
+        """
+        if mode not in self.mode_mappings[self.mode]:
+            raise IOError(
+                f'Mode {mode} not allowed with IO mode {self.mode}'
+            )
+
+        return open(file, mode)
+
     @property
     def path(self):
         return self._path
