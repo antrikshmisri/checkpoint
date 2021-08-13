@@ -60,18 +60,17 @@ class Logger:
         as_obj : bool
             If True, the message will be logged as an object.
         """
-        _callee = stack()[1]
-        _mod = getmodule(_callee[0])
+        _caller = stack()[1]
+        _mod = getmodule(_caller[0])
+
+        color = color or self.log_colors.SUCCESS
         if as_obj:
             msg = {_mod.__file__: msg}
         else:
             msg = f'[{_mod.__file__}]: {msg} \n'
 
         if self.log_mode == 't':
-            if color is None:
-                print(msg)
-            else:
-                print(color + msg + LogColors.ENDC)
+            print(f'{color}{msg}{self.log_colors.ENDC}')
         elif self.log_mode == 'f':
             if not as_obj:
                 self._io.write(self._file_path, 'a', msg)
