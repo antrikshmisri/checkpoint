@@ -36,7 +36,6 @@ class Sequence:
             print(f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}')
 
         self.sequence_dict[order] = func
-        self.update_order()
 
     def execute_sequence(self, execution_policy='decreasing_order'):
         """Execute all functions in the current sequence.
@@ -47,6 +46,7 @@ class Sequence:
             The policy to be followed while executing the functions.
             Possible values are 'increasing_order' or 'decreasing_order'.
         """
+        self.update_order()
         if execution_policy == 'decreasing_order':
             _sorted_sequence = sorted(self.sequence_dict.items(), reverse=True)
             for func_obj in _sorted_sequence:
