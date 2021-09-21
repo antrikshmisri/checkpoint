@@ -120,9 +120,3 @@ class CLISequence(Sequence):
             _name = func.__name__
             _order = self.order_dict[_name]
             self.add_sequence_function(func, _order)
-    
-    def seq_test_function(self):
-        print('This is seq_test_function')
-    
-    def seq_test_two_function(self):
-        print('This is seq_test_two_function')
