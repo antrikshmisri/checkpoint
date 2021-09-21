@@ -21,8 +21,8 @@ class LogColors:
 
     @property
     def colors(self):
-        return [f'{obj[0]}: {[obj[1]]}' for obj in vars(self).items()\
-             if not obj[0].startswith('__')]
+        return [f'{obj[0]}: {[obj[1]]}' for obj in vars(self).items()
+                if not obj[0].startswith('__')]
 
 
 
@@ -64,7 +64,7 @@ class Logger:
         msg : str
             Message to log.
         color : str
-            Escape sequence of the color.    
+            Escape sequence of the color.
         as_obj : bool
             If True, the message will be logged as an object.
         timestamp : bool
