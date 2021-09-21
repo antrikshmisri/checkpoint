@@ -2,6 +2,7 @@
 from os import getcwd
 from os.path import isfile, dirname
 import json
+from datetime import datetime
 from inspect import stack, getmodule
 from checkpoint.io import IO
 
@@ -17,6 +18,12 @@ class LogColors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+    @property
+    def colors(self):
+        return [f'{obj[0]}: {[obj[1]]}' for obj in vars(self).items()\
+             if not obj[0].startswith('__')]
+
 
 
 class Logger:
@@ -48,7 +55,8 @@ class Logger:
         self.log_mode = log_mode
         self.log_colors = LogColors()
 
-    def log(self, msg, color=None, as_obj=False):
+    def log(self, msg, color=None, as_obj=False, timestamp=False,
+            log_caller=False):
         """Log a message.
 
         Parameters
@@ -56,18 +64,24 @@ class Logger:
         msg : str
             Message to log.
         color : str
-            Escape sequence of the color.
+            Escape sequence of the color.    
         as_obj : bool
             If True, the message will be logged as an object.
+        timestamp : bool
+            If True, the current time will be added to the message.
+        log_caller : bool
+            If True, the current function name will be added to the message.
         """
+
         _caller = stack()[1]
-        _mod = getmodule(_caller[0])
+        _file = getmodule(_caller[0]).__file__ * log_caller
+        _timestamp = datetime.now().strftime('%H:%M:%S') * timestamp
 
         color = color or self.log_colors.SUCCESS
         if as_obj:
-            msg = {_mod.__file__: msg}
+            msg = {(_file, _timestamp): msg}
         else:
-            msg = f'[{_mod.__file__}]: {msg} \n'
+            msg = f'[{_file}, {_timestamp}]: {msg} \n'
 
         if self.log_mode == 't':
             print(f'{color}{msg}{self.log_colors.ENDC}')
@@ -76,5 +90,9 @@ class Logger:
                 self._io.write(self._file_path, 'a', msg)
             else:
                 with self._io.open(self._file_path, 'a') as f:
-                    json.dump(msg, f)
+                    _msg_key = list(msg.keys())[0][0]
+                    _msg_val = list(msg.values())[0]
+                    _msg = {_msg_key: _msg_val}
+
+                    json.dump(_msg, f)
                     f.write('\n')
