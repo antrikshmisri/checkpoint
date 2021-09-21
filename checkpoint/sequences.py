@@ -51,7 +51,7 @@ class Sequence:
             _sorted_sequence = sorted(self.sequence_dict.items(), reverse=True)
             for func_obj in _sorted_sequence:
                 func_obj[1]()
-            self.on_sequence_end(self) 
+            self.on_sequence_end(self)
         elif execution_policy == 'increasing_order':
             for _, func in self.sequence_dict.items():
                 func()
