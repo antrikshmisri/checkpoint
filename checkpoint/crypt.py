@@ -26,8 +26,7 @@ def generate_key(name, path=os.getcwd()):
 
 
 class Crypt:
-    """Class to perform cryptographical operations
-    """
+    """Class to perform cryptographical operations"""
     def __init__(self, key, key_path=os.getcwd(), iterations=1):
         """Initialize the class
 
@@ -51,32 +50,40 @@ class Crypt:
         self.iterations = iterations
         self._fernet = Fernet(self.key)
 
-    def encrypt(self, file):
+    def encrypt(self, file, modify_file=False):
         """Encrypt a specific file
 
         Parameters
         ----------
         file: str
             Path to the file that isto be encrypted
+        modify_file: bool, optional
+            If True, the hash will be written in the target file
         """
         content = self._io.read(file, mode='rb')
         for _ in range(self.iterations):
             content = self._fernet.encrypt(content)
 
-        self._io.write(file, 'wb', content)
+        if modify_file:
+            self._io.write(file, 'wb', content)
+
         return content
 
-    def decrypt(self, file):
+    def decrypt(self, file, modify_file=False):
         """Decrypt a specific file
 
         Parameters
         ----------
         file: str
             Path to the file that isto be decrypted
+        modify_file: bool, optional
+            If True, the hash will be written in the target file
         """
         content = self._io.read(file, mode='rb')
         for _ in range(self.iterations):
             content = self._fernet.decrypt(content)
 
-        self._io.write(file, 'wb', content)
+        if modify_file:
+            self._io.write(file, 'wb', content)
+
         return content
