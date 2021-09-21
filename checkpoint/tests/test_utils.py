@@ -30,15 +30,15 @@ def test_logger(capsys, file_path):
 
         io = IO(path=tdir, mode='s')
 
-        file_logger.log(msg=log_message)
-        message = f'[{file_path}]: {log_message} \n'
+        file_logger.log(msg=log_message, log_caller=True)
+        message = f'[{file_path}, ]: {log_message} \n'
         logged_message = io.read(pjoin(tdir, log_file_path))
         npt.assert_equal(logged_message, message)
 
         io.mode = 'a'
         io.open(pjoin(tdir, log_file_path), 'w').close()
 
-        file_logger.log(msg=log_message, as_obj=True)
+        file_logger.log(msg=log_message, as_obj=True, log_caller=True)
         message = json.dumps({file_path: log_message})
         message += '\n'
         logged_message = io.read(pjoin(tdir, log_file_path))
