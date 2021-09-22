@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from types import MethodType
+from itertools import count
 
 
 class Sequence:
@@ -19,6 +20,11 @@ class Sequence:
         # User hook that is triggered when the sequence has finished
         self.on_sequence_end = lambda seq: None
 
+    def __repr__(self):
+        """Return the string representation of the Sequence."""
+        _member_functions = [_func.__name__ for _func in self.sequence_dict.values()]
+        return f'Name: {self.name}, Member Function: {_member_functions}'
+
     def add_sequence_function(self, func, order=0):
         """Add a member function to the sequence.
 
@@ -36,6 +42,23 @@ class Sequence:
             print(f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}')
 
         self.sequence_dict[order] = func
+
+    def add_sub_sequence(self, sequence, order=0):
+        """Add a sub sequence to the current sequence.
+        
+        Parameter
+        ---------
+        sequence: :class: `Sequence`
+            The sub sequence that is to be added
+        order: int, optional
+            The order of the sub sequence in the sequence
+        """
+        if not isinstance(sequence, Sequence):
+            raise TypeError('Sub sequence must be of type Sequence')
+
+        _iterator = (count(start=order, step=1))
+        for func_obj in sequence.sequence_dict.items():
+            self.add_sequence_function(func_obj[1], order=next(_iterator))
 
     def execute_sequence(self, execution_policy='decreasing_order'):
         """Execute all functions in the current sequence.
@@ -70,6 +93,10 @@ class Sequence:
     def update_order(self):
         """Update the order of sequence functions in sequence dict."""
         self.sequence_dict = OrderedDict(sorted(self.sequence_dict.items()))
+    
+    def flush_sequence(self):
+        """Flush the sequence."""
+        self.sequence_dict.clear()
 
     @property
     def name(self):
@@ -112,6 +139,8 @@ class CLISequence(Sequence):
 
     def get_sequence_functions(self):
         """Get all the sequence functions."""
+        self.sequence_functions.clear()
+
         for name in dir(self):
             if name.startswith('seq') and isinstance(getattr(self, name), MethodType):
                 _func = getattr(self, name)
@@ -128,9 +157,3 @@ class CLISequence(Sequence):
             _name = func.__name__
             _order = self.order_dict[_name]
             self.add_sequence_function(func, _order)
-
-    def seq_test_one(self):
-        return 'seq_test_one'
-    
-    def seq_test_two(self):
-        return 'seq_test_two'
