@@ -64,7 +64,7 @@ class Sequence:
             self.on_sequence_end(self)
         else:
             raise ValueError(f'{execution_policy} is an invalid execution policy')
-        
+
         return _return_values
 
     def update_order(self):
