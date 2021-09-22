@@ -47,17 +47,25 @@ class Sequence:
             Possible values are 'increasing_order' or 'decreasing_order'.
         """
         self.update_order()
+        _return_values = []
+
         if execution_policy == 'decreasing_order':
             _sorted_sequence = sorted(self.sequence_dict.items(), reverse=True)
             for func_obj in _sorted_sequence:
-                func_obj[1]()
+                _return_value = func_obj[1]()
+                _return_values.append(_return_value)
             self.on_sequence_end(self)
+
         elif execution_policy == 'increasing_order':
             for _, func in self.sequence_dict.items():
-                func()
+                _return_value = func()
+                _return_values.append(_return_value)
+
             self.on_sequence_end(self)
         else:
             raise ValueError(f'{execution_policy} is an invalid execution policy')
+        
+        return _return_values
 
     def update_order(self):
         """Update the order of sequence functions in sequence dict."""
@@ -120,3 +128,9 @@ class CLISequence(Sequence):
             _name = func.__name__
             _order = self.order_dict[_name]
             self.add_sequence_function(func, _order)
+
+    def seq_test_one(self):
+        return 'seq_test_one'
+    
+    def seq_test_two(self):
+        return 'seq_test_two'
