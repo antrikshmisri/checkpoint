@@ -45,7 +45,7 @@ class Sequence:
 
     def add_sub_sequence(self, sequence, order=0):
         """Add a sub sequence to the current sequence.
-        
+
         Parameter
         ---------
         sequence: :class: `Sequence`
@@ -93,7 +93,7 @@ class Sequence:
     def update_order(self):
         """Update the order of sequence functions in sequence dict."""
         self.sequence_dict = OrderedDict(sorted(self.sequence_dict.items()))
-    
+
     def flush_sequence(self):
         """Flush the sequence."""
         self.sequence_dict.clear()
