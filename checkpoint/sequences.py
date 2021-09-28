@@ -1,21 +1,30 @@
+import os
 from collections import OrderedDict
 from types import MethodType
 from itertools import count
+from tempfile import TemporaryDirectory as InTemporaryDirectory
 
 
 class Sequence:
     """Class to represent a sequence of operations."""
-    def __init__(self, sequence_name):
+    def __init__(self, sequence_name, order_dict=None):
         """Initialize the sequence class.
 
         Parameters
         ----------
         sequence_name: str
             Name of the sequence.
+        order_dict: dict, optional
+            Dictionary of function names and their order in the sequence.
         """
         self.sequence_name = sequence_name
         self.sequence_dict = OrderedDict()
+        self.order_dict = order_dict or {}
+
         self._sequence_functions = self.sequence_dict.items()
+        self.sequence_functions = []
+
+        self.get_sequence_functions()
 
         # User hook that is triggered when the sequence has finished
         self.on_sequence_end = lambda seq: None
@@ -60,7 +69,7 @@ class Sequence:
         for func_obj in sequence.sequence_dict.items():
             self.add_sequence_function(func_obj[1], order=next(_iterator))
 
-    def execute_sequence(self, execution_policy='decreasing_order'):
+    def execute_sequence(self, execution_policy='decreasing_order', pass_args=False):
         """Execute all functions in the current sequence.
 
         Parameters
@@ -68,6 +77,8 @@ class Sequence:
         execution_policy: str
             The policy to be followed while executing the functions.
             Possible values are 'increasing_order' or 'decreasing_order'.
+        pass_args: bool
+            If True, the arguments of the executed function will be passed to the next function.
         """
         self.update_order()
         _return_values = []
@@ -75,13 +86,21 @@ class Sequence:
         if execution_policy == 'decreasing_order':
             _sorted_sequence = sorted(self.sequence_dict.items(), reverse=True)
             for func_obj in _sorted_sequence:
-                _return_value = func_obj[1]()
+                if pass_args:
+                    _return_value = func_obj[1](_return_values[-1])
+                else:
+                    _return_value = func_obj[1]()
+
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
 
         elif execution_policy == 'increasing_order':
             for _, func in self.sequence_dict.items():
-                _return_value = func()
+                if pass_args:
+                    _return_value = func(_return_values[-1])
+                else:
+                    _return_value = func()
+
                 _return_values.append(_return_value)
 
             self.on_sequence_end(self)
@@ -97,45 +116,6 @@ class Sequence:
     def flush_sequence(self):
         """Flush the sequence."""
         self.sequence_dict.clear()
-
-    @property
-    def name(self):
-        return self.sequence_name
-
-    @property
-    def sequence_functions(self):
-        return self._sequence_functions
-
-    @sequence_functions.setter
-    def sequence_functions(self, functions):
-        """Set the value of sequence functions to a list.
-
-        Parameters
-        ----------
-        functions: list of methods
-            List of methods that are to be assigned
-        """
-        self._sequence_functions = functions[:]
-
-
-class CLISequence(Sequence):
-    """Sequence for the CLI environment."""
-    def __init__(self, sequence_name='CLI_Sequence', order_dict=None):
-        """Initialize the CLISequence class.
-
-        Parameters
-        ----------
-        sequence_name: str
-            Name of the sequence.
-        order_dict: dict
-            Dictionary of the order of the functions in the sequence.
-        """
-        super(CLISequence, self).__init__(sequence_name=sequence_name)
-
-        self.sequence_functions = []
-        self.order_dict = order_dict or {}
-
-        self.get_sequence_functions()
 
     def get_sequence_functions(self):
         """Get all the sequence functions."""
@@ -157,3 +137,112 @@ class CLISequence(Sequence):
             _name = func.__name__
             _order = self.order_dict[_name]
             self.add_sequence_function(func, _order)
+
+    @property
+    def name(self):
+        return self.sequence_name
+
+    @property
+    def sequence_functions(self):
+        return self._sequence_functions
+
+    @sequence_functions.setter
+    def sequence_functions(self, functions):
+        """Set the value of sequence functions to a list.
+
+        Parameters
+        ----------
+        functions: list of methods
+            List of methods that are to be assigned
+        """
+        self._sequence_functions = functions[:]
+
+
+class IOSequence(Sequence):
+    """Class to represent a sequence of IO operations."""
+    def __init__(self, sequence_name='IO_Sequence', order_dict=None, root_dir=None):
+        """Initialize the IO sequence class.
+
+        Parameters
+        ----------
+        sequence_name: str
+            Name of the sequence.
+        order_dict: dict, optional
+            Dictionary of function names and their order in the sequence.
+        root_dir: str, optional
+            The root directory.
+        """
+        super(IOSequence, self).__init__(sequence_name, order_dict)
+        self.root_dir = root_dir or os.getcwd()
+
+    def seq_walk_directories(self):
+        """Walk through all directories in the root directory.
+
+        Parameters
+        ----------
+        root_directory: str
+            The root directory to be walked through.
+        """
+        directory2files = {}
+        for root, dirs, files in os.walk(self.root_dir):
+            for _file in files:
+                _file = os.path.basename(_file)
+                directory2files[root] = os.path.join(root, _file)
+        
+        return directory2files
+    
+    def seq_group_files(self, directory2files):
+        """Group files in the same directory.
+
+        Parameters
+        ----------
+        directory2files: dict
+            Dictionary of directory names and their files.
+        """
+        extensions_dict = {}
+
+        for files in directory2files.items():
+            file = os.path.basename(files[1])
+            extension = file.split('.')[-1]
+
+            if extension not in extensions_dict:
+                extensions_dict[extension] = []
+            else:
+                extensions_dict[extension].append(file)
+
+        return extensions_dict
+    
+    def seq_filter_files(self, extensions_dict):
+        """Filter the files that are not readable.
+        
+        Parameters
+        ----------
+        extension_dict: dict
+            Dictionary containing extensions and files
+        """
+        with InTemporaryDirectory() as tdir:
+            for extension in extensions_dict:
+                file_name = f'temp.{extension}'
+                with open(file_name, 'w+') as f:
+                    try:
+                        f.write('test')
+                    except UnicodeEncodeError:
+                        del extensions_dict[extension]
+                        continue
+        
+        return extensions_dict
+
+
+class CLISequence(Sequence):
+    """Sequence for the CLI environment."""
+    def __init__(self, sequence_name='CLI_Sequence', order_dict=None):
+        """Initialize the CLISequence class.
+
+        Parameters
+        ----------
+        sequence_name: str
+            Name of the sequence.
+        order_dict: dict
+            Dictionary of the order of the functions in the sequence.
+        """
+        super(CLISequence, self).__init__(sequence_name=sequence_name)
