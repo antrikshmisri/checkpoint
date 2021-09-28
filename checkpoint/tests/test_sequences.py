@@ -48,3 +48,15 @@ def test_sequence():
     simple_sequence.sequence_functions = [seq_test_sequence_function]
     npt.assert_equal(simple_sequence.sequence_functions[0],
                      seq_test_sequence_function)
+
+    class SequenceMemeberMethods(Sequence):
+        def __init__(self, sequence_name="Sequence_With_Member_Methods",
+                     order_dict={'seq_test_method': 100}):
+            super(SequenceMemeberMethods, self).__init__(sequence_name, order_dict)
+        
+        def seq_test_method(self):
+            return f"Memeber function of {self.name}"
+    
+    sequence_with_member_methods = SequenceMemeberMethods()
+    npt.assert_equal(sequence_with_member_methods.sequence_dict[100],
+                     sequence_with_member_methods.seq_test_method)
