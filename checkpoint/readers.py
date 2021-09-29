@@ -101,7 +101,7 @@ class TextReader(Reader):
         self.additional_extensions = additional_extensions or []
         super(TextReader, self).__init__(['txt', 'md', 'rst', 'py',
                                           'html', 'css', 'js', 'json'])
-        
+
         _invalid_idxs = self.validate_extensions(self.additional_extensions)
         for idx in _invalid_idxs:
             self.additional_extensions.pop(idx)
