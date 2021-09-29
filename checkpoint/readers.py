@@ -123,7 +123,7 @@ class TextReader(Reader):
 
     def _validate_extensions(self, extensions):
         """Validate if the extensions work with the current reader.
-        
+
         Parameters
         ----------
         extensions: list
