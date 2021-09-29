@@ -38,7 +38,7 @@ def test_reader():
 
 
 def test_text_reader():
-    simple_text_reader = readers.TextReader(additional_extensions=['txt'])
+    simple_text_reader = readers.TextReader(additional_extensions=['json'])
 
     with InTemporaryDirectory() as tdir:
         invalid_file = pjoin(tdir, 'invalid.extension')
@@ -54,6 +54,6 @@ def test_text_reader():
         npt.assert_equal(simple_text_reader.read(valid_file), 'Test Content')
 
         valid_extensions = ['txt', 'log']
-        invalid_idxs = simple_text_reader.validate_extensions(valid_extensions)
+        simple_text_reader.validate_extensions(valid_extensions)
 
-        npt.assert_equal(invalid_idxs, [])
+        npt.assert_equal(valid_extensions, ['txt', 'log'])
