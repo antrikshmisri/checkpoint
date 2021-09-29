@@ -102,10 +102,7 @@ class TextReader(Reader):
         super(TextReader, self).__init__(['txt', 'md', 'rst', 'py',
                                           'html', 'css', 'js', 'json'])
 
-        _invalid_idxs = self.validate_extensions(self.additional_extensions)
-        for idx in _invalid_idxs:
-            self.additional_extensions.pop(idx)
-
+        self.validate_extensions(self.additional_extensions)
         self.valid_extensions.extend(self.additional_extensions)
 
     def _read(self, file_path):
@@ -126,16 +123,11 @@ class TextReader(Reader):
 
     def _validate_extensions(self, extensions):
         """Validate if the extensions work with the current reader.
-
+        
         Parameters
         ----------
         extensions: list
             List of extensions to be validated
-
-        Returns
-        -------
-        invalid_idxs: list
-            List of indices of invalid extensions
         """
         invalid_idxs = []
         with InTemporaryDirectory() as tdir:
@@ -150,4 +142,5 @@ class TextReader(Reader):
                 except Exception as e:
                     invalid_idxs.append(idx)
 
-        return invalid_idxs
+        for idx in invalid_idxs:
+            extensions.pop(idx)
