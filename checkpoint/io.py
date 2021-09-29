@@ -142,7 +142,7 @@ class IO:
 
     def get_file_extension(self, file_path):
         """Get the extension from the file.
-        
+
         Parameters
         ----------
         file_path: str
