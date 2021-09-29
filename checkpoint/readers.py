@@ -46,8 +46,8 @@ class Reader(abc.ABC):
 
         Returns
         -------
-        is_valid: bool
-            True if the extensions are valid, False otherwise
+        invalid_idxs: list
+            List of indices of invalid extensions
         """
         msg = "This method must be implemented by the child class."
         raise NotImplementedError(msg)
@@ -82,8 +82,8 @@ class Reader(abc.ABC):
 
         Returns
         -------
-        is_valid: bool
-            True if the extensions are valid, False otherwise
+        invalid_idxs: list
+            List of indices of invalid extensions
         """
         return self._validate_extensions(extensions)
 
@@ -98,14 +98,15 @@ class TextReader(Reader):
         additional_extensions: list
             List of additional extensions that are valid for the reader
         """
-        self.valid_extensions = ['txt', 'md', 'rst', 'py',
-                                 'html', 'css', 'js', 'json']
-
         self.additional_extensions = additional_extensions or []
-        if self.validate_extensions(self.additional_extensions):
-            self.valid_extensions.extend(self.additional_extensions)
+        super(TextReader, self).__init__(['txt', 'md', 'rst', 'py',
+                                          'html', 'css', 'js', 'json'])
+        
+        _invalid_idxs = self.validate_extensions(self.additional_extensions)
+        for idx in _invalid_idxs:
+            self.additional_extensions.pop(idx)
 
-        super(TextReader, self).__init__(self.valid_extensions)
+        self.valid_extensions.extend(self.additional_extensions)
 
     def _read(self, file_path):
         """Read the content of the file.
@@ -120,10 +121,8 @@ class TextReader(Reader):
         content: str
             Content of the file
         """
-        with open(file_path, 'r') as f:
-            content = f.read()
 
-        return content
+        return self._io.read(file_path, mode='r')
 
     def _validate_extensions(self, extensions):
         """Validate if the extensions work with the current reader.
@@ -135,11 +134,12 @@ class TextReader(Reader):
 
         Returns
         -------
-        valid: bool
-            True if the extensions are valid, False otherwise
+        invalid_idxs: list
+            List of indices of invalid extensions
         """
+        invalid_idxs = []
         with InTemporaryDirectory() as tdir:
-            for extension in extensions:
+            for idx, extension in enumerate(extensions):
                 file_name = f"file.{extension}"
                 file_path = os.path.join(tdir, file_name)
                 with open(file_path, 'w+') as f:
@@ -148,6 +148,6 @@ class TextReader(Reader):
                 try:
                     self._read(file_path)
                 except Exception as e:
-                    return False
+                    invalid_idxs.append(idx)
 
-        return True
+        return invalid_idxs
