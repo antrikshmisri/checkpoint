@@ -22,9 +22,12 @@ def test_io():
         a_io = io.IO(path=tdir, mode='a')
         a_io.write(file=pjoin(tdir, 'temp.txt'), mode='x', content='Temporary File')
         ext = a_io.get_file_extension(pjoin(tdir, 'temp.txt'))
+        
+        with npt.assert_raises(OSError):
+            a_io.get_file_extension(pjoin(tdir, 'invalid.txt'))
         npt.assert_equal(ext, 'txt')
-        content = a_io.read(file=pjoin(tdir, 'temp.txt'))
 
+        content = a_io.read(file=pjoin(tdir, 'temp.txt'))
         npt.assert_equal(content, 'Temporary File')
         file_path = pjoin(tdir, 'temp.txt')
 
