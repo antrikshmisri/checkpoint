@@ -3,7 +3,6 @@ from os.path import join as pjoin
 from os.path import isdir
 
 
-
 class IO:
     """Class to perform Input/Output opreations.
 
@@ -140,6 +139,22 @@ class IO:
             )
 
         return open(file, mode)
+
+    def get_file_extension(self, file_path):
+        """Get the extension from the file.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to the file
+        """
+        if not os.path.isfile(file_path):
+            raise IOError(
+                f'{file_path} is not a valid file'
+            )
+
+        _file = os.path.basename(file_path)
+        return _file.split('.')[-1]
 
     @property
     def path(self):
