@@ -5,6 +5,7 @@ import json
 from datetime import datetime
 from inspect import stack, getmodule
 from checkpoint.io import IO
+from checkpoint.readers import get_all_readers
 
 
 class LogColors:
@@ -96,3 +97,26 @@ class Logger:
 
                     json.dump(_msg, f)
                     f.write('\n')
+
+
+def get_reader_by_extension(extension):
+    """Get the reader by an extension.
+    
+    Parameters
+    ----------
+    extension : str
+        Extension of the file.
+    
+    Returns
+    -------
+    reader: :class: `checkpoint.readers.Reader`
+        Reader class.
+    """
+    readers = get_all_readers()
+
+    for reader in readers:
+        reader_obj = reader()
+        if extension in reader_obj.valid_extensions:
+            return reader_obj
+    
+    print(f'No reader found for {extension}, skipping...')
