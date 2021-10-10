@@ -2,7 +2,13 @@ import os
 from collections import OrderedDict
 from types import MethodType
 from itertools import count
-from tempfile import TemporaryDirectory as InTemporaryDirectory
+
+from multiprocessing import cpu_count
+from joblib import Parallel, delayed
+
+from checkpoint.utils import get_reader_by_extension
+from checkpoint.io import IO
+from checkpoint.crypt import Crypt
 
 
 class Sequence:
@@ -87,7 +93,10 @@ class Sequence:
             _sorted_sequence = sorted(self.sequence_dict.items(), reverse=True)
             for func_obj in _sorted_sequence:
                 if pass_args:
-                    _return_value = func_obj[1](_return_values[-1])
+                    if len(_return_values) > 0:
+                        _return_value = func_obj[1](_return_values[-1])
+                    else:
+                        _return_value = func_obj[1]()
                 else:
                     _return_value = func_obj[1]()
 
@@ -160,7 +169,8 @@ class Sequence:
 
 class IOSequence(Sequence):
     """Class to represent a sequence of IO operations."""
-    def __init__(self, sequence_name='IO_Sequence', order_dict=None, root_dir=None):
+    def __init__(self, sequence_name='IO_Sequence', order_dict=None,
+                 root_dir=None, ignore_dirs=None, num_cores=None):
         """Initialize the IO sequence class.
 
         Parameters
@@ -171,9 +181,26 @@ class IOSequence(Sequence):
             Dictionary of function names and their order in the sequence.
         root_dir: str, optional
             The root directory.
+        ignore_dirs: list of str, optional
+            List of directories to be ignored.
+        num_cores: int, optional
+            Number of cores to be used for parallel processing.
         """
-        super(IOSequence, self).__init__(sequence_name, order_dict)
+        self.default_order_dict = {
+            'seq_walk_directories': 4,
+            'seq_group_files': 3,
+            'seq_map_readers': 2,
+            'seq_read_files': 1,
+            'seq_encrypt_files': 0,
+            }
+
+        super(IOSequence, self).__init__(sequence_name,
+                                         order_dict or self.default_order_dict)
+
         self.root_dir = root_dir or os.getcwd()
+        self.ignore_dirs = ignore_dirs or []
+        self.io = IO(self.root_dir, ignore_dirs=self.ignore_dirs)
+        self.num_cores = num_cores or cpu_count()
 
     def seq_walk_directories(self):
         """Walk through all directories in the root directory.
@@ -184,13 +211,14 @@ class IOSequence(Sequence):
             The root directory to be walked through.
         """
         directory2files = {}
-        for root, dirs, files in os.walk(self.root_dir):
-            for _file in files:
-                _file = os.path.basename(_file)
-                directory2files[root] = os.path.join(root, _file)
-        
+        for root, file in self.io.walk_directory():
+            if root in directory2files:
+                directory2files[root].append(os.path.join(root, file))
+            else:
+                directory2files[root] = []
+
         return directory2files
-    
+
     def seq_group_files(self, directory2files):
         """Group files in the same directory.
 
@@ -202,35 +230,78 @@ class IOSequence(Sequence):
         extensions_dict = {}
 
         for files in directory2files.items():
-            file = os.path.basename(files[1])
-            extension = file.split('.')[-1]
+            for file in files[1]:
+                base_file = os.path.basename(file)
+                extension = base_file.split('.')[-1]
 
-            if extension not in extensions_dict:
-                extensions_dict[extension] = []
-            else:
-                extensions_dict[extension].append(file)
+                if extension not in extensions_dict:
+                    extensions_dict[extension] = [file]
+                else:
+                    extensions_dict[extension].append(file)
 
         return extensions_dict
-    
-    def seq_filter_files(self, extensions_dict):
-        """Filter the files that are not readable.
+
+    def seq_map_readers(self, extensions_dict):
+        """Map the extensions to their respective Readers.
+
+        Parameters
+        ----------
+        extensions_dict: dict
+            Dictionary of extensions and their files.
+
+        Returns
+        -------
+        dict
+            Dictionary of extensions and their Readers.
+        """
+        _readers = {}
+        for extension, _ in extensions_dict.items():
+            _readers[extension] = get_reader_by_extension(extension)
+
+        return [_readers, extensions_dict]
+
+    def seq_read_files(self, readers_extension):
+        """Read the gathered files using their respective reader.
+
+        Parameters
+        ----------
+        readers_extension: list
+            Readers dict and extensions dict packed in a list.
+
+        Returns
+        -------
+        dict
+            Dictionary of files and their content.
+        """
+        readers_dict, extension_dict = readers_extension
+
+        contents = \
+            Parallel(self.num_cores)(delayed(readers_dict[ext].read)(files) for (ext, files) in
+                                     extension_dict.items())
+        return contents
+
+    def seq_encrypt_files(self, contents):
+        """Encrypt the read files.
         
         Parameters
         ----------
-        extension_dict: dict
-            Dictionary containing extensions and files
-        """
-        with InTemporaryDirectory() as tdir:
-            for extension in extensions_dict:
-                file_name = f'temp.{extension}'
-                with open(file_name, 'w+') as f:
-                    try:
-                        f.write('test')
-                    except UnicodeEncodeError:
-                        del extensions_dict[extension]
-                        continue
+        contents: dict
+            Dictionary of file paths and their content.
         
-        return extensions_dict
+        Returns
+        -------
+        dict
+            Dictionary of file paths and their encrypted content.
+        """
+        # TODO: Parallelize this
+        _checkpoint_path = self.io.make_dir('.checkpoint')
+        crypt_obj = Crypt(key='crypt.key', key_path=_checkpoint_path)
+
+        for content in contents:
+            path = list(content[0].items())[0][0]
+            content[0][path] = crypt_obj.encrypt(path)
+        
+        return contents
 
 
 class CLISequence(Sequence):
