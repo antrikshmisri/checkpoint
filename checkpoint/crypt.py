@@ -67,7 +67,7 @@ class Crypt:
         if modify_file:
             self._io.write(file, 'wb', content)
 
-        return content
+        return content.decode('utf-8')
 
     def decrypt(self, file, modify_file=False):
         """Decrypt a specific file
