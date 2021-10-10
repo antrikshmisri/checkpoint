@@ -1,11 +1,23 @@
 """Module that provides readers for different file extensions."""
-import os
+import sys
+from inspect import getmembers
 import abc
-from tempfile import TemporaryDirectory as InTemporaryDirectory
+from multiprocessing import cpu_count
+from joblib import Parallel, delayed
 from checkpoint.io import IO
 
 
-class Reader(abc.ABC):
+def get_all_readers():
+    """Get all the readers from the module."""
+    readers = []
+    for _, name in getmembers(sys.modules[__name__]):
+        if isinstance(name, abc.ABCMeta) and name.__name__ != 'Reader':
+            readers.append(name)
+
+    return readers
+
+
+class Reader(metaclass=abc.ABCMeta):
     """Umbrella for all reader classes."""
     def __init__(self, valid_extensions=None):
         """Initialize the Reader class.
@@ -17,6 +29,7 @@ class Reader(abc.ABC):
         """
         self._io = IO()
         self.valid_extensions = valid_extensions or []
+        self.num_cores = cpu_count()
 
     @abc.abstractmethod
     def _read(self, file_path):
@@ -52,25 +65,34 @@ class Reader(abc.ABC):
         msg = "This method must be implemented by the child class."
         raise NotImplementedError(msg)
 
-    def read(self, file_path):
+    def read(self, files):
         """Read the content of the file.
 
         Parameters
         ----------
-        file_path: str
-            Path to the file that is to be read
+        files: list
+            List of files to be read
 
         Returns
         -------
-        content: str
-            Content of the file
+        content: list
+            Content of the file/files
         """
-        _ext = self._io.get_file_extension(file_path)
+        # TODO: Add parallelization
+        contents = []
 
-        if _ext not in self.valid_extensions:
-            raise ValueError(f"Invalid file extension: {_ext}")
-        else:
-            return self._read(file_path)
+        if not isinstance(files, list):
+            files = [files]
+
+        for file in files:
+            _ext = self._io.get_file_extension(file)
+            if _ext not in self.valid_extensions:
+                raise ValueError(f"Invalid file extension: {_ext}")
+
+        for file in files:
+            contents.append(self._read(file))
+
+        return contents
 
     def validate_extensions(self, extensions):
         """Validate if the additional extensions are valid.
@@ -100,7 +122,8 @@ class TextReader(Reader):
         """
         self.additional_extensions = additional_extensions or []
         super(TextReader, self).__init__(['txt', 'md', 'rst', 'py',
-                                          'html', 'css', 'js', 'json'])
+                                          'html', 'css', 'js', 'json',
+                                          'txt'])
 
         self.validate_extensions(self.additional_extensions)
         self.valid_extensions.extend(self.additional_extensions)
@@ -115,11 +138,11 @@ class TextReader(Reader):
 
         Returns
         -------
-        content: str
-            Content of the file
+        content: dict
+            Dictionary containing the content of the file
         """
 
-        return self._io.read(file_path, mode='r')
+        return {file_path: self._io.read(file_path, mode='r')}
 
     def _validate_extensions(self, extensions):
         """Validate if the extensions work with the current reader.
@@ -130,17 +153,10 @@ class TextReader(Reader):
             List of extensions to be validated
         """
         invalid_idxs = []
-        with InTemporaryDirectory() as tdir:
-            for idx, extension in enumerate(extensions):
-                file_name = f"file.{extension}"
-                file_path = os.path.join(tdir, file_name)
-                with open(file_path, 'w+') as f:
-                    f.write("")
 
-                try:
-                    self._read(file_path)
-                except Exception as e:
-                    invalid_idxs.append(idx)
+        for idx, extension in enumerate(extensions):
+            if extension not in self.valid_extensions:
+                invalid_idxs.append(idx)
 
         for idx in invalid_idxs:
             extensions.pop(idx)
