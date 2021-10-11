@@ -1,6 +1,9 @@
+from os.path import join as pjoin
 import numpy.testing as npt
+from tempfile import TemporaryDirectory as InTemporaryDirectory
 
-from checkpoint.sequences import Sequence
+from checkpoint.sequences import Sequence, IOSequence
+from checkpoint.io import IO
 
 
 def test_sequence():
@@ -60,3 +63,33 @@ def test_sequence():
     sequence_with_member_methods = SequenceMemeberMethods()
     npt.assert_equal(sequence_with_member_methods.sequence_dict[100],
                      sequence_with_member_methods.seq_test_method)
+
+
+def test_io_sequence():
+    # TODO: Test the encryption phase of the IO sequence
+    with InTemporaryDirectory() as tdir:
+        io = IO(path=tdir, mode='a')
+        io.make_dir('text_files')
+        io.make_dir('binary_files')
+        # Writing into test files
+        io.write(pjoin(io.path, 'text_files', 'test.txt'), 'w+', 'test')
+        io.write(pjoin(io.path, 'text_files', 'test1.txt'), 'w+', 'test1')
+        io.write(pjoin(io.path, 'binary_files', 'test.bin'), 'wb+', b'test')
+
+        io_sequence = IOSequence(sequence_name='test_io_sequence',
+                                 root_dir=io.path, ignore_dirs=['binary_files'])
+        
+        return_vals = io_sequence.execute_sequence(pass_args=True)
+        text_path = pjoin(io.path, 'text_files')
+        npt.assert_equal(return_vals[0], {pjoin(tdir, 'text_files'): [
+                         pjoin(text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
+
+        npt.assert_equal(return_vals[1], {'txt': [pjoin(
+            text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
+        
+        npt.assert_equal(return_vals[2][0]['txt'].__class__.__name__, 'TextReader')
+        npt.assert_equal(return_vals[2][1], return_vals[1])
+
+        npt.assert_equal(return_vals[3], [[{pjoin(text_path, 'test.txt'): 'test'}, {
+                         pjoin(text_path, 'test1.txt'): 'test1'}]])
+
