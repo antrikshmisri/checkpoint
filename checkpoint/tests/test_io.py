@@ -15,6 +15,11 @@ def test_io():
         simple_io.path = tdir
         simple_io.mode = 's'
 
+        root_file = []
+        for root, file in simple_io.walk_directory():
+            root_file.append([root, file])
+
+        npt.assert_equal(root_file, [])
         npt.assert_equal(simple_io.path, tdir)
         npt.assert_equal(simple_io.mode, 's')
         rmtree(pjoin(tdir, 'temp'))  # Remove the temporary directory
@@ -57,3 +62,6 @@ def test_io():
 
         simple_io.mode_mapping = ['s', 'wb+']
         npt.assert_equal('wb+' in simple_io.mode_mappings['s'], True)
+
+        new_dir = simple_io.make_dir('test_dir')
+        npt.assert_equal(os.path.isdir(new_dir), True)

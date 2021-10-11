@@ -1,6 +1,7 @@
 import os
 from os.path import join as pjoin
 from os.path import isdir
+from shutil import rmtree
 
 
 class IO:
@@ -83,6 +84,13 @@ class IO:
                     self.files.append(pjoin(path, file))
                     self.sub_dirs.append(pjoin(path, dir))
 
+    def walk_directory(self):
+        """Walk through the root directory."""
+        for root, _, files in os.walk(self.path):
+            if all(dir not in root for dir in self.ignore_dirs):
+                for file in files:
+                    yield [root, file]
+
     def read(self, file, mode='r'):
         """Read the content of a file
 
@@ -155,6 +163,28 @@ class IO:
 
         _file = os.path.basename(file_path)
         return _file.split('.')[-1]
+
+    def make_dir(self, dir_name):
+        """Make a sub directory in the root directory.
+
+        Parameters
+        ----------
+        dir_name: str
+            Name of the sub directory
+        """
+        if dir_name in self.sub_dirs:
+            raise IOError(
+                f'{dir_name} already exists'
+            )
+
+        try:
+            os.mkdir(pjoin(self.path, dir_name))
+        except FileExistsError:
+            rmtree(pjoin(self.path, dir_name))
+            os.mkdir(pjoin(self.path, dir_name))
+            print(f'{pjoin(self.path, dir_name)} already exists, re-initializing directory.')
+
+        return pjoin(self.path, dir_name)
 
     @property
     def path(self):
