@@ -53,6 +53,7 @@ def test_sequence():
                      seq_test_sequence_function)
 
     order_dict = {'seq_test_method': 100}
+
     class SequenceMemeberMethods(Sequence):
         def __init__(self, sequence_name="Sequence_With_Member_Methods",
                      order_dict=order_dict):
