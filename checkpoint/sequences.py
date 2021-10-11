@@ -173,6 +173,13 @@ class IOSequence(Sequence):
                  root_dir=None, ignore_dirs=None, num_cores=None):
         """Initialize the IO sequence class.
 
+        Default execution sequence is:
+        1. Walk through the root directory
+        2. Group files by extension
+        3. Map readers based on extension
+        4. Read files
+        5. Encrypt the files
+
         Parameters
         ----------
         sequence_name: str
@@ -199,6 +206,7 @@ class IOSequence(Sequence):
 
         self.root_dir = root_dir or os.getcwd()
         self.ignore_dirs = ignore_dirs or []
+        self.ignore_dirs.append('.checkpoint')
         self.io = IO(self.root_dir, ignore_dirs=self.ignore_dirs)
         self.num_cores = num_cores or cpu_count()
 
@@ -215,7 +223,7 @@ class IOSequence(Sequence):
             if root in directory2files:
                 directory2files[root].append(os.path.join(root, file))
             else:
-                directory2files[root] = []
+                directory2files[root] = [os.path.join(root, file)]
 
         return directory2files
 
@@ -294,14 +302,16 @@ class IOSequence(Sequence):
             Dictionary of file paths and their encrypted content.
         """
         # TODO: Parallelize this
+        path2content = {}
         _checkpoint_path = self.io.make_dir('.checkpoint')
         crypt_obj = Crypt(key='crypt.key', key_path=_checkpoint_path)
 
         for content in contents:
-            path = list(content[0].items())[0][0]
-            content[0][path] = crypt_obj.encrypt(path)
-        
-        return contents
+            for obj in content:
+                path = list(obj.keys())[0]
+                path2content[path] = crypt_obj.encrypt(path)
+
+        return path2content
 
 
 class CLISequence(Sequence):
