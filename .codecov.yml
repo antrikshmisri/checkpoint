@@ -1,0 +1,23 @@
+comment:
+  layout: "reach, diff, files"
+  behavior: default
+  require_changes: false
+  require_base: no
+  require_head: yes
+  branches: null
+
+ignore:
+  - "setup.py"
+  - "*/tests/*"
+  - "test_*.py"
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 0.1%
+    patch:
+      default:
+        target: auto
+        threshold: 0.1%
