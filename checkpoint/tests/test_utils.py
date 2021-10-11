@@ -43,3 +43,14 @@ def test_logger(capsys, file_path):
         message += '\n'
         logged_message = io.read(pjoin(tdir, log_file_path))
         npt.assert_equal(logged_message, message)
+
+
+def test_get_reader_by_extension():
+    extension = 'txt'
+    invalid_extension = 'invalid'
+
+    reader = utils.get_reader_by_extension(extension)
+    invalid_reader = utils.get_reader_by_extension(invalid_extension)
+
+    npt.assert_equal(reader.__class__.__name__, 'TextReader')
+    npt.assert_equal(invalid_reader, None)
