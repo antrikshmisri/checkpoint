@@ -52,9 +52,10 @@ def test_sequence():
     npt.assert_equal(simple_sequence.sequence_functions[0],
                      seq_test_sequence_function)
 
+    order_dict = {'seq_test_method': 100}
     class SequenceMemeberMethods(Sequence):
         def __init__(self, sequence_name="Sequence_With_Member_Methods",
-                     order_dict={'seq_test_method': 100}):
+                     order_dict=order_dict):
             super(SequenceMemeberMethods, self).__init__(sequence_name, order_dict)
 
         def seq_test_method(self):

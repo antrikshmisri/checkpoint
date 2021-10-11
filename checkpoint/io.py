@@ -86,7 +86,7 @@ class IO:
 
     def walk_directory(self):
         """Walk through the root directory."""
-        for root, dirs, files in os.walk(self.path):
+        for root, _, files in os.walk(self.path):
             if all(dir not in root for dir in self.ignore_dirs):
                 for file in files:
                     yield [root, file]
