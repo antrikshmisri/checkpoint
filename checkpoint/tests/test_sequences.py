@@ -56,10 +56,10 @@ def test_sequence():
         def __init__(self, sequence_name="Sequence_With_Member_Methods",
                      order_dict={'seq_test_method': 100}):
             super(SequenceMemeberMethods, self).__init__(sequence_name, order_dict)
-        
+
         def seq_test_method(self):
             return f"Memeber function of {self.name}"
-    
+
     sequence_with_member_methods = SequenceMemeberMethods()
     npt.assert_equal(sequence_with_member_methods.sequence_dict[100],
                      sequence_with_member_methods.seq_test_method)
@@ -78,7 +78,7 @@ def test_io_sequence():
 
         io_sequence = IOSequence(sequence_name='test_io_sequence',
                                  root_dir=io.path, ignore_dirs=['binary_files'])
-        
+
         return_vals = io_sequence.execute_sequence(pass_args=True)
         text_path = pjoin(io.path, 'text_files')
         npt.assert_equal(return_vals[0], {pjoin(tdir, 'text_files'): [
@@ -86,10 +86,9 @@ def test_io_sequence():
 
         npt.assert_equal(return_vals[1], {'txt': [pjoin(
             text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
-        
+
         npt.assert_equal(return_vals[2][0]['txt'].__class__.__name__, 'TextReader')
         npt.assert_equal(return_vals[2][1], return_vals[1])
 
         npt.assert_equal(return_vals[3], [[{pjoin(text_path, 'test.txt'): 'test'}, {
                          pjoin(text_path, 'test1.txt'): 'test1'}]])
-

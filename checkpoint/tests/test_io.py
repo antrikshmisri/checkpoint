@@ -15,7 +15,6 @@ def test_io():
         simple_io.path = tdir
         simple_io.mode = 's'
 
-        
         root_file = []
         for root, file in simple_io.walk_directory():
             root_file.append([root, file])

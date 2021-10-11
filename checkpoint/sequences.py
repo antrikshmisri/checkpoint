@@ -199,7 +199,7 @@ class IOSequence(Sequence):
             'seq_map_readers': 2,
             'seq_read_files': 1,
             'seq_encrypt_files': 0,
-            }
+        }
 
         super(IOSequence, self).__init__(sequence_name,
                                          order_dict or self.default_order_dict)
@@ -290,12 +290,12 @@ class IOSequence(Sequence):
 
     def seq_encrypt_files(self, contents):
         """Encrypt the read files.
-        
+
         Parameters
         ----------
         contents: dict
             Dictionary of file paths and their content.
-        
+
         Returns
         -------
         dict

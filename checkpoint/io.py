@@ -163,10 +163,10 @@ class IO:
 
         _file = os.path.basename(file_path)
         return _file.split('.')[-1]
-    
+
     def make_dir(self, dir_name):
         """Make a sub directory in the root directory.
-        
+
         Parameters
         ----------
         dir_name: str

@@ -101,12 +101,12 @@ class Logger:
 
 def get_reader_by_extension(extension):
     """Get the reader by an extension.
-    
+
     Parameters
     ----------
     extension : str
         Extension of the file.
-    
+
     Returns
     -------
     reader: :class: `checkpoint.readers.Reader`
@@ -118,5 +118,5 @@ def get_reader_by_extension(extension):
         reader_obj = reader()
         if extension in reader_obj.valid_extensions:
             return reader_obj
-    
+
     print(f'No reader found for {extension}, skipping...')
