@@ -119,4 +119,4 @@ def get_reader_by_extension(extension):
         if extension in reader_obj.valid_extensions:
             return reader_obj
 
-    print(f'No reader found for {extension}, skipping...')
+    print(f'{LogColors.ERROR}No reader found for {extension}, skipping...{LogColors.ENDC}')
