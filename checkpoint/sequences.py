@@ -7,6 +7,7 @@ from multiprocessing import cpu_count
 from joblib import Parallel, delayed
 
 from checkpoint.utils import get_reader_by_extension
+from checkpoint.readers import TextReader
 from checkpoint.io import IO
 from checkpoint.crypt import Crypt
 
@@ -92,6 +93,10 @@ class Sequence:
         if execution_policy == 'decreasing_order':
             _sorted_sequence = sorted(self.sequence_dict.items(), reverse=True)
             for func_obj in _sorted_sequence:
+                context_text = func_obj[1].__name__.split(
+                    'seq_')[-1].replace('_', ' ').title()
+
+                print(context_text, end=" ")
                 if pass_args:
                     if len(_return_values) > 0:
                         _return_value = func_obj[1](_return_values[-1])
@@ -100,6 +105,7 @@ class Sequence:
                 else:
                     _return_value = func_obj[1]()
 
+                print('✅')
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
 
@@ -265,6 +271,9 @@ class IOSequence(Sequence):
         _readers = {}
         for extension, _ in extensions_dict.items():
             _readers[extension] = get_reader_by_extension(extension)
+            if not _readers[extension]:
+                reader = TextReader(additional_extensions=[extension])
+                _readers[extension] = reader
 
         return [_readers, extensions_dict]
 
