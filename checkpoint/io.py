@@ -182,7 +182,6 @@ class IO:
         except FileExistsError:
             rmtree(pjoin(self.path, dir_name))
             os.mkdir(pjoin(self.path, dir_name))
-            print(f'{pjoin(self.path, dir_name)} already exists, re-initializing directory.')
 
         return pjoin(self.path, dir_name)
 
