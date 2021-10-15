@@ -1,8 +1,6 @@
-import os
 from argparse import ArgumentParser
 
-from checkpoint.sequences import IOSequence, CLISequence
-from checkpoint.utils import LogColors, Logger
+from checkpoint.sequences import CLISequence
 
 
 if __name__ == "__main__":
