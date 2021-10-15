@@ -123,7 +123,7 @@ class Sequence:
 
                 _return_values.append(_return_value)
 
-            self.on_sequence_end(self, _return_values[-1])
+            self.on_sequence_end(self)
         else:
             raise ValueError(f'{execution_policy} is an invalid execution policy')
         return _return_values
