@@ -2,7 +2,7 @@ from os.path import join as pjoin
 import numpy.testing as npt
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
-from checkpoint.sequences import Sequence, IOSequence
+from checkpoint.sequences import CheckpointSequence, Sequence, IOSequence
 from checkpoint.io import IO
 
 
@@ -71,6 +71,11 @@ def test_io_sequence():
     # TODO: Test the encryption phase of the IO sequence
     with InTemporaryDirectory() as tdir:
         io = IO(path=tdir, mode='a')
+        _checkpoint_sequernce = CheckpointSequence(sequence_name='checkpoint_sequence',
+                                                    order_dict={'seq_init_checkpoint': 0}, root_dir=tdir,
+                                                    ignore_dirs=list())
+
+        _checkpoint_sequernce.seq_init_checkpoint()
         io.make_dir('text_files')
         io.make_dir('binary_files')
         # Writing into test files
