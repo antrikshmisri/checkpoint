@@ -19,7 +19,6 @@ if __name__ == "__main__":
         "--name",
         type=str,
         help="Name of the restore point.",
-        required=True
     )
 
     checkpoint_arg_parser.add_argument(
@@ -27,7 +26,6 @@ if __name__ == "__main__":
         "--path",
         type=str,
         help="Path to the project.",
-        required=True
     )
 
     checkpoint_arg_parser.add_argument(
@@ -35,7 +33,6 @@ if __name__ == "__main__":
         "--action",
         type=str,
         help="Action to perform.",
-        required=True
     )
 
     checkpoint_arg_parser.add_argument(
