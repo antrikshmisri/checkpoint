@@ -11,37 +11,39 @@ if __name__ == "__main__":
 
     checkpoint_arg_parser.add_argument(
         "--init",
-        "-I",
         action="store_true",
         help="Initialize a new project.",
     )
     checkpoint_arg_parser.add_argument(
-        "--name",
         "-n",
+        "--name",
         type=str,
         help="Name of the restore point.",
+        required=True
     )
 
     checkpoint_arg_parser.add_argument(
-        "--path",
         "-p",
+        "--path",
         type=str,
         help="Path to the project.",
+        required=True
     )
 
     checkpoint_arg_parser.add_argument(
-        "--action",
         "-a",
+        "--action",
         type=str,
         help="Action to perform.",
+        required=True
     )
 
     checkpoint_arg_parser.add_argument(
         "--ignore-dirs",
         "-i",
-        action="store_true",
+        type=list,
         help="Ignore directories."
     )
-    checkpoint_arg_parser.print_help()
+
     cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser)
     cli_sequence.execute_sequence(pass_args=True)
