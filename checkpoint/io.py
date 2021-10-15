@@ -184,7 +184,7 @@ class IO:
             os.mkdir(pjoin(self.path, dir_name))
 
         return pjoin(self.path, dir_name)
-    
+
     def delete_dir(self, dir_name):
         """Delete a sub directory in the root directory.
 

@@ -348,7 +348,7 @@ class CheckpointSequence(Sequence):
         self.ignore_dirs = ignore_dirs
         self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
         super(CheckpointSequence, self).__init__(sequence_name, order_dict)
-    
+
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
         path = self._io.make_dir('.checkpoint')
@@ -365,8 +365,10 @@ class CheckpointSequence(Sequence):
 
         checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
         checkpoint_path = self._io.make_dir(checkpoint_path)
+        checkpoint_file_path = os.path.join(
+            checkpoint_path, f'{self.sequence_name}.json')
 
-        with open(os.path.join(checkpoint_path, f'{self.sequence_name}.json'), 'w+') as checkpoint_file:
+        with open(checkpoint_file_path, 'w+') as checkpoint_file:
             json.dump(enc_files, checkpoint_file)
 
         root2file = {}
@@ -383,13 +385,15 @@ class CheckpointSequence(Sequence):
         """Delete the checkpoint for the target directory."""
         checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
         self._io.delete_dir(checkpoint_path)
-    
+
     def seq_restore_checkpoint(self):
         """Restore back to a specific checkpoint."""
         _key = os.path.join(self.root_dir, '.checkpoint')
         crypt = Crypt(key='crypt.key', key_path=_key)
 
-        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name, f'{self.sequence_name}.json')
+        checkpoint_path = os.path.join(self.root_dir, '.checkpoint',
+                                       self.sequence_name, f'{self.sequence_name}.json')
+
         with open(checkpoint_path, 'r') as checkpoint_file:
             checkpoint_dict = json.load(checkpoint_file)
 
@@ -421,12 +425,12 @@ class CLISequence(Sequence):
         self.arg_parser = arg_parser
         super(CLISequence, self).__init__(sequence_name=sequence_name,
                                           order_dict=order_dict or self.default_order_dict)
-    
+
     def seq_parse_args(self):
         """Parse the arguments from the CLI."""
         args = self.arg_parser.parse_args()
         return args
-    
+
     def seq_determine_action(self, args):
         """Determine the action to be performed.
 
@@ -447,7 +451,7 @@ class CLISequence(Sequence):
             raise ValueError('Invalid action.')
 
         return [action, args]
-    
+
     def seq_perform_action(self, action_args):
         """Perform the action.
 

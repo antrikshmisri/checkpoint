@@ -72,8 +72,8 @@ def test_io_sequence():
     with InTemporaryDirectory() as tdir:
         io = IO(path=tdir, mode='a')
         _checkpoint_sequernce = CheckpointSequence(sequence_name='checkpoint_sequence',
-                                                    order_dict={'seq_init_checkpoint': 0}, root_dir=tdir,
-                                                    ignore_dirs=list())
+                                                   order_dict={'seq_init_checkpoint': 0},
+                                                   root_dir=tdir, ignore_dirs=list())
 
         _checkpoint_sequernce.seq_init_checkpoint()
         io.make_dir('text_files')
