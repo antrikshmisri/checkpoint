@@ -184,6 +184,26 @@ class IO:
             os.mkdir(pjoin(self.path, dir_name))
 
         return pjoin(self.path, dir_name)
+    
+    def delete_dir(self, dir_name):
+        """Delete a sub directory in the root directory.
+
+        Parameters
+        ----------
+        dir_name: str
+            Name of the sub directory
+        """
+        if dir_name not in self.sub_dirs:
+            raise IOError(
+                f'{dir_name} does not exist'
+            )
+
+        try:
+            rmtree(pjoin(self.path, dir_name))
+        except FileNotFoundError:
+            raise IOError(
+                f'{dir_name} does not exist'
+            )
 
     @property
     def path(self):
