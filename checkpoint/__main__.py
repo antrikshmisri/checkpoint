@@ -38,7 +38,8 @@ if __name__ == "__main__":
     checkpoint_arg_parser.add_argument(
         "--ignore-dirs",
         "-i",
-        type=list,
+        nargs="+",
+        default=[".git", ".idea", ".vscode", ".venv", "node_modules", "__pycache__"],
         help="Ignore directories."
     )
 
