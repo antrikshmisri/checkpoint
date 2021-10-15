@@ -369,7 +369,7 @@ class CheckpointSequence(Sequence):
             checkpoint_path, f'{self.sequence_name}.json')
 
         with open(checkpoint_file_path, 'w+') as checkpoint_file:
-            json.dump(enc_files, checkpoint_file)
+            json.dump(enc_files, checkpoint_file, indent=4)
 
         root2file = {}
         for root, file in self._io.walk_directory():
@@ -379,7 +379,7 @@ class CheckpointSequence(Sequence):
                 root2file[root] = [os.path.join(root, file)]
 
         with open(os.path.join(checkpoint_path, '.metadata'), 'w+') as metadata_file:
-            json.dump(root2file, metadata_file)
+            json.dump(root2file, metadata_file, indent=4)
 
     def seq_delete_checkpoint(self):
         """Delete the checkpoint for the target directory."""
