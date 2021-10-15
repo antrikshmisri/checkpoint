@@ -31,7 +31,7 @@ def test_reader():
         valid_file = pjoin(tdir, 'valid.txt')
         io.write(valid_file, 'w+', 'Test Content')
 
-        npt.assert_equal(core_reader.read(valid_file), 'test')
+        npt.assert_equal(core_reader.read(valid_file), ['test'])
 
         extensions = ['txt', 'log']
         npt.assert_equal(core_reader.validate_extensions(extensions), [])
@@ -51,9 +51,14 @@ def test_text_reader():
         valid_file = pjoin(tdir, 'valid.txt')
         io.write(valid_file, 'w+', 'Test Content')
 
-        npt.assert_equal(simple_text_reader.read(valid_file), 'Test Content')
+        npt.assert_equal(simple_text_reader.read(valid_file), [{valid_file: 'Test Content'}])
 
         valid_extensions = ['txt', 'log']
         simple_text_reader.validate_extensions(valid_extensions)
 
-        npt.assert_equal(valid_extensions, ['txt', 'log'])
+        npt.assert_equal(valid_extensions, ['txt'])
+
+
+def test_get_all_readers():
+    all_readers = readers.get_all_readers()
+    npt.assert_equal(all_readers, [readers.TextReader])

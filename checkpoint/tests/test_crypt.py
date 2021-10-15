@@ -38,7 +38,7 @@ def test_crypt():
             f.close()
 
         temp_path = pjoin(tdir, 'temp.txt')
-        _ = _crypt.encrypt(temp_path)
-        decrypted = _crypt.decrypt(temp_path)
+        _ = _crypt.encrypt(temp_path, modify_file=True)
+        decrypted = _crypt.decrypt(temp_path, modify_file=True)
 
         npt.assert_equal(decrypted, bytes(content, 'utf-8'))
