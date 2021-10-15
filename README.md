@@ -42,18 +42,29 @@ checkpoint --name=restore_point_name --action=delete --path=path/to/project
 
 ## Installation
 
-##### Creat and activate a virtual environment.
+`pip install checkpoint`
+### Development
+
+##### 1. Get the source code by cloning from remote repository.
+```bash
+git clone https://github.com/antrikshmisri/checkpoint.git
+```
+
+##### 2. Create and activate a virtual environment.
 ```bash
 python -m venv venv
 source venv/bin/activate
 ```
 
-##### Get the dependencies
+##### 3. Get the dependencies
 ```bash
 pip install -r requirements.txt
 ```
-
-##### Run the tests
+##### 4. Install checkpoint as a local project.
+```bash
+pip install .
+```
+##### 5. Run the tests
 ```bash
 pytest -v checkpoint/tests/
 ```
