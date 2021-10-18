@@ -1,4 +1,3 @@
-import sys
 from argparse import ArgumentParser
 
 from checkpoint import __version__ as version
