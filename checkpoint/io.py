@@ -58,8 +58,7 @@ class IO:
         self.setup()
 
     def setup(self):
-        """Setup the IO class
-        """
+        """Setup the IO class."""
         self.mode_mappings = {'a': [*'rwxa', 'wb+', 'w+', 'rb+'],
                               'm': [*'rwa', 'wb', 'rb'],
                               's': [*'ra', 'rb']}
@@ -79,7 +78,6 @@ class IO:
 
         for path, subdirs, files in os.walk(path):
             if all(dir not in path for dir in self.ignore_dirs):
-
                 for file, dir in zip(files, subdirs):
                     self.files.append(pjoin(path, file))
                     self.sub_dirs.append(pjoin(path, dir))
@@ -182,9 +180,24 @@ class IO:
         except FileExistsError:
             rmtree(pjoin(self.path, dir_name))
             os.mkdir(pjoin(self.path, dir_name))
-            print(f'{pjoin(self.path, dir_name)} already exists, re-initializing directory.')
 
         return pjoin(self.path, dir_name)
+
+    def delete_dir(self, dir_name):
+        """Delete a sub directory in the root directory.
+
+        Parameters
+        ----------
+        dir_name: str
+            Name of the sub directory
+        """
+
+        if not os.path.isdir(pjoin(self.path, dir_name)):
+            raise IOError(
+                f'{dir_name} does not exist'
+            )
+
+        rmtree(pjoin(self.path, dir_name))
 
     @property
     def path(self):

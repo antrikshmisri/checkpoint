@@ -56,7 +56,7 @@ def test_text_reader():
         valid_extensions = ['txt', 'log']
         simple_text_reader.validate_extensions(valid_extensions)
 
-        npt.assert_equal(valid_extensions, ['txt'])
+        npt.assert_equal(valid_extensions, ['txt', 'log'])
 
 
 def test_get_all_readers():

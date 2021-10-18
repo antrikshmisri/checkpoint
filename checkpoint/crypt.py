@@ -27,6 +27,7 @@ def generate_key(name, path=os.getcwd()):
 
 class Crypt:
     """Class to perform cryptographical operations"""
+
     def __init__(self, key, key_path=os.getcwd(), iterations=1):
         """Initialize the class
 
@@ -42,7 +43,7 @@ class Crypt:
         self._io = io.IO(mode='m')
         self.key_path = key_path
 
-        if not os.path.exists(key):
+        if not os.path.isfile(pjoin(key_path, key)):
             self.key = generate_key(key, self.key_path)
         else:
             self.key = self._io.read(pjoin(key_path, key), mode='rb')
@@ -56,15 +57,20 @@ class Crypt:
         Parameters
         ----------
         file: str
-            Path to the file that isto be encrypted
+            Path to the file or content that isto be encrypted
         modify_file: bool, optional
             If True, the hash will be written in the target file
         """
-        content = self._io.read(file, mode='rb')
+        isfile = os.path.isfile(file)
+        if isfile:
+            content = self._io.read(file, mode='rb')
+        else:
+            content = file
+
         for _ in range(self.iterations):
             content = self._fernet.encrypt(content)
 
-        if modify_file:
+        if modify_file and isfile:
             self._io.write(file, 'wb', content)
 
         return content.decode('utf-8')
@@ -75,15 +81,20 @@ class Crypt:
         Parameters
         ----------
         file: str
-            Path to the file that isto be decrypted
+            Path to the file or content that isto be decrypted
         modify_file: bool, optional
             If True, the hash will be written in the target file
         """
-        content = self._io.read(file, mode='rb')
+        isfile = os.path.isfile(file)
+        if isfile:
+            content = self._io.read(file, mode='rb')
+        else:
+            content = bytes(file, 'utf-8')
+
         for _ in range(self.iterations):
             content = self._fernet.decrypt(content)
 
-        if modify_file:
+        if modify_file and isfile:
             self._io.write(file, 'wb', content)
 
         return content

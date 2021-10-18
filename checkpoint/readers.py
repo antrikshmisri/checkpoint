@@ -1,8 +1,10 @@
 """Module that provides readers for different file extensions."""
+import os
 import sys
 from inspect import getmembers
 import abc
 from multiprocessing import cpu_count
+from tempfile import TemporaryDirectory as InTemporaryDirectory
 from checkpoint.io import IO
 
 
@@ -153,9 +155,16 @@ class TextReader(Reader):
         """
         invalid_idxs = []
 
-        for idx, extension in enumerate(extensions):
-            if extension not in self.valid_extensions:
-                invalid_idxs.append(idx)
+        with InTemporaryDirectory() as tdir:
+            for ext in extensions:
+                temp_file = os.path.join(tdir, f'test.{ext}')
+                with open(temp_file, 'w+') as f:
+                    f.write('test')
+
+                try:
+                    self._read(temp_file)
+                except UnicodeDecodeError:
+                    invalid_idxs.append(extensions.index(ext))
 
         for idx in invalid_idxs:
             extensions.pop(idx)
