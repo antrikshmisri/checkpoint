@@ -186,17 +186,15 @@ def test_checkpoint_sequence(capsys):
         with npt.assert_raises(ValueError):
             checkpoint_duplicate.seq_create_checkpoint()
 
+
 def test_CLI_sequence():
     # TODO: Add a recording option to test CLI sequence based on a recording file
-    ignore_dirs = [".git", ".idea", ".vscode",
-                   ".venv", "node_modules", "__pycache__"]
-
     with InTemporaryDirectory() as tdir:
-        all_args = {'init': ['-p', tdir, '-a', 'init', '-i', ' '.join(ignore_dirs)],
-                    'create': ['-n', 'restore_point', '-p', tdir, '-a', 'create', '-i', ' '.join(ignore_dirs)],
-                    'restore': ['-n', 'restore_point', '-p', tdir, '-a', 'restore', '-i', ' '.join(ignore_dirs)],
-                    'delete': ['-n', 'restore_point_one', '-p', tdir, '-a', 'delete', '-i', ' '.join(ignore_dirs)],
-                    'invalid_action': ['-n', 'restore_point', '-p', tdir, '-a', 'invalid_action', '-i', ' '.join(ignore_dirs)]}
+        all_args = {'init': ['-p', tdir, '-a', 'init'],
+                    'create': ['-n', 'restore_point', '-p', tdir, '-a', 'create'],
+                    'restore': ['-n', 'restore_point', '-p', tdir, '-a', 'restore'],
+                    'delete': ['-n', 'restore_point', '-p', tdir, '-a', 'delete'],
+                    'invalid_action': ['-n', 'restore_point', '-p', tdir, '-a', 'invalid_action']}
 
         arg_parser = ArgumentParser(
             description='Test CLI sequence',
