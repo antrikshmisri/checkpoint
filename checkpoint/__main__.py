@@ -1,19 +1,16 @@
+import sys
 from argparse import ArgumentParser
 
+from checkpoint import __version__ as version
 from checkpoint.sequences import CLISequence
 
 
-if __name__ == "__main__":
+def run(args=None):
     checkpoint_arg_parser = ArgumentParser(
-        description="Checkpoint - Create restore points in your projects.",
+        description=f"Checkpoint - Create restore points in your projects. Version: {version}",
         prog="checkpoint",
     )
 
-    checkpoint_arg_parser.add_argument(
-        "--init",
-        action="store_true",
-        help="Initialize a new project.",
-    )
     checkpoint_arg_parser.add_argument(
         "-n",
         "--name",
@@ -33,15 +30,21 @@ if __name__ == "__main__":
         "--action",
         type=str,
         help="Action to perform.",
+        choices=["create", "restore", "version", "delete"],
     )
 
     checkpoint_arg_parser.add_argument(
         "--ignore-dirs",
         "-i",
         nargs="+",
-        default=[".git", ".idea", ".vscode", ".venv", "node_modules", "__pycache__"],
+        default=[".git", ".idea", ".vscode",
+                 ".venv", "node_modules", "__pycache__"],
         help="Ignore directories."
     )
 
-    cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser)
+    cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser, args=args)
     cli_sequence.execute_sequence(pass_args=True)
+
+
+if __name__ == "__main__":
+    run()
