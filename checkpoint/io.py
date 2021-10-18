@@ -58,8 +58,7 @@ class IO:
         self.setup()
 
     def setup(self):
-        """Setup the IO class
-        """
+        """Setup the IO class."""
         self.mode_mappings = {'a': [*'rwxa', 'wb+', 'w+', 'rb+'],
                               'm': [*'rwa', 'wb', 'rb'],
                               's': [*'ra', 'rb']}
@@ -79,7 +78,6 @@ class IO:
 
         for path, subdirs, files in os.walk(path):
             if all(dir not in path for dir in self.ignore_dirs):
-
                 for file, dir in zip(files, subdirs):
                     self.files.append(pjoin(path, file))
                     self.sub_dirs.append(pjoin(path, dir))
@@ -193,17 +191,13 @@ class IO:
         dir_name: str
             Name of the sub directory
         """
-        if dir_name not in self.sub_dirs:
+
+        if not os.path.isdir(pjoin(self.path, dir_name)):
             raise IOError(
                 f'{dir_name} does not exist'
             )
 
-        try:
-            rmtree(pjoin(self.path, dir_name))
-        except FileNotFoundError:
-            raise IOError(
-                f'{dir_name} does not exist'
-            )
+        rmtree(pjoin(self.path, dir_name))
 
     @property
     def path(self):
