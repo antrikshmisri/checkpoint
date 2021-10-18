@@ -154,8 +154,8 @@ def test_checkpoint_sequence(capsys):
         io.path = pjoin(tdir, '.checkpoint', checkpoint_sequence.sequence_name)
 
         checkpoint_files = [file for _, file in io.walk_directory()]
-        npt.assert_equal(checkpoint_files, [
-                         '.metadata', f'{checkpoint_sequence.sequence_name}.json'])
+        npt.assert_equal(sorted(checkpoint_files), sorted([
+                         '.metadata', f'{checkpoint_sequence.sequence_name}.json']))
 
         checkpoint_sequence_two = CheckpointSequence(sequence_name='checkpoint_sequence_two',
                                                      order_dict=order_dict,
