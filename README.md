@@ -42,7 +42,7 @@ checkpoint --name=restore_point_name --action=delete --path=path/to/project
 
 ## Installation
 
-`pip install checkpoint`
+`pip install pycheckpoint`
 ### Development
 
 ##### 1. Get the source code by cloning from remote repository.
