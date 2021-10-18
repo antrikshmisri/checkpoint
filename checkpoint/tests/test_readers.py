@@ -1,4 +1,3 @@
-import os
 from os.path import join as pjoin
 import numpy.testing as npt
 from tempfile import TemporaryDirectory as InTemporaryDirectory
