@@ -194,7 +194,6 @@ def test_CLI_sequence():
     with InTemporaryDirectory() as tdir:
         all_args = {'init': ['-p', tdir, '-a', 'init', '-i', ' '.join(ignore_dirs)],
                     'create': ['-n', 'restore_point', '-p', tdir, '-a', 'create', '-i', ' '.join(ignore_dirs)],
-                    'create': ['-n', 'restore_point_one', '-p', tdir, '-a', 'create', '-i', ' '.join(ignore_dirs)],
                     'restore': ['-n', 'restore_point', '-p', tdir, '-a', 'restore', '-i', ' '.join(ignore_dirs)],
                     'delete': ['-n', 'restore_point_one', '-p', tdir, '-a', 'delete', '-i', ' '.join(ignore_dirs)],
                     'invalid_action': ['-n', 'restore_point', '-p', tdir, '-a', 'invalid_action', '-i', ' '.join(ignore_dirs)]}
