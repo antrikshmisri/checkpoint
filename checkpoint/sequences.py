@@ -7,6 +7,7 @@ from itertools import count
 from multiprocessing import cpu_count
 from joblib import Parallel, delayed
 
+from checkpoint import __version__ as version
 from checkpoint.utils import get_reader_by_extension
 from checkpoint.readers import TextReader
 from checkpoint.io import IO
@@ -15,6 +16,7 @@ from checkpoint.crypt import Crypt, generate_key
 
 class Sequence:
     """Class to represent a sequence of operations."""
+
     def __init__(self, sequence_name, order_dict=None):
         """Initialize the sequence class.
 
@@ -39,7 +41,8 @@ class Sequence:
 
     def __repr__(self):
         """Return the string representation of the Sequence."""
-        _member_functions = [_func.__name__ for _func in self.sequence_dict.values()]
+        _member_functions = [
+            _func.__name__ for _func in self.sequence_dict.values()]
         return f'Name: {self.name}, Member Function: {_member_functions}'
 
     def add_sequence_function(self, func, order=0):
@@ -56,7 +59,8 @@ class Sequence:
             raise ValueError('Function name must start with "seq"')
 
         if order in self.sequence_dict:
-            print(f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}')
+            print(
+                f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}')
 
         self.sequence_dict[order] = func
 
@@ -97,7 +101,6 @@ class Sequence:
                 context_text = func_obj[1].__name__.split(
                     'seq_')[-1].replace('_', ' ').title()
 
-                print(context_text, end=" ")
                 try:
                     if pass_args:
                         if len(_return_values) > 0:
@@ -107,10 +110,10 @@ class Sequence:
                     else:
                         _return_value = func_obj[1]()
                 except Exception as e:
-                    print('❌')
+                    print(f'{context_text} ❌')
                     raise type(e)(f'{context_text} failed with error: {e}')
 
-                print('✔️')
+                print(f'{context_text} ✔️')
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
 
@@ -125,7 +128,8 @@ class Sequence:
 
             self.on_sequence_end(self)
         else:
-            raise ValueError(f'{execution_policy} is an invalid execution policy')
+            raise ValueError(
+                f'{execution_policy} is an invalid execution policy')
         return _return_values
 
     def update_order(self):
@@ -179,6 +183,7 @@ class Sequence:
 
 class IOSequence(Sequence):
     """Class to represent a sequence of IO operations."""
+
     def __init__(self, sequence_name='IO_Sequence', order_dict=None,
                  root_dir=None, ignore_dirs=None, num_cores=None):
         """Initialize the IO sequence class.
@@ -316,7 +321,8 @@ class IOSequence(Sequence):
         """
         # TODO: Parallelize this
         path2content = {}
-        crypt_obj = Crypt(key='crypt.key', key_path=os.path.join(self.root_dir, '.checkpoint'))
+        crypt_obj = Crypt(key='crypt.key', key_path=os.path.join(
+            self.root_dir, '.checkpoint'))
 
         for content in contents:
             for obj in content:
@@ -328,6 +334,7 @@ class IOSequence(Sequence):
 
 class CheckpointSequence(Sequence):
     """Sequence to perform checkpoint operations."""
+
     def __init__(self, sequence_name, order_dict, root_dir, ignore_dirs):
         """Initialize the CheckpointSequence class.
 
@@ -346,7 +353,8 @@ class CheckpointSequence(Sequence):
         self.order_dict = order_dict
         self.root_dir = root_dir
         self.ignore_dirs = ignore_dirs
-        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
+        self._io = IO(path=self.root_dir, mode="a",
+                      ignore_dirs=self.ignore_dirs)
         super(CheckpointSequence, self).__init__(sequence_name, order_dict)
 
     def seq_init_checkpoint(self):
@@ -357,13 +365,15 @@ class CheckpointSequence(Sequence):
     def seq_create_checkpoint(self):
         """Create a new checkpoint for the target directory."""
         if self.sequence_name in os.listdir(os.path.join(self.root_dir, '.checkpoint')):
-            raise ValueError(f'Checkpoint with name {self.sequence_name} already exists')
+            raise ValueError(
+                f'Checkpoint with name {self.sequence_name} already exists')
         _io_sequence = IOSequence(root_dir=self.root_dir,
                                   ignore_dirs=self.ignore_dirs)
 
         enc_files = _io_sequence.execute_sequence(pass_args=True)[-1]
 
-        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        checkpoint_path = os.path.join(
+            self.root_dir, '.checkpoint', self.sequence_name)
         checkpoint_path = self._io.make_dir(checkpoint_path)
         checkpoint_file_path = os.path.join(
             checkpoint_path, f'{self.sequence_name}.json')
@@ -383,7 +393,8 @@ class CheckpointSequence(Sequence):
 
     def seq_delete_checkpoint(self):
         """Delete the checkpoint for the target directory."""
-        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        checkpoint_path = os.path.join(
+            self.root_dir, '.checkpoint', self.sequence_name)
         self._io.delete_dir(checkpoint_path)
 
     def seq_restore_checkpoint(self):
@@ -401,12 +412,23 @@ class CheckpointSequence(Sequence):
             content = crypt.decrypt(content)
             self._io.write(file, 'wb+', content)
 
+    def seq_version(self):
+        """Print the version of the sequence."""
+        print(f'Running version {version}')
+
 
 class CLISequence(Sequence):
     """Sequence for the CLI environment."""
+
     def __init__(self, sequence_name='CLI_Sequence', order_dict=None,
-                 arg_parser=None):
+                 arg_parser=None, args=None):
         """Initialize the CLISequence class.
+
+        Default execution sequence is:
+
+        1. Parse the arguments.
+        2. Determine the action to perform from the arguments.
+        3. Perform the action.
 
         Parameters
         ----------
@@ -422,13 +444,17 @@ class CLISequence(Sequence):
             'seq_determine_action': 1,
             'seq_perform_action': 0,
         }
+        self.args = args
         self.arg_parser = arg_parser
         super(CLISequence, self).__init__(sequence_name=sequence_name,
                                           order_dict=order_dict or self.default_order_dict)
 
     def seq_parse_args(self):
         """Parse the arguments from the CLI."""
-        args = self.arg_parser.parse_args()
+        if self.args is None:
+            args = self.arg_parser.parse_args()
+        else:
+            args = self.arg_parser.parse_args(self.args)
         return args
 
     def seq_determine_action(self, args):
@@ -447,6 +473,8 @@ class CLISequence(Sequence):
             action = 'seq_delete_checkpoint'
         elif args.action == 'init':
             action = 'seq_init_checkpoint'
+        elif args.action == 'version':
+            action = 'seq_version'
         else:
             raise ValueError('Invalid action.')
 
@@ -464,10 +492,13 @@ class CLISequence(Sequence):
         _name = args.name
         _path = args.path
         _ignore_dirs = args.ignore_dirs or []
-        if not (_name and _path) and action != 'seq_init_checkpoint':
+        _helper_actions = ['seq_init_checkpoint', 'seq_version']
+
+        if not (_name and _path) and action not in _helper_actions:
             raise ValueError(f'{args.action} requires a valid name and a path')
 
         order_dict = {action: 0}
-        _checkpoint_sequence = CheckpointSequence(_name, order_dict, _path, _ignore_dirs)
+        _checkpoint_sequence = CheckpointSequence(
+            _name, order_dict, _path, _ignore_dirs)
         action_function = getattr(_checkpoint_sequence, action)
         action_function()
