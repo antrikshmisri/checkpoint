@@ -27,6 +27,7 @@ def generate_key(name, path=os.getcwd()):
 
 class Crypt:
     """Class to perform cryptographical operations"""
+
     def __init__(self, key, key_path=os.getcwd(), iterations=1):
         """Initialize the class
 
@@ -60,7 +61,8 @@ class Crypt:
         modify_file: bool, optional
             If True, the hash will be written in the target file
         """
-        if os.path.isfile(file):
+        isfile = os.path.isfile(file)
+        if isfile:
             content = self._io.read(file, mode='rb')
         else:
             content = file
@@ -68,7 +70,7 @@ class Crypt:
         for _ in range(self.iterations):
             content = self._fernet.encrypt(content)
 
-        if modify_file:
+        if modify_file and isfile:
             self._io.write(file, 'wb', content)
 
         return content.decode('utf-8')
@@ -83,7 +85,8 @@ class Crypt:
         modify_file: bool, optional
             If True, the hash will be written in the target file
         """
-        if os.path.isfile(file):
+        isfile = os.path.isfile(file)
+        if isfile:
             content = self._io.read(file, mode='rb')
         else:
             content = bytes(file, 'utf-8')
@@ -91,7 +94,7 @@ class Crypt:
         for _ in range(self.iterations):
             content = self._fernet.decrypt(content)
 
-        if modify_file:
+        if modify_file and isfile:
             self._io.write(file, 'wb', content)
 
         return content
