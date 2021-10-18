@@ -17,9 +17,9 @@ classifiers = [
 ]
 
 setup(
-    name='checkpoint',
+    name='pycheckpoint',
     version=version,
-    description='Create restore points for your project',
+    description='Create restore points in your projects',
     long_description=f"{long_description} \n\n {open('CHANGELOG.txt').read()}",
     long_description_content_type='text/markdown',
     url='https://github.com/antrikshmisri/checkpoint',
