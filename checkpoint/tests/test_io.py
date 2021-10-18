@@ -25,7 +25,8 @@ def test_io():
         rmtree(pjoin(tdir, 'temp'))  # Remove the temporary directory
 
         a_io = io.IO(path=tdir, mode='a')
-        a_io.write(file=pjoin(tdir, 'temp.txt'), mode='x', content='Temporary File')
+        a_io.write(file=pjoin(tdir, 'temp.txt'),
+                   mode='x', content='Temporary File')
         ext = a_io.get_file_extension(pjoin(tdir, 'temp.txt'))
 
         with npt.assert_raises(OSError):
@@ -44,7 +45,8 @@ def test_io():
 
         s_io = io.IO(path=tdir, mode='s')
         with npt.assert_raises(IOError):
-            s_io.write(file=pjoin(tdir, 'temp.txt'), mode='w', content="Invalid Permission")
+            s_io.write(file=pjoin(tdir, 'temp.txt'),
+                       mode='w', content="Invalid Permission")
 
         with npt.assert_raises(IOError):
             s_io.read(file=pjoin(tdir, 'temp.txt'), mode='w')
@@ -65,3 +67,6 @@ def test_io():
 
         new_dir = simple_io.make_dir('test_dir')
         npt.assert_equal(os.path.isdir(new_dir), True)
+
+        simple_io.delete_dir(new_dir)
+        npt.assert_equal(os.path.isdir(new_dir), False)
