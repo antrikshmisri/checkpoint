@@ -42,3 +42,9 @@ def test_crypt():
         decrypted = _crypt.decrypt(temp_path, modify_file=True)
 
         npt.assert_equal(decrypted, bytes(content, 'utf-8'))
+
+        text_content = 'This is a random string for testing purposes'
+        enc_txt = _crypt.encrypt(bytes(text_content, 'utf-8'))
+        dec_txt = _crypt.decrypt(enc_txt)
+
+        npt.assert_equal(dec_txt.decode('utf-8'), text_content)
