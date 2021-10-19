@@ -78,11 +78,11 @@ class Logger:
         _file = getmodule(_caller[0]).__file__ * log_caller
         _timestamp = datetime.now().strftime('%H:%M:%S') * timestamp
 
-        color = color or self.log_colors.SUCCESS
+        color = color or self.log_colors.BOLD
         if as_obj:
             msg = {(_file, _timestamp): msg}
         else:
-            msg = f'[{_file}, {_timestamp}]: {msg} \n'
+            msg = f'[{_file}, {_timestamp}]: {msg}'
 
         if self.log_mode == 't':
             print(f'{color}{msg}{self.log_colors.ENDC}')
