@@ -27,7 +27,7 @@ class Sequence:
         order_dict: dict, optional
             Dictionary of function names and their order in the sequence.
         logger: `checkpoint.utils.Logger`, optional
-            Logger for the sequence class 
+            Logger for the sequence class
         """
         self.logger = logger or Logger()
         self.sequence_name = sequence_name
