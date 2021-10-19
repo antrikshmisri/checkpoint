@@ -8,7 +8,7 @@ from multiprocessing import cpu_count
 from joblib import Parallel, delayed
 
 from checkpoint import __version__ as version
-from checkpoint.utils import get_reader_by_extension
+from checkpoint.utils import get_reader_by_extension, LogColors, Logger
 from checkpoint.readers import TextReader
 from checkpoint.io import IO
 from checkpoint.crypt import Crypt, generate_key
@@ -29,7 +29,7 @@ class Sequence:
         logger: `checkpoint.utils.Logger`, optional
             Logger for the sequence class 
         """
-        self.logger = logger
+        self.logger = logger or Logger()
         self.sequence_name = sequence_name
         self.sequence_dict = OrderedDict()
         self.order_dict = order_dict or {}
@@ -62,11 +62,8 @@ class Sequence:
             raise ValueError('Function name must start with "seq"')
 
         if order in self.sequence_dict:
-            print("tes", self.logger)
-            if self.logger:
-                print("test")
-                _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
-                self.logger.log(_msg, '\033[93m', timestamp=True, log_caller=True)
+            _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
+            self.logger.log(_msg, '\033[93m', timestamp=True, log_caller=True)
 
         self.sequence_dict[order] = func
 
@@ -116,10 +113,12 @@ class Sequence:
                     else:
                         _return_value = func_obj[1]()
                 except Exception as e:
-                    print(f'{context_text} ❌')
+                    _msg = f'{context_text} ❌'
+                    self.logger.log(_msg, LogColors.ERROR, timestamp=True)
                     raise type(e)(f'{context_text} failed with error: {e}')
 
-                print(f'{context_text} ✔️')
+                _msg = f'{context_text} ✔️'
+                self.logger.log(_msg, LogColors.SUCCESS, timestamp=True)
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
 
@@ -420,14 +419,15 @@ class CheckpointSequence(Sequence):
 
     def seq_version(self):
         """Print the version of the sequence."""
-        print(f'Running version {version}')
+        _msg = f'Running version {version}'
+        self.logger.log(_msg, timestamp=True)
 
 
 class CLISequence(Sequence):
     """Sequence for the CLI environment."""
 
     def __init__(self, sequence_name='CLI_Sequence', order_dict=None,
-                 arg_parser=None, args=None, logger=None):
+                 arg_parser=None, args=None):
         """Initialize the CLISequence class.
 
         Default execution sequence is:
@@ -453,8 +453,7 @@ class CLISequence(Sequence):
         self.args = args
         self.arg_parser = arg_parser
         super(CLISequence, self).__init__(sequence_name=sequence_name,
-                                          order_dict=order_dict or self.default_order_dict,
-                                          logger=logger)
+                                          order_dict=order_dict or self.default_order_dict)
 
     def seq_parse_args(self):
         """Parse the arguments from the CLI."""
