@@ -2,11 +2,9 @@ from argparse import ArgumentParser
 
 from checkpoint import __version__ as version
 from checkpoint.sequences import CLISequence
-from checkpoint.utils import Logger
 
 
 def run(args=None):
-    logger = Logger()
     checkpoint_arg_parser = ArgumentParser(
         description=f"Create restore points in your projects. Version: {version}",
         prog="checkpoint",
@@ -43,7 +41,7 @@ def run(args=None):
         help="Ignore directories."
     )
 
-    cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser, args=args, logger=logger)
+    cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser, args=args)
     cli_sequence.execute_sequence(pass_args=True)
 
 
