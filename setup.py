@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 # read the contents of your README file
 from os import path
 
@@ -15,20 +15,22 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: 3'
 ]
+         
 
 setup(
     name='pycheckpoint',
     version=version,
     description='Create restore points in your projects',
-    long_description=f"{long_description} \n\n {open('CHANGELOG.txt').read()}",
+    long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/antrikshmisri/checkpoint',
     author='Antriksh Misri',
     author_email='antrikshmisri@gmail.com',
     license='MIT',
     classifiers=classifiers,
-    keywords='checkpoint',
-    packages=find_packages(),
+    keywords=['checkpoint', 'cli', 'executable'],
+    include_package_data=True,
+    packages=['checkpoint'],
     install_requires=['cryptography==3.4.7',
                       'joblib==1.0.1',
                       'numpy==1.20.3',
