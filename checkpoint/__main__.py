@@ -6,7 +6,7 @@ from checkpoint.sequences import CLISequence
 
 def run(args=None):
     checkpoint_arg_parser = ArgumentParser(
-        description=f"Checkpoint - Create restore points in your projects. Version: {version}",
+        description=f"Create restore points in your projects. Version: {version}",
         prog="checkpoint",
     )
 
@@ -29,7 +29,7 @@ def run(args=None):
         "--action",
         type=str,
         help="Action to perform.",
-        choices=["create", "restore", "version", "delete"],
+        choices=["create", "restore", "version", "delete", "init"],
     )
 
     checkpoint_arg_parser.add_argument(
