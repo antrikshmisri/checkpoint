@@ -15,7 +15,7 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: 3'
 ]
-         
+
 
 setup(
     name='pycheckpoint',
