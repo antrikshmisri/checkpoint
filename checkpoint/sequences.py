@@ -17,7 +17,7 @@ from checkpoint.crypt import Crypt, generate_key
 class Sequence:
     """Class to represent a sequence of operations."""
 
-    def __init__(self, sequence_name, order_dict=None):
+    def __init__(self, sequence_name, order_dict=None, logger=None):
         """Initialize the sequence class.
 
         Parameters
@@ -26,7 +26,10 @@ class Sequence:
             Name of the sequence.
         order_dict: dict, optional
             Dictionary of function names and their order in the sequence.
+        logger: `checkpoint.utils.Logger`, optional
+            Logger for the sequence class 
         """
+        self.logger = logger
         self.sequence_name = sequence_name
         self.sequence_dict = OrderedDict()
         self.order_dict = order_dict or {}
@@ -59,8 +62,11 @@ class Sequence:
             raise ValueError('Function name must start with "seq"')
 
         if order in self.sequence_dict:
-            print(
-                f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}')
+            print("tes", self.logger)
+            if self.logger:
+                print("test")
+                _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
+                self.logger.log(_msg, '\033[93m', timestamp=True, log_caller=True)
 
         self.sequence_dict[order] = func
 
@@ -421,7 +427,7 @@ class CLISequence(Sequence):
     """Sequence for the CLI environment."""
 
     def __init__(self, sequence_name='CLI_Sequence', order_dict=None,
-                 arg_parser=None, args=None):
+                 arg_parser=None, args=None, logger=None):
         """Initialize the CLISequence class.
 
         Default execution sequence is:
@@ -447,7 +453,8 @@ class CLISequence(Sequence):
         self.args = args
         self.arg_parser = arg_parser
         super(CLISequence, self).__init__(sequence_name=sequence_name,
-                                          order_dict=order_dict or self.default_order_dict)
+                                          order_dict=order_dict or self.default_order_dict,
+                                          logger=logger)
 
     def seq_parse_args(self):
         """Parse the arguments from the CLI."""
