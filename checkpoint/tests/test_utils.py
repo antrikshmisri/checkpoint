@@ -24,7 +24,7 @@ def test_logger(capsys, file_path):
         terminal_loger = utils.Logger(log_mode='t')
         file_logger = utils.Logger(file_path=log_file_path, log_mode='f')
 
-        terminal_loger.log(msg=log_message, color=log_color)
+        terminal_loger.log(msg=log_message, colors=log_color)
         captured_stdout = capsys.readouterr()
         npt.assert_equal(log_message in captured_stdout.out, True)
 
