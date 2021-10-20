@@ -26,9 +26,9 @@ class LogColors:
                 if not obj[0].startswith('__')]
 
 
-
 class Logger:
     """Provides logging utility functions."""
+
     def __init__(self, file_path='logs.log', log_mode='t'):
         """Initialize the logger.
 
@@ -56,7 +56,7 @@ class Logger:
         self.log_mode = log_mode
         self.log_colors = LogColors()
 
-    def log(self, msg, color=None, as_obj=False, timestamp=False,
+    def log(self, msg, colors=None, as_obj=False, timestamp=False,
             log_caller=False):
         """Log a message.
 
@@ -64,8 +64,8 @@ class Logger:
         ----------
         msg : str
             Message to log.
-        color : str
-            Escape sequence of the color.
+        colors : list
+            List of colors to use for the message.
         as_obj : bool
             If True, the message will be logged as an object.
         timestamp : bool
@@ -78,14 +78,17 @@ class Logger:
         _file = getmodule(_caller[0]).__file__ * log_caller
         _timestamp = datetime.now().strftime('%H:%M:%S') * timestamp
 
-        color = color or self.log_colors.SUCCESS
+        colors = colors or [self.log_colors.BOLD]
+        if not isinstance(colors, list):
+            colors = [colors]
+
         if as_obj:
             msg = {(_file, _timestamp): msg}
         else:
-            msg = f'[{_file}, {_timestamp}]: {msg} \n'
+            msg = f'[{_file}, {_timestamp}]: {msg}'
 
         if self.log_mode == 't':
-            print(f'{color}{msg}{self.log_colors.ENDC}')
+            print(f"{''.join(colors)}{msg}{self.log_colors.ENDC}")
         elif self.log_mode == 'f':
             if not as_obj:
                 self._io.write(self._file_path, 'a', msg)

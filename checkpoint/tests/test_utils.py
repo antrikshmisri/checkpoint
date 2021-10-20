@@ -24,14 +24,14 @@ def test_logger(capsys, file_path):
         terminal_loger = utils.Logger(log_mode='t')
         file_logger = utils.Logger(file_path=log_file_path, log_mode='f')
 
-        terminal_loger.log(msg=log_message, color=log_color)
+        terminal_loger.log(msg=log_message, colors=log_color)
         captured_stdout = capsys.readouterr()
         npt.assert_equal(log_message in captured_stdout.out, True)
 
         io = IO(path=tdir, mode='s')
 
         file_logger.log(msg=log_message, log_caller=True)
-        message = f'[{file_path}, ]: {log_message} \n'
+        message = f'[{file_path}, ]: {log_message}'
         logged_message = io.read(pjoin(tdir, log_file_path))
         npt.assert_equal(logged_message, message)
 
