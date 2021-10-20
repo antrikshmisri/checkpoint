@@ -63,7 +63,8 @@ class Sequence:
 
         if order in self.sequence_dict:
             _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
-            self.logger.log(_msg, '\033[93m', timestamp=True, log_caller=True)
+            self.logger.log(
+                _msg, LogColors.WARNING, timestamp=True, log_caller=True)
 
         self.sequence_dict[order] = func
 
@@ -114,11 +115,13 @@ class Sequence:
                         _return_value = func_obj[1]()
                 except Exception as e:
                     _msg = f'{context_text} ❌'
-                    self.logger.log(_msg, LogColors.ERROR, timestamp=True)
+                    self.logger.log(
+                        _msg, [LogColors.ERROR, LogColors.UNDERLINE], timestamp=True)
                     raise type(e)(f'{context_text} failed with error: {e}')
 
                 _msg = f'{context_text} ✔️'
-                self.logger.log(_msg, LogColors.SUCCESS, timestamp=True)
+                self.logger.log(
+                    _msg, [LogColors.SUCCESS, LogColors.UNDERLINE], timestamp=True)
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
 
