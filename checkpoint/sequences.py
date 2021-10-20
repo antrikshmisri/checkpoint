@@ -353,12 +353,11 @@ class CheckpointSequence(Sequence):
         self.order_dict = order_dict
         self.root_dir = root_dir
         self.ignore_dirs = ignore_dirs
-        self._io = IO(path=self.root_dir, mode="a",
-                      ignore_dirs=self.ignore_dirs)
         super(CheckpointSequence, self).__init__(sequence_name, order_dict)
 
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
+        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
         path = self._io.make_dir('.checkpoint')
         generate_key('crypt.key', path)
 
@@ -367,6 +366,8 @@ class CheckpointSequence(Sequence):
         if self.sequence_name in os.listdir(os.path.join(self.root_dir, '.checkpoint')):
             raise ValueError(
                 f'Checkpoint with name {self.sequence_name} already exists')
+        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
+
         _io_sequence = IOSequence(root_dir=self.root_dir,
                                   ignore_dirs=self.ignore_dirs)
 
@@ -393,12 +394,14 @@ class CheckpointSequence(Sequence):
 
     def seq_delete_checkpoint(self):
         """Delete the checkpoint for the target directory."""
+        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
         self._io.delete_dir(checkpoint_path)
 
     def seq_restore_checkpoint(self):
         """Restore back to a specific checkpoint."""
+        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
         _key = os.path.join(self.root_dir, '.checkpoint')
         crypt = Crypt(key='crypt.key', key_path=_key)
 
