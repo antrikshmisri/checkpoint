@@ -117,4 +117,4 @@ def get_reader_by_extension(extension):
         reader_obj = reader()
         if extension in reader_obj.valid_extensions:
             return reader_obj
-    print(f'{LogColors.ERROR}No reader found for {extension}, trying read operation with all Readers{LogColors.ENDC}')
+    print(f'{LogColors.ERROR}No reader found for {extension}{LogColors.ENDC}')

@@ -187,12 +187,12 @@ class ImageReader(Reader):
 
     def _read(self, file_path):
         """Read the content of the file.
-        
+
         Parameters
         ----------
         file_path: str
             Path to the file that is to be read
-        
+
         Returns
         -------
         content: dict

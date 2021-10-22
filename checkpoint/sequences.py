@@ -309,7 +309,7 @@ class IOSequence(Sequence):
                             continue
 
                     if selected_reader:
-                        _msg = f'{selected_reader.__class__.__name__} selected for extension {extension}'
+                        _msg = f'{selected_reader.__class__.__name__} selected'
                         self.logger.log(
                             _msg, colors=LogColors.SUCCESS, timestamp=True)
                         _readers[extension] = selected_reader
@@ -341,7 +341,8 @@ class IOSequence(Sequence):
         readers_dict, extension_dict = readers_extension
 
         contents = \
-            Parallel(self.num_cores)(delayed(readers_dict[ext].read)(files, validate=False) for (ext, files) in
+            Parallel(self.num_cores)(delayed(readers_dict[ext].read)(files,
+                                     validate=False) for (ext, files) in
                                      extension_dict.items())
         return contents
 
