@@ -1,15 +1,14 @@
-from os.path import join as pjoin
+from argparse import ArgumentParser
 from os.path import isdir, isfile
-
-import numpy.testing as npt
+from os.path import join as pjoin
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
-from argparse import ArgumentParser
-
+import numpy.testing as npt
 from checkpoint import __version__ as version
-from checkpoint.sequences import CheckpointSequence, Sequence, IOSequence, CLISequence
-from checkpoint.io import IO
 from checkpoint.crypt import Crypt
+from checkpoint.io import IO
+from checkpoint.sequences import (CheckpointSequence, CLISequence, IOSequence,
+                                  Sequence)
 
 
 def test_sequence():

@@ -1,8 +1,10 @@
-from genericpath import isfile
-from checkpoint import crypt
+from os.path import isfile
 from os.path import join as pjoin
-import numpy.testing as npt
 from tempfile import TemporaryDirectory as InTemporaryDirectory
+
+import numpy.testing as npt
+from checkpoint import crypt
+from genericpath import isfile
 
 
 def test_generate_key():

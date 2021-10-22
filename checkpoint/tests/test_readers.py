@@ -1,7 +1,7 @@
 from os.path import join as pjoin
-import numpy.testing as npt
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
+import numpy.testing as npt
 from checkpoint import readers
 from checkpoint.io import IO
 
@@ -37,7 +37,7 @@ def test_reader():
 
 
 def test_text_reader():
-    simple_text_reader = readers.TextReader(additional_extensions=['json'])
+    simple_text_reader = readers.TextReader()
 
     with InTemporaryDirectory() as tdir:
         invalid_file = pjoin(tdir, 'invalid.extension')
@@ -50,7 +50,8 @@ def test_text_reader():
         valid_file = pjoin(tdir, 'valid.txt')
         io.write(valid_file, 'w+', 'Test Content')
 
-        npt.assert_equal(simple_text_reader.read(valid_file), [{valid_file: 'Test Content'}])
+        npt.assert_equal(simple_text_reader.read(valid_file),
+                         [{valid_file: 'Test Content'}])
 
         valid_extensions = ['txt', 'log']
         simple_text_reader.validate_extensions(valid_extensions)
@@ -60,4 +61,5 @@ def test_text_reader():
 
 def test_get_all_readers():
     all_readers = readers.get_all_readers()
-    npt.assert_equal(all_readers, [readers.TextReader])
+    npt.assert_array_equal(set(all_readers), set(
+        [readers.TextReader, readers.ImageReader]))

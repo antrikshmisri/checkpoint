@@ -1,9 +1,10 @@
 """Module that provides utility functions/classes."""
-from os import getcwd
-from os.path import isfile, dirname
 import json
 from datetime import datetime
-from inspect import stack, getmodule
+from inspect import getmodule, stack
+from os import getcwd
+from os.path import dirname, isfile
+
 from checkpoint.io import IO
 from checkpoint.readers import get_all_readers
 
@@ -19,11 +20,6 @@ class LogColors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
-
-    @property
-    def colors(self):
-        return [f'{obj[0]}: {[obj[1]]}' for obj in vars(self).items()
-                if not obj[0].startswith('__')]
 
 
 class Logger:
@@ -121,5 +117,4 @@ def get_reader_by_extension(extension):
         reader_obj = reader()
         if extension in reader_obj.valid_extensions:
             return reader_obj
-
-    print(f'{LogColors.ERROR}No reader found for {extension}, skipping...{LogColors.ENDC}')
+    print(f'{LogColors.ERROR}No reader found for {extension}, trying read operation with all Readers{LogColors.ENDC}')
