@@ -1,17 +1,18 @@
-import os
 import json
+import os
 from collections import OrderedDict
-from types import MethodType
 from itertools import count
-
 from multiprocessing import cpu_count
+from tempfile import TemporaryDirectory as InTemporaryDirectory
+from types import MethodType
+
 from joblib import Parallel, delayed
 
 from checkpoint import __version__ as version
-from checkpoint.utils import get_reader_by_extension, LogColors, Logger
-from checkpoint.readers import TextReader
-from checkpoint.io import IO
 from checkpoint.crypt import Crypt, generate_key
+from checkpoint.io import IO
+from checkpoint.readers import get_all_readers
+from checkpoint.utils import LogColors, Logger, get_reader_by_extension
 
 
 class Sequence:
@@ -263,7 +264,7 @@ class IOSequence(Sequence):
         for files in directory2files.items():
             for file in files[1]:
                 base_file = os.path.basename(file)
-                extension = base_file.split('.')[-1]
+                extension = base_file.split('.')[-1].lower()
 
                 if extension not in extensions_dict:
                     extensions_dict[extension] = [file]
@@ -286,11 +287,41 @@ class IOSequence(Sequence):
             Dictionary of extensions and their Readers.
         """
         _readers = {}
+        unavailabe_extensions = []
         for extension, _ in extensions_dict.items():
             _readers[extension] = get_reader_by_extension(extension)
             if not _readers[extension]:
-                reader = TextReader(additional_extensions=[extension])
-                _readers[extension] = reader
+                all_readers = get_all_readers()
+                with InTemporaryDirectory() as temp_dir:
+                    temp_file = os.path.join(temp_dir, f'temp.{extension}')
+                    self.io.write(temp_file, 'w+', 'test content')
+                    selected_reader = None
+                    for reader in all_readers:
+                        try:
+                            _msg = f'Trying {reader.__name__} for extension {extension}'
+                            self.logger.log(
+                                _msg, colors=LogColors.BOLD, log_caller=True)
+                            reader = reader()
+                            reader.read(temp_file, validate=False)
+                            selected_reader = reader
+                        except Exception:
+                            selected_reader = None
+                            continue
+
+                    if selected_reader:
+                        _msg = f'{selected_reader.__class__.__name__} selected for extension {extension}'
+                        self.logger.log(
+                            _msg, colors=LogColors.SUCCESS, timestamp=True)
+                        _readers[extension] = selected_reader
+                    else:
+                        unavailabe_extensions.append(extension)
+                        del _readers[extension]
+                        self.logger.log(
+                            f'No reader found for extension {extension}, skipping',
+                            colors=LogColors.ERROR, log_caller=True)
+
+        for extension in unavailabe_extensions:
+            del extensions_dict[extension]
 
         return [_readers, extensions_dict]
 
@@ -310,7 +341,7 @@ class IOSequence(Sequence):
         readers_dict, extension_dict = readers_extension
 
         contents = \
-            Parallel(self.num_cores)(delayed(readers_dict[ext].read)(files) for (ext, files) in
+            Parallel(self.num_cores)(delayed(readers_dict[ext].read)(files, validate=False) for (ext, files) in
                                      extension_dict.items())
         return contents
 
@@ -365,7 +396,8 @@ class CheckpointSequence(Sequence):
 
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
-        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
+        self._io = IO(path=self.root_dir, mode="a",
+                      ignore_dirs=self.ignore_dirs)
         path = self._io.make_dir('.checkpoint')
         generate_key('crypt.key', path)
 
@@ -374,7 +406,8 @@ class CheckpointSequence(Sequence):
         if self.sequence_name in os.listdir(os.path.join(self.root_dir, '.checkpoint')):
             raise ValueError(
                 f'Checkpoint with name {self.sequence_name} already exists')
-        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
+        self._io = IO(path=self.root_dir, mode="a",
+                      ignore_dirs=self.ignore_dirs)
 
         _io_sequence = IOSequence(root_dir=self.root_dir,
                                   ignore_dirs=self.ignore_dirs)
@@ -402,14 +435,16 @@ class CheckpointSequence(Sequence):
 
     def seq_delete_checkpoint(self):
         """Delete the checkpoint for the target directory."""
-        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
+        self._io = IO(path=self.root_dir, mode="a",
+                      ignore_dirs=self.ignore_dirs)
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
         self._io.delete_dir(checkpoint_path)
 
     def seq_restore_checkpoint(self):
         """Restore back to a specific checkpoint."""
-        self._io = IO(path=self.root_dir, mode="a", ignore_dirs=self.ignore_dirs)
+        self._io = IO(path=self.root_dir, mode="a",
+                      ignore_dirs=self.ignore_dirs)
         _key = os.path.join(self.root_dir, '.checkpoint')
         crypt = Crypt(key='crypt.key', key_path=_key)
 
