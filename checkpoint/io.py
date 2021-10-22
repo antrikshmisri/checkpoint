@@ -1,6 +1,6 @@
 import os
-from os.path import join as pjoin
 from os.path import isdir
+from os.path import join as pjoin
 from shutil import rmtree
 
 
@@ -103,7 +103,6 @@ class IO:
             raise IOError(
                 f'Mode {mode} not allowed with IO mode {self.mode}'
             )
-
         with open(file, mode) as f:
             content = f.read()
 
@@ -154,13 +153,8 @@ class IO:
         file_path: str
             Path to the file
         """
-        if not os.path.isfile(file_path):
-            raise IOError(
-                f'{file_path} is not a valid file'
-            )
-
         _file = os.path.basename(file_path)
-        return _file.split('.')[-1]
+        return _file.split('.')[-1].lower()
 
     def make_dir(self, dir_name):
         """Make a sub directory in the root directory.

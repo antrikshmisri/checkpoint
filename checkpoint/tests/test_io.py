@@ -1,8 +1,9 @@
 import os
 from os.path import join as pjoin
-import numpy.testing as npt
 from shutil import rmtree
 from tempfile import TemporaryDirectory as InTemporaryDirectory
+
+import numpy.testing as npt
 from checkpoint import io
 
 
@@ -28,9 +29,6 @@ def test_io():
         a_io.write(file=pjoin(tdir, 'temp.txt'),
                    mode='x', content='Temporary File')
         ext = a_io.get_file_extension(pjoin(tdir, 'temp.txt'))
-
-        with npt.assert_raises(OSError):
-            a_io.get_file_extension(pjoin(tdir, 'invalid.txt'))
         npt.assert_equal(ext, 'txt')
 
         content = a_io.read(file=pjoin(tdir, 'temp.txt'))
