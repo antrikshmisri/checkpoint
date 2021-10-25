@@ -1,5 +1,10 @@
 # checkpoint
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
+
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+
+
 
 
 ## Create restore points for your project locally
@@ -72,4 +77,10 @@ pytest -v checkpoint/tests/
 ## Code of Conduct
 
 Please go through the code of conduct before contributing to this project which can be found [here](./CODE_OF_CONDUCT.md). 
+
+
+## Screenshots
+<img width="746" alt="Screenshot 2021-10-24 225447" src="https://user-images.githubusercontent.com/54466356/138605625-0ac01b1e-5bb7-425c-b39f-6f5eca683ffb.png">
+<img width="746" alt="Screenshot 2021-10-24 225716" src="https://user-images.githubusercontent.com/54466356/138605628-33d36bfb-cd5f-4239-b611-73d4b3900b77.png">
+
 
