@@ -1,5 +1,166 @@
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
+
 body {
   margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  box-sizing: border-box;
+  font-family: "Righteous", cursive !important;
+  background-color: #2E3134 !important;
+}
+
+::-webkit-scrollbar { 
+  width: 8px;
+  height: 8px;
+  scroll-behavior: smooth;
+} 
+
+/* Track */ 
+::-webkit-scrollbar-track { 
+  padding: 4px 4px 4px 4px;
+  margin: 0.4rem;
+  background: #2a2c2d;
+  border-radius: 5px; 
+} 
+
+/* Handle */ 
+::-webkit-scrollbar-thumb {
+  transition: 0.7s cubic-bezier(0.075, 0.82, 0.165, 1); 
+  background: #505963;
+  border-radius: 5px; 
+} 
+
+/* Handle on hover */ 
+::-webkit-scrollbar-thumb:hover { 
+  background: #36393b; 
+}
+
+.splash-div {
+  min-height: 100vh;
+  min-width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #2E3134 !important;
+}
+.App-logo {
+  max-width: 32px;
+  max-height: 32px;
+}
+
+.heading {
+  color: #03a9f1 !important;
+  -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: rgb(51, 48, 48, 1);
+}
+
+.btn-div {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  margin-top: 3rem !important;
+}
+
+.debug {
+  border: 2px solid red;
+}
+
+button {
+  transition: 3s cubic-bezier(0.19, 1, 0.22, 1);
+  border: none !important;
+  border-radius: 50px;
+  background: linear-gradient(145deg, #2b2d2f, #333638);
+  box-shadow: 7px 7px 16px #2a2c2d, -7px -7px 16px #36393b;
+  border-radius: 10px !important;
+  color: #f18303;
+}
+
+.neu-box, .log-neu-box{
+  border: 2px solid rgb(54, 57, 59, 0.7);
+  border-radius: 50px;
+  background: linear-gradient(145deg, #2b2d2f, #333638);
+  box-shadow: 7px 7px 16px #2a2c2d, -7px -7px 16px #36393b;
+  border-radius: 10px !important;
+  width: 45%;
+  min-height: 200px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.log-neu-box{
+  height: 200px !important;
+}
+
+button:hover{
+  background: linear-gradient(145deg, #333638, #2b2d2f);
+  box-shadow: 7px 7px 16px #36393b, -7px -7px 16px #2a2c2d;
+}
+
+.gradient-text {
+  display: inline;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: rgb(49, 51, 53, 0.8);
+}
+
+.log-div{
+  width: 100%;
+  position: absolute !important;
+  bottom: 0 !important;
+}
+
+.dir-tree-div{
+  width: 25%;
+  height: calc(100vh - 200px);
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin-bottom: 1rem !important;
+  margin-left: 0.2rem !important;
+}
+
+.checkpoint-div{
+  width: 25%;
+  height: calc(100vh - 200px);
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin-bottom: 1rem !important;
+  margin-right: 0.2rem !important;
+}
+
+.details-div{
+  width: 48%;
+  height: calc(100vh - 200px);
+  position: absolute;
+  left: calc(25%+0.2rem);
+  top: 0;
+  margin-bottom: 1rem !important;
+}
+
+input{
+  outline: none !important;
+  border: 2px solid rgb(54, 57, 59, 0.7);
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, #2b2d2f, #333638);
+  min-width: 100%;
+  color: #505963;
+  box-shadow: 3px 3px 16px #2a2c2d, -3px -3px 16px #36393b;
+  padding: 6px 6px;
+}
+input::placeholder{
+  color: #505963;
+}
+
+.options{
+  outline: none !important;
+  border: 2px solid rgb(54, 57, 59, 0.7) !important;
+  border-radius: 10px !important;
+  background: linear-gradient(145deg, #2b2d2f, #333638) !important;
+  min-width: 100%;
+  color: #505963 !important;
+  box-shadow: 3px 3px 16px #2a2c2d, -3px -3px 16px #36393b !important;
 }
