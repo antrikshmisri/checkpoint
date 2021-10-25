@@ -1,4 +1,5 @@
 const { app, BrowserWindow } = require('electron')
+const path = require('path')
 
 function createWindow () {
   // Create the browser window.
@@ -12,8 +13,8 @@ function createWindow () {
     transparent: true,
     roundedCorners: true,
     hasShadow: true,
-    resizable: false,
-    icon: __dirname + '/title_icon.png'
+    resizable: true,
+    icon: __dirname + '/logo.png'
   })
 
   //load the index.html from a url
