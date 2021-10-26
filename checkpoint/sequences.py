@@ -122,12 +122,15 @@ class Sequence:
                 except Exception as e:
                     _msg = f'{context_text}'
                     self.logger.log(
-                        _msg, [LogColors.ERROR, LogColors.UNDERLINE], timestamp=True, log_type="ERROR")
+                        _msg, [LogColors.ERROR, LogColors.UNDERLINE],
+                        timestamp=True, log_type="ERROR")
+
                     raise type(e)(f'{context_text} failed with error: {e}')
 
                 _msg = f'{context_text}'
                 self.logger.log(
-                    _msg, [LogColors.SUCCESS, LogColors.UNDERLINE], timestamp=True, log_type="SUCCESS")
+                    _msg, [LogColors.SUCCESS, LogColors.UNDERLINE],
+                    timestamp=True, log_type="SUCCESS")
 
                 self.on_sequence_function_end(self)
                 _return_values.append(_return_value)

@@ -175,7 +175,7 @@ def test_checkpoint_sequence():
         npt.assert_equal(isdir(checkpoint_path), False)
 
         checkpoint_sequence.seq_version()
-        with open('logs.log' , 'r') as f:
+        with open('logs.log', 'r') as f:
             logs = f.read()
             npt.assert_equal(version in logs, True)
 
@@ -185,7 +185,7 @@ def test_checkpoint_sequence():
 
         with npt.assert_raises(ValueError):
             checkpoint_duplicate.seq_create_checkpoint()
-        
+
         io.write('logs.log', 'w', '')
 
 
@@ -236,7 +236,8 @@ def test_CLI_sequence():
         # TODO: Test remaining CLI actions (create, restore, delete)
         for action, args in all_args.items():
             if action == 'init':
-                cli_sequence = CLISequence(arg_parser=arg_parser, args=args, terminal_log=True)
+                cli_sequence = CLISequence(
+                    arg_parser=arg_parser, args=args, terminal_log=True)
                 cli_sequence.execute_sequence(pass_args=True)
 
                 npt.assert_equal(isdir(pjoin(tdir, '.checkpoint')), True)
