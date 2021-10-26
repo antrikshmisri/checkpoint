@@ -122,7 +122,7 @@ def test_io_sequence():
         npt.assert_equal(dec_content.decode('utf-8'), 'test')
 
 
-def test_checkpoint_sequence(capsys):
+def test_checkpoint_sequence():
     order_dict = {
         'seq_init_checkpoint': 4,
         'seq_create_checkpoint': 3,
@@ -134,7 +134,7 @@ def test_checkpoint_sequence(capsys):
         io = IO(path=tdir, mode='a')
         checkpoint_sequence = CheckpointSequence(sequence_name='checkpoint_sequence',
                                                  order_dict=order_dict,
-                                                 root_dir=tdir, ignore_dirs=list())
+                                                 root_dir=tdir, ignore_dirs=list(),)
 
         # Testing checkpoint initialization phase of sequence
         checkpoint_sequence.seq_init_checkpoint()
@@ -175,8 +175,9 @@ def test_checkpoint_sequence(capsys):
         npt.assert_equal(isdir(checkpoint_path), False)
 
         checkpoint_sequence.seq_version()
-        stdout = capsys.readouterr()
-        npt.assert_equal(version in stdout.out, True)
+        with open('logs.log' , 'r') as f:
+            logs = f.read()
+            npt.assert_equal(version in logs, True)
 
         checkpoint_duplicate = CheckpointSequence(sequence_name='checkpoint_sequence_two',
                                                   order_dict=order_dict,
@@ -184,6 +185,8 @@ def test_checkpoint_sequence(capsys):
 
         with npt.assert_raises(ValueError):
             checkpoint_duplicate.seq_create_checkpoint()
+        
+        io.write('logs.log', 'w', '')
 
 
 def test_CLI_sequence():
@@ -233,7 +236,7 @@ def test_CLI_sequence():
         # TODO: Test remaining CLI actions (create, restore, delete)
         for action, args in all_args.items():
             if action == 'init':
-                cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
+                cli_sequence = CLISequence(arg_parser=arg_parser, args=args, terminal_log=True)
                 cli_sequence.execute_sequence(pass_args=True)
 
                 npt.assert_equal(isdir(pjoin(tdir, '.checkpoint')), True)
