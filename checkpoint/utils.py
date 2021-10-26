@@ -90,7 +90,7 @@ class Logger:
             print(f"{''.join(colors)}{msg}{self.log_colors.ENDC}")
         elif self.log_mode == 'f':
             if not as_obj:
-                self._io.write(self._file_path, 'a', msg+'\n')
+                self._io.write(self._file_path, 'a', msg + '\n')
             else:
                 with self._io.open(self._file_path, 'a') as f:
                     _msg_key = list(msg.keys())[0][0]
@@ -125,7 +125,7 @@ def get_reader_by_extension(extension):
 
 def execute_command(command):
     """Execute a command and get continuous output.
-    
+
     Parameters
     ----------
     command : str

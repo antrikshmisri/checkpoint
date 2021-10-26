@@ -88,12 +88,12 @@ def read_logs():
 @eel.expose
 def get_all_checkpoints(target_dir):
     """Get all checkpoints present inside athe target directory.
-    
+
     Parameters
     ----------
     target_dir: str
         Path to the directory
-    
+
     Returns
     -------
     list of str
@@ -113,7 +113,7 @@ def get_all_checkpoints(target_dir):
 
 def fetch_npm_package(package_name):
     """Fetch a package using node package manager.
-    
+
     Parameters
     ----------
     package_name: str
@@ -131,7 +131,7 @@ def fetch_npm_package(package_name):
 
 def get_electron_bin():
     """Get the binaries for electron using npm.
-    
+
     Returns
     -------
     path

@@ -44,9 +44,9 @@ class Sequence:
 
         self.get_sequence_functions()
 
-        # User hook that is triggered when the sequence has finished
-        self.on_sequence_end = lambda seq: None # Hook when whole sequence has finished
-        self.on_sequence_function_end = lambda seq: None # Hook when one sequence function has finished
+        # User hook that is triggered when the sequence/sequence function has finished
+        self.on_sequence_end = lambda seq: None
+        self.on_sequence_function_end = lambda seq: None
 
     def __repr__(self):
         """Return the string representation of the Sequence."""
@@ -128,7 +128,7 @@ class Sequence:
                 _msg = f'{context_text}'
                 self.logger.log(
                     _msg, [LogColors.SUCCESS, LogColors.UNDERLINE], timestamp=True, log_type="SUCCESS")
-                
+
                 self.on_sequence_function_end(self)
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
