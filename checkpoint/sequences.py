@@ -204,7 +204,8 @@ class IOSequence(Sequence):
     """Class to represent a sequence of IO operations."""
 
     def __init__(self, sequence_name='IO_Sequence', order_dict=None,
-                 root_dir=None, ignore_dirs=None, num_cores=None):
+                 root_dir=None, ignore_dirs=None, num_cores=None,
+                 terminal_log=False):
         """Initialize the IO sequence class.
 
         Default execution sequence is:
@@ -226,6 +227,8 @@ class IOSequence(Sequence):
             List of directories to be ignored.
         num_cores: int, optional
             Number of cores to be used for parallel processing.
+        terminal_log: bool, optional
+            If True, messages will be logged to the terminal
         """
         self.default_order_dict = {
             'seq_walk_directories': 4,
@@ -236,7 +239,8 @@ class IOSequence(Sequence):
         }
 
         super(IOSequence, self).__init__(sequence_name,
-                                         order_dict or self.default_order_dict)
+                                         order_dict or self.default_order_dict,
+                                         terminal_log=terminal_log)
 
         self.root_dir = root_dir or os.getcwd()
         self.ignore_dirs = ignore_dirs or []
@@ -385,7 +389,8 @@ class IOSequence(Sequence):
 class CheckpointSequence(Sequence):
     """Sequence to perform checkpoint operations."""
 
-    def __init__(self, sequence_name, order_dict, root_dir, ignore_dirs):
+    def __init__(self, sequence_name, order_dict, root_dir, ignore_dirs,
+                 terminal_log=False):
         """Initialize the CheckpointSequence class.
 
         Parameters
@@ -398,12 +403,15 @@ class CheckpointSequence(Sequence):
             The root directory.
         ignore_dirs: list of str
             List of directories to be ignored.
+        terminal_log: bool, optional
+            If True, messages will be logged to the terminal
         """
         self.sequence_name = sequence_name
         self.order_dict = order_dict
         self.root_dir = root_dir
         self.ignore_dirs = ignore_dirs
-        super(CheckpointSequence, self).__init__(sequence_name, order_dict)
+        super(CheckpointSequence, self).__init__(sequence_name, order_dict,
+                                                 terminal_log=terminal_log)
 
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
@@ -421,7 +429,8 @@ class CheckpointSequence(Sequence):
                       ignore_dirs=self.ignore_dirs)
 
         _io_sequence = IOSequence(root_dir=self.root_dir,
-                                  ignore_dirs=self.ignore_dirs)
+                                  ignore_dirs=self.ignore_dirs,
+                                  terminal_log=self.terminal_log)
 
         enc_files = _io_sequence.execute_sequence(pass_args=True)[-1]
 
@@ -558,6 +567,7 @@ class CLISequence(Sequence):
 
         order_dict = {action: 0}
         _checkpoint_sequence = CheckpointSequence(
-            _name, order_dict, _path, _ignore_dirs)
+            _name, order_dict, _path, _ignore_dirs,
+            terminal_log=self.terminal_log)
         action_function = getattr(_checkpoint_sequence, action)
         action_function()
