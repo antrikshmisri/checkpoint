@@ -71,14 +71,14 @@ def test_image_reader():
 
         with npt.assert_raises(ValueError):
             image_reader.read(invalid_file)
-        
+
         test_size = (300, 300)
         img_data = np.zeros((*test_size, 3), dtype=np.uint8)
         valid_file = pjoin(tdir, 'valid.png')
 
         Image.fromarray(img_data).save(valid_file)
         npt.assert_equal(image_reader.read(valid_file)[0],
-                        {valid_file: img_data.tobytes()})
+                         {valid_file: img_data.tobytes()})
 
         extensions = ['png', 'jpg', 'invalid']
         image_reader.validate_extensions(extensions)
