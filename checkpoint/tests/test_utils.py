@@ -1,10 +1,9 @@
-import pytest
 import json
 from os.path import join as pjoin
-import numpy.testing as npt
-
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
+import numpy.testing as npt
+import pytest
 from checkpoint import utils
 from checkpoint.io import IO
 

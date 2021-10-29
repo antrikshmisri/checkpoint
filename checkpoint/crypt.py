@@ -1,6 +1,8 @@
 import os
 from os.path import join as pjoin
+
 from cryptography.fernet import Fernet
+
 from checkpoint import io
 
 
