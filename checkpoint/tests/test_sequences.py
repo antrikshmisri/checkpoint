@@ -41,6 +41,9 @@ def test_sequence():
     simple_sub_sequence.add_sequence_function(seq_test_sub_sequence_function)
     simple_sequence.add_sub_sequence(simple_sub_sequence, order=1)
 
+    with npt.assert_raises(TypeError):
+        simple_sequence.add_sub_sequence(IO())
+
     npt.assert_equal(
         simple_sequence.sequence_dict[1], simple_sub_sequence.sequence_dict[0])
 
@@ -95,6 +98,9 @@ def test_io_sequence():
         io_sequence = IOSequence(sequence_name='test_io_sequence',
                                  root_dir=io.path, ignore_dirs=['binary_files'])
 
+        with npt.assert_raises(TypeError):
+            io_sequence.execute_sequence()
+
         return_vals = io_sequence.execute_sequence(pass_args=True)
         text_path = pjoin(io.path, 'text_files')
 
@@ -109,6 +115,10 @@ def test_io_sequence():
         # Testing Map Readers phase of sequence
         npt.assert_equal(return_vals[2][0]
                          ['txt'].__class__.__name__, 'TextReader')
+
+        for obj in return_vals[2]:
+            npt.assert_equal('bin' not in obj, True)
+
         npt.assert_equal(return_vals[2][1], return_vals[1])
 
         # Testing Read files phase of sequence
