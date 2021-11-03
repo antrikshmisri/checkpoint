@@ -278,7 +278,7 @@ def test_CLI_sequence():
                 contents = [io.read(pjoin(root, file), 'r')
                             for root, file in io.walk_directory()]
 
-                npt.assert_equal(contents, ['test', 'test1'])
+                npt.assert_equal(set(contents), set(['test', 'test1']))
             elif action == 'delete':
                 cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
                 cli_sequence.execute_sequence(pass_args=True)
