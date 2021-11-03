@@ -119,7 +119,4 @@ setup(
             'checkpoint=checkpoint.__main__:run',
         ],
     },
-    cmdclass={
-        'install': CustomInstallCommand,
-    },
 )
