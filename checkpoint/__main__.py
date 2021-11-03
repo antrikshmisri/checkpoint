@@ -2,8 +2,8 @@ import os
 from argparse import ArgumentParser
 
 from checkpoint import __version__ as version
-from checkpoint.utils import execute_command
 from checkpoint.sequences import CLISequence
+from checkpoint.utils import execute_command
 
 
 def run(args=None):
@@ -55,7 +55,6 @@ def run(args=None):
         run_ui = checkpoint_arg_parser.parse_args().run_ui
 
     if run_ui:
-        print('Running UI in development environment')
         _dir = os.path.dirname(os.path.abspath(__file__))
         os.chdir(os.path.join(_dir, "ui"))
         for line in execute_command('yarn start'):
@@ -63,7 +62,8 @@ def run(args=None):
             if "exited" in line:
                 exit(0)
     else:
-        cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser, args=args, terminal_log=True)
+        cli_sequence = CLISequence(
+            arg_parser=checkpoint_arg_parser, args=args, terminal_log=True)
         cli_sequence.execute_sequence(pass_args=True)
 
 

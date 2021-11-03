@@ -1,7 +1,7 @@
 import React from "react";
 
 const TextBox = ({ value, placeholder, onChange, required, inputref }) => {
-  return(
+  return (
     <input
       type="text"
       ref={inputref}
