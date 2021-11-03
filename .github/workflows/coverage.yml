@@ -17,7 +17,7 @@ jobs:
         python-version: 3.7
     - name: Generate Report
       run: |
-        pip install -r requirements.txt
+        pip install -r requirements/test.txt
         coverage run -m pytest
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v1
