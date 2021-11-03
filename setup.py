@@ -1,19 +1,13 @@
-from genericpath import isdir
-from setuptools import setup
-from setuptools.command.install import install
-from setuptools.command.develop import develop
-from setuptools.command.egg_info import egg_info
-
 from distutils.dir_util import copy_tree
 from functools import partial
-
-from os import chdir as cd, getcwd, mkdir
-from os.path import abspath, dirname, join, isfile, isdir
-from os import path
-
+from os import chdir as cd
+from os import getcwd, path
+from os.path import abspath, dirname, isfile, join
+from shutil import rmtree
 from threading import Thread
 
-from shutil import copy, rmtree
+from setuptools import setup
+from setuptools.command.install import install
 
 from checkpoint import __version__ as version
 from checkpoint.utils import execute_command
@@ -29,6 +23,7 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Programming Language :: Python :: 3'
 ]
+
 
 def ui_build_wathcer(callback=None):
     """Watch for the UI build directory on a seperate thread.
@@ -69,16 +64,12 @@ def merge_ui_build(main_package_path):
     executable_file_path = join(getcwd(), 'dist', 'ui.exe')
     copy_tree(build_dir, join(main_package_path, "build"))
 
-    if not isdir(join(main_package_path, "dist")):
-        print('Creating dist in main package')
-        mkdir(join(main_package_path, "dist"))
-
-    copy(executable_file_path, join(main_package_path, "dist"))
+    # copy(executable_file_path, dist_dir)
     print("Removing build artifacts...")
     rmtree(build_dir)
     rmtree(dist_dir)
     cd(main_package_path)
-    print('UI built successfully. Building main package...')
+    print('UI built successfully.')
 
 
 def custom_command():
@@ -88,29 +79,20 @@ def custom_command():
     ui_path = join(dirname(abspath(__file__)), 'checkpoint', 'ui')
     cd(ui_path)
 
-    wathcer_thread = Thread(target=ui_build_wathcer, args=(partial(merge_ui_build, abs_path),))
+    wathcer_thread = Thread(target=ui_build_wathcer, args=(
+        partial(merge_ui_build, abs_path),))
     wathcer_thread.start()
 
     for line in execute_command('yarn build'):
         if 'python -m eel' in line:
             break
-    
+
     wathcer_thread.join()
 
 
 class CustomInstallCommand(install):
     def run(self):
         install.run(self)
-        custom_command()
-
-class CustomDevelopCommand(develop):
-    def run(self):
-        develop.run(self)
-        custom_command()
-
-class CustomEggInfoCommand(egg_info):
-    def run(self):
-        egg_info.run(self)
         custom_command()
 
 
