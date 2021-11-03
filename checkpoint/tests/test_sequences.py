@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from os.path import isdir, isfile
 from os.path import join as pjoin
+from shutil import rmtree
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
 import numpy.testing as npt
@@ -40,6 +41,9 @@ def test_sequence():
 
     simple_sub_sequence.add_sequence_function(seq_test_sub_sequence_function)
     simple_sequence.add_sub_sequence(simple_sub_sequence, order=1)
+
+    with npt.assert_raises(TypeError):
+        simple_sequence.add_sub_sequence(IO())
 
     npt.assert_equal(
         simple_sequence.sequence_dict[1], simple_sub_sequence.sequence_dict[0])
@@ -95,6 +99,9 @@ def test_io_sequence():
         io_sequence = IOSequence(sequence_name='test_io_sequence',
                                  root_dir=io.path, ignore_dirs=['binary_files'])
 
+        with npt.assert_raises(TypeError):
+            io_sequence.execute_sequence()
+
         return_vals = io_sequence.execute_sequence(pass_args=True)
         text_path = pjoin(io.path, 'text_files')
 
@@ -109,6 +116,10 @@ def test_io_sequence():
         # Testing Map Readers phase of sequence
         npt.assert_equal(return_vals[2][0]
                          ['txt'].__class__.__name__, 'TextReader')
+
+        for obj in return_vals[2]:
+            npt.assert_equal('bin' not in obj, True)
+
         npt.assert_equal(return_vals[2][1], return_vals[1])
 
         # Testing Read files phase of sequence
@@ -192,6 +203,8 @@ def test_checkpoint_sequence():
 def test_CLI_sequence():
     # TODO: Add a recording option to test CLI sequence based on a recording file
     with InTemporaryDirectory() as tdir:
+        io = IO(path=tdir, mode='a', ignore_dirs=['.checkpoint'])
+
         all_args = {'init': ['-p', tdir, '-a', 'init'],
                     'create': ['-n', 'restore_point', '-p', tdir, '-a', 'create'],
                     'restore': ['-n', 'restore_point', '-p', tdir, '-a', 'restore'],
@@ -233,8 +246,9 @@ def test_CLI_sequence():
                      ".venv", "node_modules", "__pycache__"],
             help="Ignore directories."
         )
-        # TODO: Test remaining CLI actions (create, restore, delete)
+
         for action, args in all_args.items():
+            print(action, args)
             if action == 'init':
                 cli_sequence = CLISequence(
                     arg_parser=arg_parser, args=args, terminal_log=True)
@@ -243,3 +257,35 @@ def test_CLI_sequence():
                 npt.assert_equal(isdir(pjoin(tdir, '.checkpoint')), True)
                 npt.assert_equal(
                     isfile(pjoin(tdir, '.checkpoint', 'crypt.key')), True)
+            elif action == 'create':
+                io.write(pjoin(tdir, 'test.txt'), 'w+', 'test')
+                io.write(pjoin(tdir, 'test1.txt'), 'w+', 'test1')
+
+                cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
+                cli_sequence.execute_sequence(pass_args=True)
+
+                checkpoint_path = pjoin(tdir, '.checkpoint',
+                                        args[1])
+
+                npt.assert_equal(isdir(checkpoint_path), True)
+            elif action == 'restore':
+                io.write(pjoin(tdir, 'test.txt'), 'w+', 'test changed')
+                io.write(pjoin(tdir, 'test1.txt'), 'w+', 'test1 changed')
+
+                cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
+                cli_sequence.execute_sequence(pass_args=True)
+
+                contents = [io.read(pjoin(root, file), 'r')
+                            for root, file in io.walk_directory()]
+
+                npt.assert_equal(contents, ['test', 'test1'])
+            elif action == 'delete':
+                cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
+                cli_sequence.execute_sequence(pass_args=True)
+
+                checkpoint_path = pjoin(tdir, '.checkpoint', args[1])
+                npt.assert_equal(isdir(checkpoint_path), False)
+            elif action == 'invalid_action':
+                cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
+                with npt.assert_raises(ValueError):
+                    cli_sequence.execute_sequence(pass_args=True)

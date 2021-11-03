@@ -217,7 +217,7 @@ class ImageReader(Reader):
                 temp_file = os.path.join(tdir, f'test.{ext}')
                 try:
                     Image.fromarray(img_arr).save(temp_file)
-                except UnicodeDecodeError:
+                except ValueError:
                     invalid_idxs.append(extensions.index(ext))
 
         for idx in invalid_idxs:

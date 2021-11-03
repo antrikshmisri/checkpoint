@@ -10,6 +10,7 @@ ignore:
   - "setup.py"
   - "*/tests/*"
   - "test_*.py"
+  - "*/ui/*"
 
 coverage:
   status:
