@@ -1,5 +1,5 @@
 # checkpoint
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![Downloads](https://pepy.tech/badge/pycheckpoint)](https://pepy.tech/project/pycheckpoint) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d530dec72a679fe43d46/maintainability)](https://codeclimate.com/github/antrikshmisri/checkpoint/maintainability) [![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![Downloads](https://pepy.tech/badge/pycheckpoint)](https://pepy.tech/project/pycheckpoint) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
@@ -80,7 +80,8 @@ Please go through the code of conduct before contributing to this project which 
 
 
 ## Screenshots
-<img width="746" alt="Screenshot 2021-10-24 225447" src="https://user-images.githubusercontent.com/54466356/138605625-0ac01b1e-5bb7-425c-b39f-6f5eca683ffb.png">
-<img width="746" alt="Screenshot 2021-10-24 225716" src="https://user-images.githubusercontent.com/54466356/138605628-33d36bfb-cd5f-4239-b611-73d4b3900b77.png">
+<img width="748" alt="Screenshot 2021-11-02 115436" src="https://user-images.githubusercontent.com/54466356/139796608-fb0ccd3c-3e9f-4e6f-a694-9c26c5c812eb.png">
+
+<img width="745" alt="Screenshot 2021-11-03 145218" src="https://user-images.githubusercontent.com/54466356/140035728-2edc11b3-1d43-4a4a-9674-a274ee36cd02.png">
 
 
