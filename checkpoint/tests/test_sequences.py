@@ -180,7 +180,7 @@ def test_checkpoint_sequence():
         contents = [io.read(pjoin(root, file), 'r') for root,
                     file in io.walk_directory() if '.checkpoint' not in root]
 
-        npt.assert_equal(contents, ['test', 'test1'])
+        npt.assert_equal(set(contents), set(['test', 'test1']))
 
         checkpoint_sequence.seq_delete_checkpoint()
         npt.assert_equal(isdir(checkpoint_path), False)
