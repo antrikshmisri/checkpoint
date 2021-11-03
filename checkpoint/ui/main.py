@@ -1,20 +1,29 @@
+import json
 import os
 import sys
-import json
 from argparse import ArgumentParser
 from subprocess import PIPE, Popen
 
 import eel
 import eel.browsers
 
-
-@eel.expose
-def run_cli_sequence(args=None):
+try:
+    from checkpoint.io import IO
+    from checkpoint.sequences import CLISequence
+    IN_DEVELOPMENT = False
+except ImportError:
     currentdir = os.path.dirname(os.path.abspath(__file__))
     parentdir = os.path.dirname(currentdir)
     sys.path.insert(0, os.path.dirname(parentdir))
 
+    from checkpoint.io import IO
     from checkpoint.sequences import CLISequence
+    IN_DEVELOPMENT = True
+
+
+@eel.expose
+def run_cli_sequence(args=None):
+    args = args[0:2] + ['-i'] + args[3].split(" ") + args[4:]
 
     status = False
     checkpoint_arg_parser = ArgumentParser(
@@ -53,8 +62,8 @@ def run_cli_sequence(args=None):
         help="Ignore directories."
     )
 
-    cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser, args=args)
     try:
+        cli_sequence = CLISequence(arg_parser=checkpoint_arg_parser, args=args)
         cli_sequence.execute_sequence(pass_args=True)
         status = True
     except Exception as e:
@@ -67,11 +76,6 @@ def run_cli_sequence(args=None):
 @eel.expose
 def read_logs():
     """Read and parse the logs."""
-    currentdir = os.path.dirname(os.path.abspath(__file__))
-    parentdir = os.path.dirname(currentdir)
-    sys.path.insert(0, os.path.dirname(parentdir))
-
-    from checkpoint.io import IO
 
     io = IO()
     logs = io.read('logs.log')
@@ -109,6 +113,66 @@ def get_all_checkpoints(target_dir):
             checkpoints.append(dir)
 
     return checkpoints
+
+
+@eel.expose
+def generate_tree(checkpoint_name, target_directory):
+    """Generate a Tree from the metadata of a certain checkpoint.
+
+    Parameters
+    ----------
+    checkpoint_name: str
+        Name of the checkpoint.
+    target_directory: str
+        Path to the target directory.
+    """
+    class Tree:
+        def __init__(self, name, folders=None, files=None, parent=None):
+            self.name = name
+            self.folders = folders or []
+            self.files = files or []
+            self.parent = parent
+
+        def add_folder(self, folder):
+            self.folders.append(folder)
+            folder.parent = self
+
+    tree_dict = {}
+    curr_folder_idx = 0
+
+    io = IO(target_directory)
+    checkpoint_path = os.path.join(
+        target_directory, '.checkpoint', checkpoint_name)
+    metadata = io.read(os.path.join(checkpoint_path, '.metadata'))
+    metadata = json.loads(metadata)
+
+    for folder, files in metadata.items():
+        parent = None
+        if curr_folder_idx:
+            split_idx = -2
+            while folder.split("\\")[split_idx] not in tree_dict:
+                split_idx = split_idx - 1
+            parent = tree_dict[folder.split("\\")[split_idx]]
+
+        files = [file.split("\\")[-1] for file in files]
+        folder = folder.split("\\")[-1]
+        folder_tree = Tree(folder, files=files, parent=parent)
+
+        if parent:
+            parent.add_folder(folder_tree)
+
+        tree_dict[folder] = folder_tree
+        curr_folder_idx += 1
+
+    serializable_tree = {}
+    for folder_name, folder_tree in tree_dict.items():
+        serializable_tree[folder_name] = {
+            'name': folder_tree.name,
+            'folders': [folder.name for folder in folder_tree.folders],
+            'files': folder_tree.files
+        }
+
+    return serializable_tree
 
 
 def fetch_npm_package(package_name):
