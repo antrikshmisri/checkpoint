@@ -106,12 +106,12 @@ def test_io_sequence():
         text_path = pjoin(io.path, 'text_files')
 
         # Testing Walk Directory phase of sequence
-        npt.assert_equal(return_vals[0], {pjoin(tdir, 'text_files'): [
-                         pjoin(text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
+        npt.assert_equal(set(list(return_vals[0].values())[0]), set([
+                         pjoin(text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]))
 
         # Testing Group files by extension phase of sequence
-        npt.assert_equal(return_vals[1], {'txt': [pjoin(
-            text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
+        npt.assert_equal(set(list(return_vals[1].values())[0]), set([pjoin(
+            text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]))
 
         # Testing Map Readers phase of sequence
         npt.assert_equal(return_vals[2][0]
@@ -123,8 +123,11 @@ def test_io_sequence():
         npt.assert_equal(return_vals[2][1], return_vals[1])
 
         # Testing Read files phase of sequence
-        npt.assert_equal(return_vals[3], [[{pjoin(text_path, 'test.txt'): 'test'}, {
-                         pjoin(text_path, 'test1.txt'): 'test1'}]])
+        read_files = [{pjoin(text_path, 'test.txt'): 'test'}, {
+                         pjoin(text_path, 'test1.txt'): 'test1'}]
+        
+        for obj in return_vals[3][0]:
+            npt.assert_equal(obj in read_files, True)
 
         # Testing Encryption phase of sequence
         crypt_obj = Crypt('crypt.key', pjoin(io.path, '.checkpoint'))
