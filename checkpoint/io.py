@@ -21,7 +21,7 @@ class IO:
         `s`: IO has limited permissions (R/A)
     """
 
-    def __init__(self, path=os.getcwd(), mode="a", ignore_dirs=[]):
+    def __init__(self, path=os.getcwd(), mode="a", ignore_dirs=[], lazy=True):
         """Initialize the IO class.
 
         Parameters
@@ -35,12 +35,16 @@ class IO:
             `s`: IO has limited permissions (R/A)
         ignore_dirs: list
             List of directories to ignore
+        lazy: bool, optional
+            If True, the IO class will not update sub_dirs and files
         """
         self._path = str()
         self._mode = str()
         self.ignore_dirs = ignore_dirs
         self.files = []
         self.sub_dirs = []
+
+        self.lazy = lazy
 
         self.path = path
         self.mode = mode
@@ -63,7 +67,11 @@ class IO:
                               'm': [*'rwa', 'wb', 'rb'],
                               's': [*'ra', 'rb']}
 
-        self.update_paths(self._path)
+        if self.lazy:
+            self.files = []
+            self.sub_dirs = []
+        else:
+            self.update_paths(self._path)
 
     def update_paths(self, path):
         """Update the paths of files, sub_dirs w.r.t the path.
@@ -207,7 +215,8 @@ class IO:
             New path
         """
         self._path = path
-        self.update_paths(self._path)
+        if not self.lazy:
+            self.update_paths(self._path)
 
     @property
     def mode(self):
