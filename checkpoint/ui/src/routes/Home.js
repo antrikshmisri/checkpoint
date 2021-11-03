@@ -5,6 +5,9 @@ import TextBox from "../components/textbox";
 import Button from "../components/button";
 import { eel } from "../eel";
 import "bootstrap/dist/css/bootstrap.min.css";
+import HashLoader from "react-spinners/HashLoader";
+import spinnerStyle from "../constants/spinnerStyles";
+import Tree from "../components/tree";
 
 const Home = () => {
   const [path, setPath] = useState("");
@@ -16,10 +19,15 @@ const Home = () => {
   const [errorLogarray, setErrorLogarray] = useState([]);
   const [checkpointArray, setCheckpointArray] = useState([]);
 
+  const [treeStructure, setTreeStructure] = useState({});
+
+  const [loading, setLoading] = useState(false);
+
   const pathRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     setLogarray([]);
     setErrorLogarray([]);
     eel.run_cli_sequence([
@@ -33,6 +41,7 @@ const Home = () => {
       action,
     ])((status) => {
       eel.read_logs()((logs) => {
+        setLoading(false);
         filterLogs(logs);
       });
     });
@@ -58,10 +67,27 @@ const Home = () => {
     });
   };
 
+  const getCheckpointTree = (checkpoint, targetDirectory) => {
+    eel.generate_tree(
+      checkpoint,
+      targetDirectory
+    )((dirTree) => {
+      setTreeStructure(dirTree);
+    });
+  };
+
   return (
     <Container className="splash-div">
+      <div className={loading ? "overlay-bg" : ""}></div>
+      <HashLoader
+        loading={loading}
+        className="spinner"
+        color={"#f94409"}
+        css={spinnerStyle}
+        speedMultiplier={1.2}
+      />
       <Row className="dir-tree-div">
-        <Col lg={12} className="neu-box my-2">
+        <Col lg={12} className="dir-tree-box my-2">
           <GradientText
             startColor="#f18303"
             endColor="#f94409"
@@ -69,6 +95,12 @@ const Home = () => {
           >
             Directory Tree
           </GradientText>
+          <br />
+          {Object.keys(treeStructure).length ? (
+            <Tree structure={treeStructure} />
+          ) : (
+            <p>No tree!</p>
+          )}
         </Col>
       </Row>
       <Row className="checkpoint-div">
@@ -91,7 +123,13 @@ const Home = () => {
                     endColor="#f94409"
                     style={{ textDecoration: "underline" }}
                   >
-                    <a onClick={() => {}}>{checkpoint}</a>
+                    <a
+                      onClick={() => {
+                        getCheckpointTree(checkpoint, pathRef.current.value);
+                      }}
+                    >
+                      {checkpoint}
+                    </a>
                   </GradientText>
                   <br />
                 </>
@@ -99,10 +137,7 @@ const Home = () => {
             })
           ) : (
             <>
-              <GradientText
-                startColor="#505963"
-                endColor="#3f4e49"
-              >
+              <GradientText startColor="#505963" endColor="#3f4e49">
                 No Checkpoints!
               </GradientText>
               <br />
@@ -173,7 +208,6 @@ const Home = () => {
                       setAction(e.target.value);
                     }}
                   >
-                    <option>Select Action</option>
                     <option value="init">Init</option>
                     <option value="create">Create</option>
                     <option value="restore">Restore</option>
@@ -222,7 +256,7 @@ const Home = () => {
             );
           })}
         </Col>
-        <Col className="neu-box mx-1">
+        <Col className="log-neu-box mx-1">
           <GradientText
             startColor="#f18303"
             endColor="#f94409"
