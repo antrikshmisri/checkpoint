@@ -70,7 +70,7 @@ class Sequence:
         if order in self.sequence_dict:
             _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
             self.logger.log(
-                _msg, LogColors.WARNING, timestamp=True, log_caller=True, log_type="ERROR")
+                _msg, LogColors.WARNING, timestamp=True, log_caller=True, log_type="INFO")
 
         self.sequence_dict[order] = func
 
