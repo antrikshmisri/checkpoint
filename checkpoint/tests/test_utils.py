@@ -1,4 +1,5 @@
 import json
+from sys import version
 from os.path import join as pjoin
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
@@ -53,3 +54,12 @@ def test_get_reader_by_extension():
 
     npt.assert_equal(reader.__class__.__name__, 'TextReader')
     npt.assert_equal(invalid_reader, None)
+
+
+def test_execute_command():
+    command = "python --version"
+    for line in utils.execute_command(command):
+        npt.assert_equal(line.startswith('Python'), True)
+        python_version = line.split('Python ')[-1].split('\n')[0]
+        print(python_version, version.split(" ")[0].strip())
+        npt.assert_equal(python_version , version.split(" ")[0].strip())
