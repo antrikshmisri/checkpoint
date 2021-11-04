@@ -20,7 +20,7 @@
     "start:js": "react-scripts start",
     "build:js": "react-scripts build",
     "start:eel": "python main.py",
-    "build:eel": "python -m eel main.py build --onefile --noconsole --name ui",
+    "build:eel": "python -m eel main.py build --onefile --name ui",
     "start": "concurrently -n UI,checkpoint -c bgBlue.bold,bgMagenta.bold \"yarn start:js\" \"wait-on http://localhost:3000/ && yarn start:eel\"",
     "build": "npm-run-all build:*",
     "test": "react-scripts test --env=jsdom",
