@@ -27,7 +27,7 @@ classifiers = [
 
 def ui_build_wathcer(callback=None):
     """Watch for the UI build directory on a seperate thread.
-    
+
     Parameters
     ----------
     callback : function

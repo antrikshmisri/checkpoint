@@ -124,8 +124,8 @@ def test_io_sequence():
 
         # Testing Read files phase of sequence
         read_files = [{pjoin(text_path, 'test.txt'): 'test'}, {
-                         pjoin(text_path, 'test1.txt'): 'test1'}]
-        
+            pjoin(text_path, 'test1.txt'): 'test1'}]
+
         for obj in return_vals[3][0]:
             npt.assert_equal(obj in read_files, True)
 
