@@ -82,7 +82,7 @@ Please go through the code of conduct before contributing to this project which 
 ## Screenshots
 <img width="748" alt="Screenshot 2021-11-02 115436" src="https://user-images.githubusercontent.com/54466356/139796608-fb0ccd3c-3e9f-4e6f-a694-9c26c5c812eb.png">
 
-<img width="744" alt="Screenshot 2021-11-06 013319" src="https://user-images.githubusercontent.com/54466356/140571691-2d0693a3-d184-419a-a862-cdd2e4494320.png">
 
+<img width="746" alt="Screenshot 2021-11-09 222154" src="https://user-images.githubusercontent.com/54466356/140968797-ab4fa175-0692-4fdf-937b-5cfb88a8a2ab.png">
 
 
