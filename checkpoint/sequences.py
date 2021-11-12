@@ -9,7 +9,6 @@ from types import MethodType
 from joblib import Parallel, delayed
 
 from checkpoint import __version__ as version
-import checkpoint
 from checkpoint.crypt import Crypt, generate_key
 from checkpoint.io import IO
 from checkpoint.readers import get_all_readers
