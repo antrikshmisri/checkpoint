@@ -1,2 +1,2 @@
 [flake8]
-exclude = .git,__pycache__,build,dist,setup.py
+exclude = .git,__pycache__,build,dist,setup.py,docs
