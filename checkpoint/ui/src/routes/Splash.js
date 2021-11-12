@@ -5,6 +5,8 @@ import Button from "../components/button";
 import GradientText from "../components/gradientText";
 import "bootstrap/dist/css/bootstrap.min.css";
 import marker from "../assets/marker.png";
+import { eel } from "../eel";
+import { FaGithub, FaUser, FaTwitter } from "react-icons/fa";
 
 const Splash = () => {
   const fillRef = useRef(null);
@@ -61,7 +63,7 @@ const Splash = () => {
             })}
           </div>
           <div className="checkpoints">
-            <div className="fill-bar" ref={fillRef}></div>
+            <div className="fill-bar" ref={fillRef}><div className="bar-circle"></div></div>
           </div>
         </Col>
       </Row>
@@ -77,6 +79,38 @@ const Splash = () => {
             }
             onClick={nextPage}
           />
+        </Col>
+        <Col lg={12} className="project-links">
+            <Button
+              width={40}
+              height={40}
+              text={
+                <FaGithub color="#f18303" size={20}/>
+              }
+              onClick={() => {
+                eel.open_browser("https://github.com/antrikshmisri/checkpoint")();
+              }}
+            />
+            <Button
+              width={40}
+              height={40}
+              text={
+                <FaTwitter color="#f18303" size={20}/>
+              }
+              onClick={() => {
+                eel.open_browser("https://twitter.com/misri_antriksh")();
+              }}
+            />
+            <Button
+              width={40}
+              height={40}
+              text={
+                <FaUser color="#f18303" size={20}/>
+              }
+              onClick={() => {
+                eel.open_browser("https://antrikshmisri.netlify.app")();
+              }}
+            />
         </Col>
       </Row>
     </Container>
