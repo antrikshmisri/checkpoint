@@ -1,26 +1,42 @@
 import React, { useState, useRef } from "react";
-import { Container, Row, Col, FormSelect } from "react-bootstrap";
+
+import { AiOutlineCheck, AiOutlineClose, AiFillRocket } from "react-icons/ai";
+import { ImLocation } from "react-icons/im";
+
 import GradientText from "../components/gradientText";
 import TextBox from "../components/textbox";
 import Button from "../components/button";
-import { eel } from "../eel";
+
+import { Container, Row, Col, FormSelect } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
+
 import HashLoader from "react-spinners/HashLoader";
+import PulseLoader from "react-spinners/PulseLoader";
+
 import spinnerStyle from "../constants/spinnerStyles";
 import Tree from "../components/tree";
+import notify from "../utils/toast";
+import { eel } from "../eel";
 
 const Home = () => {
-  const [path, setPath] = useState("");
-  const [ignoreDirectories, setIgnoreDirectories] = useState(".git");
-  const [checkpointName, setCheckpointName] = useState("");
-  const [action, setAction] = useState("init");
+  const [inputs, setInputs] = useState({
+    path: "",
+    ignoreDirectories: "",
+    checkpointName: "",
+    action: "init",
+  });
 
-  const [logarray, setLogarray] = useState([]);
-  const [errorLogarray, setErrorLogarray] = useState([]);
+  const [logState, setLogState] = useState({
+    logarray: [],
+    errorLogarray: [],
+  });
+
+  const [pathOutlineColor, setPathOutlineColor] = useState(
+    "rgb(54, 57, 59, 0.7)"
+  );
+
   const [checkpointArray, setCheckpointArray] = useState([]);
-
   const [treeStructure, setTreeStructure] = useState({});
-
   const [loading, setLoading] = useState(false);
 
   const pathRef = useRef(null);
@@ -28,29 +44,53 @@ const Home = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    setLogarray([]);
-    setErrorLogarray([]);
+    setLogState({
+      logarray: [],
+      errorLogarray: [],
+    });
     eel.run_cli_sequence([
       "-p",
-      path,
+      inputs.path,
       "-i",
-      ignoreDirectories,
+      inputs.ignoreDirectories,
       "-n",
-      checkpointName,
+      inputs.checkpointName,
       "-a",
-      action,
+      inputs.action,
     ])((status) => {
       eel.read_logs()((logs) => {
         setLoading(false);
         filterLogs(logs);
+        status
+          ? notify(`${inputs.action} action, successful`, "success")
+          : notify(`${inputs.action} action, failed`, "error");
+        status && getAllCheckpoints(e);
       });
     });
   };
 
   const getAllCheckpoints = (e) => {
     e.preventDefault();
-    eel.get_all_checkpoints(pathRef.current.value)((ret) => {
-      setCheckpointArray(ret);
+    eel.get_all_checkpoints(pathRef.current.value)((allCheckpoints) => {
+      eel.get_current_checkpoint(pathRef.current.value)((currentCheckpoint) => {
+        allCheckpoints.length &&
+          notify("Fetched checkpoint configurations", "success");
+
+        if (!currentCheckpoint) {
+          setCheckpointArray(allCheckpoints);
+        } else {
+          getCheckpointTree(currentCheckpoint, pathRef.current.value);
+          setCheckpointArray([
+            ...allCheckpoints.map((checkpoint, idx) => {
+              if (checkpoint === currentCheckpoint) {
+                return checkpoint + "*";
+              } else {
+                return checkpoint;
+              }
+            }),
+          ]);
+        }
+      });
     });
   };
   const filterLogs = (array) => {
@@ -60,19 +100,42 @@ const Home = () => {
         log.includes("INFO") ||
         log.includes("WARNING")
       ) {
-        setErrorLogarray((prev) => [...prev, log]);
+        setLogState((prevState) => ({
+          ...prevState,
+          errorLogarray: [...prevState.errorLogarray, log],
+        }));
       } else {
-        setLogarray((prev) => [...prev, log]);
+        setLogState((prevState) => ({
+          ...prevState,
+          logarray: [...prevState.logarray, log],
+        }));
       }
     });
   };
 
   const getCheckpointTree = (checkpoint, targetDirectory) => {
     eel.generate_tree(
-      checkpoint,
+      checkpoint.split("*")[0],
       targetDirectory
     )((dirTree) => {
       setTreeStructure(dirTree);
+    });
+  };
+
+  const pathValidator = (e) => {
+    eel.validate_path(e.target.value)((isValid) => {
+      if (!isValid) {
+        setPathOutlineColor("rgba(249, 68, 9, 0.5)");
+      } else {
+        getAllCheckpoints(e);
+        setPathOutlineColor("rgb(54, 57, 59, 0.7)");
+        eel.get_ignore_dirs(pathRef.current.value)((ignoreDirs) => {
+          setInputs((prevState) => ({
+            ...prevState,
+            ignoreDirectories: ignoreDirs.join(" "),
+          }));
+        });
+      }
     });
   };
 
@@ -99,7 +162,9 @@ const Home = () => {
           {Object.keys(treeStructure).length ? (
             <Tree structure={treeStructure} />
           ) : (
-            <p>No tree!</p>
+            <GradientText startColor="#505963" endColor="#3f4e49">
+              No Tree!
+            </GradientText>
           )}
         </Col>
       </Row>
@@ -119,8 +184,10 @@ const Home = () => {
                 <>
                   <GradientText
                     key={idx}
-                    startColor="#f18303"
-                    endColor="#f94409"
+                    startColor={
+                      checkpoint.includes("*") ? "#f94409" : "#f18303"
+                    }
+                    endColor={checkpoint.includes("*") ? "#f94409" : "#f94409"}
                     style={{ textDecoration: "underline" }}
                   >
                     <a
@@ -128,7 +195,8 @@ const Home = () => {
                         getCheckpointTree(checkpoint, pathRef.current.value);
                       }}
                     >
-                      {checkpoint}
+                      <code>{checkpoint.split("*")[0]} </code>
+                      <ImLocation color="#f18303" className="mx-1" size={10} />
                     </a>
                   </GradientText>
                   <br />
@@ -146,7 +214,7 @@ const Home = () => {
         </Col>
       </Row>
       <Row className="details-div">
-        <Col lg={12} className="neu-box my-2">
+        <Col lg={12} className="details-box neu-box my-2">
           <GradientText
             startColor="#f18303"
             endColor="#f94409"
@@ -154,14 +222,39 @@ const Home = () => {
           >
             Enter Details
           </GradientText>
-          <Container>
-            <Row>
-              <form onSubmit={handleSubmit}>
+          <form className="details-form py-0" onSubmit={handleSubmit}>
+            <Container className="fluid">
+              <Row>
+                <Container className="fluid">
+                  <Row className="d-flex align-items-end">
+                    <Col lg={12} className="my-2">
+                      <TextBox
+                        label="Path"
+                        inputref={pathRef}
+                        value={inputs.path}
+                        onChange={(e) => {
+                          setInputs((prevState) => ({
+                            ...prevState,
+                            path: e.target.value,
+                          }));
+                        }}
+                        placeholder="Enter Directory Path"
+                        required={true}
+                        keyPressCallback={pathValidator}
+                        outlineColor={pathOutlineColor}
+                      />
+                    </Col>
+                  </Row>
+                </Container>
                 <Col lg={12} className="my-2">
                   <TextBox
-                    value={checkpointName}
+                    label="Checkpoint Name"
+                    value={inputs.checkpointName}
                     onChange={(e) => {
-                      setCheckpointName(e.target.value);
+                      setInputs((prevState) => ({
+                        ...prevState,
+                        checkpointName: e.target.value,
+                      }));
                     }}
                     placeholder="Enter Checkpoint Name"
                     required={true}
@@ -169,43 +262,27 @@ const Home = () => {
                 </Col>
                 <Col lg={12} className="my-2">
                   <TextBox
-                    inputref={pathRef}
-                    value={path}
+                    label="Ignore Directories"
+                    value={inputs.ignoreDirectories}
                     onChange={(e) => {
-                      setPath(e.target.value);
-                    }}
-                    placeholder="Enter Directory Path"
-                    required={true}
-                  />
-                </Col>
-                <Col lg={12} className="my-2">
-                  <Button
-                    onClick={getAllCheckpoints}
-                    width={100}
-                    height={40}
-                    text={
-                      <GradientText startColor="#f18303" endColor="#f94409">
-                        Get Checkpoints
-                      </GradientText>
-                    }
-                  />
-                </Col>
-                <Col lg={12} className="my-2">
-                  <TextBox
-                    value={ignoreDirectories}
-                    onChange={(e) => {
-                      setIgnoreDirectories(e.target.value);
+                      setInputs((prevState) => ({
+                        ...prevState,
+                        ignoreDirectories: e.target.value,
+                      }));
                     }}
                     placeholder="Ignore Directories (Space Seperated)"
                     required={false}
                   />
                 </Col>
-                <Col lg={12} className="my-2">
+                <Col lg={9} className="mt-4">
                   <FormSelect
                     className="options"
-                    defaultValue={action}
+                    defaultValue={inputs.action}
                     onChange={(e) => {
-                      setAction(e.target.value);
+                      setInputs((prevState) => ({
+                        ...prevState,
+                        action: e.target.value,
+                      }));
                     }}
                   >
                     <option value="init">Init</option>
@@ -214,21 +291,27 @@ const Home = () => {
                     <option value="delete">Delete</option>
                   </FormSelect>
                 </Col>
-                <Col lg={12} className="my-2">
+                <Col lg={3} className="mt-4">
                   <Button
+                    className="d-flex justify-content-center align-items-center"
                     onClick={() => {}}
-                    width={100}
+                    width={80}
                     height={40}
                     text={
                       <GradientText startColor="#f18303" endColor="#f94409">
-                        Go!
+                        Go{" "}
+                        <AiFillRocket
+                          size={15}
+                          className="mx-0"
+                          style={{ transform: "rotateZ(25deg)" }}
+                        />
                       </GradientText>
                     }
                   />
                 </Col>
-              </form>
-            </Row>
-          </Container>
+              </Row>
+            </Container>
+          </form>
         </Col>
       </Row>
       <Row className="log-div">
@@ -241,7 +324,13 @@ const Home = () => {
             Checkpoint Status
           </GradientText>
           <br />
-          {logarray.map((log, index) => {
+          <PulseLoader
+            className="mx-5"
+            color={"#f94409"}
+            loading={loading}
+            size={5}
+          />
+          {logState.logarray.map((log, index) => {
             return (
               <code>
                 <GradientText
@@ -249,7 +338,7 @@ const Home = () => {
                   endColor="#00B152"
                   style={{ textDecoration: "underline" }}
                 >
-                  {log}
+                  {log} {<AiOutlineCheck color="#00B152" />}
                 </GradientText>
                 <br />
               </code>
@@ -265,7 +354,13 @@ const Home = () => {
             Logs/Warnings
           </GradientText>
           <br />
-          {errorLogarray.map((log, index) => {
+          <PulseLoader
+            className="mx-5"
+            color={"#f94409"}
+            loading={loading}
+            size={5}
+          />
+          {logState.errorLogarray.map((log, index) => {
             return (
               <code>
                 <GradientText
@@ -273,7 +368,7 @@ const Home = () => {
                   endColor="#C70002"
                   style={{ textDecoration: "underline" }}
                 >
-                  {log}
+                  {log} {<AiOutlineClose color="#C70002" />}
                 </GradientText>
                 <br />
               </code>
