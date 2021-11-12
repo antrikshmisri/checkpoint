@@ -101,8 +101,8 @@ def get_all_checkpoints(target_dir):
 
     Returns
     -------
-    list:
-        List of checkpoints, current_checkpoint, ignore_dirs.
+    list of str
+        List containing names of all checkpoints
     """
     checkpoint_path = os.path.join(target_dir, '.checkpoint')
 
