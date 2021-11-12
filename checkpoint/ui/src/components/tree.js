@@ -8,7 +8,6 @@ const Tree = ({ structure }) => {
   const visitedFolders = [];
   const treeStructure = {
     name: Object.keys(structure)[0],
-
     isOpen: false,
     children: [
       ...Object.keys(structure)
@@ -27,21 +26,19 @@ const Tree = ({ structure }) => {
                   };
                 }),
                 ...structure[key].folders.map((item) => {
-                  if (!visitedFolders.includes(item)) {
-                    visitedFolders.push(item);
-                    return {
-                      name: item,
+                  visitedFolders.push(item);
+                  return {
+                    name: item,
 
-                      isOpen: false,
-                      children: [
-                        ...structure[item].files.map((item) => {
-                          return {
-                            name: item,
-                          };
-                        }),
-                      ],
-                    };
-                  }
+                    isOpen: false,
+                    children: [
+                      ...structure[item].files.map((item) => {
+                        return {
+                          name: item,
+                        };
+                      }),
+                    ],
+                  };
                 }),
               ],
             };
