@@ -9,6 +9,7 @@ from types import MethodType
 from joblib import Parallel, delayed
 
 from checkpoint import __version__ as version
+import checkpoint
 from checkpoint.crypt import Crypt, generate_key
 from checkpoint.io import IO
 from checkpoint.readers import get_all_readers
@@ -413,19 +414,39 @@ class CheckpointSequence(Sequence):
         super(CheckpointSequence, self).__init__(sequence_name, order_dict,
                                                  terminal_log=terminal_log)
 
+
+    def _validate_checkpoint(self):
+        """Validate if a checkpoint is valid."""
+        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        if not os.path.isdir(checkpoint_path):
+            raise ValueError(f'Checkpoint {self.sequence_name} does not exist')
+
+
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
-        self._io = IO(path=self.root_dir, mode="a",
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
-        path = self._io.make_dir('.checkpoint')
+        path = _io.make_dir('.checkpoint')
         generate_key('crypt.key', path)
+
+        checkpoint_config = {
+            'current_checkpoint': None,
+            'checkpoints': [],
+            'ignore_dirs': self.ignore_dirs,
+            'root_dir': self.root_dir,
+        }
+
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
+        _io.write(config_path, 'w+', json.dumps(checkpoint_config))
+
 
     def seq_create_checkpoint(self):
         """Create a new checkpoint for the target directory."""
-        if self.sequence_name in os.listdir(os.path.join(self.root_dir, '.checkpoint')):
-            raise ValueError(
-                f'Checkpoint with name {self.sequence_name} already exists')
-        self._io = IO(path=self.root_dir, mode="a",
+        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        if os.path.isdir(checkpoint_path):
+            raise ValueError(f'Checkpoint {self.sequence_name} already exists')
+
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
 
         _io_sequence = IOSequence(root_dir=self.root_dir,
@@ -436,15 +457,25 @@ class CheckpointSequence(Sequence):
 
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
-        checkpoint_path = self._io.make_dir(checkpoint_path)
+        checkpoint_path = _io.make_dir(checkpoint_path)
         checkpoint_file_path = os.path.join(
             checkpoint_path, f'{self.sequence_name}.json')
+        
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
 
         with open(checkpoint_file_path, 'w+') as checkpoint_file:
             json.dump(enc_files, checkpoint_file, indent=4)
+        
+        with open(config_path, 'r') as config_file:
+            checkpoint_config = json.load(config_file)
+            checkpoint_config['checkpoints'].append(self.sequence_name)
+            checkpoint_config['current_checkpoint'] = self.sequence_name
+        
+        with open(config_path, 'w+') as config_file:
+            json.dump(checkpoint_config, config_file, indent=4)
 
         root2file = {}
-        for root, file in self._io.walk_directory():
+        for root, file in _io.walk_directory():
             if root in root2file:
                 root2file[root].append(os.path.join(root, file))
             else:
@@ -455,28 +486,53 @@ class CheckpointSequence(Sequence):
 
     def seq_delete_checkpoint(self):
         """Delete the checkpoint for the target directory."""
-        self._io = IO(path=self.root_dir, mode="a",
+        self._validate_checkpoint()
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
-        self._io.delete_dir(checkpoint_path)
+        
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
+        with open(config_path, 'r') as config_file:
+            checkpoint_config = json.load(config_file)
+            checkpoint_config['checkpoints'].remove(self.sequence_name)
+            if len(checkpoint_config['checkpoints']):
+                _new_current_checkpoint = checkpoint_config['checkpoints'][-1]
+            else:
+                _new_current_checkpoint = None
+            checkpoint_config['current_checkpoint'] = _new_current_checkpoint
+
+        with open(config_path, 'w+') as config_file:
+            json.dump(checkpoint_config, config_file, indent=4)
+
+        _io.delete_dir(checkpoint_path)
 
     def seq_restore_checkpoint(self):
         """Restore back to a specific checkpoint."""
-        self._io = IO(path=self.root_dir, mode="a",
+        self._validate_checkpoint()
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
         _key = os.path.join(self.root_dir, '.checkpoint')
         crypt = Crypt(key='crypt.key', key_path=_key)
 
         checkpoint_path = os.path.join(self.root_dir, '.checkpoint',
                                        self.sequence_name, f'{self.sequence_name}.json')
+        
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
 
         with open(checkpoint_path, 'r') as checkpoint_file:
             checkpoint_dict = json.load(checkpoint_file)
+        
+        with open(config_path, 'r') as config_file:
+            checkpoint_config = json.load(config_file)
+            checkpoint_config['current_checkpoint'] = self.sequence_name
+        
+        with open(config_path, 'w+') as config_file:
+            json.dump(checkpoint_config, config_file, indent=4)
 
         for file, content in checkpoint_dict.items():
             content = crypt.decrypt(content)
-            self._io.write(file, 'wb+', content)
+            _io.write(file, 'wb+', content)
 
     def seq_version(self):
         """Print the version of the sequence."""
