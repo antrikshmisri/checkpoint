@@ -1,0 +1,30 @@
+body {
+  background-color: #2e3134 !important;
+  color: #DADADA;
+}
+
+h1{
+    font-weight: 600 !important;
+}
+
+#main-content-container, #side-menu-container {
+    background: linear-gradient(145deg, #2b2d2f, #333638) !important;
+    border-radius: 10px !important;
+    box-shadow: 5px 5px 10px #2a2c2d, -5px -5px 10px #36393b !important;
+    color: #a4a5a7;
+}
+
+.sig {
+    background: linear-gradient(145deg, #2b2d2f, #333638) !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 2px 8px #2a2c2d, -2px -2px 8px #36393b !important;
+    color: #fff !important;
+}
+
+input {
+    padding: 0.5rem;
+    background: linear-gradient(145deg, #2b2d2f, #333638) !important;
+    border-radius: 10px !important;
+    box-shadow: 2px 2px 8px #2a2c2d, -2px -2px 8px #36393b !important;
+    color: #a4a5a7 !important;
+}
