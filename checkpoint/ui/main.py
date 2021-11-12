@@ -3,6 +3,7 @@ import os
 import sys
 from argparse import ArgumentParser
 from subprocess import PIPE, Popen
+from webbrowser import open_new_tab
 
 import eel
 import eel.browsers
@@ -100,19 +101,52 @@ def get_all_checkpoints(target_dir):
 
     Returns
     -------
-    list of str
-        List containing names of all checkpoints
+    list:
+        List of checkpoints, current_checkpoint, ignore_dirs.
     """
     checkpoint_path = os.path.join(target_dir, '.checkpoint')
-    checkpoints = []
+
     if not os.path.isdir(checkpoint_path):
         return []
 
-    for dir in os.listdir(checkpoint_path):
-        if os.path.isdir(os.path.join(checkpoint_path, dir)):
-            checkpoints.append(dir)
+    config_path = os.path.join(checkpoint_path, '.config')
+    if not os.path.isfile(config_path):
+        checkpoints = []
+    else:
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+            checkpoints = config['checkpoints']
 
     return checkpoints
+
+
+@eel.expose
+def get_ignore_dirs(target_dir):
+    checkpoint_path = os.path.join(target_dir, '.checkpoint')
+
+    config_path = os.path.join(checkpoint_path, '.config')
+    if not os.path.isfile(config_path):
+        return []
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+        ignore_dirs = config['ignore_dirs']
+    
+    return ignore_dirs
+
+
+@eel.expose
+def get_current_checkpoint(target_dir):
+    checkpoint_path = os.path.join(target_dir, '.checkpoint')
+
+    config_path = os.path.join(checkpoint_path, '.config')
+    if not os.path.isfile(config_path):
+        return None
+
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+        current_checkpoint = config['current_checkpoint']
+    
+    return current_checkpoint
 
 
 @eel.expose
@@ -174,6 +208,33 @@ def generate_tree(checkpoint_name, target_directory):
 
     return serializable_tree
 
+
+@eel.expose
+def validate_path(path):
+    """Validate a path.
+    
+    Parameters
+    ----------
+    path: str
+        Path to validate
+    """
+    if not os.path.isdir(path):
+        return False
+
+    return True
+
+
+@eel.expose
+def open_browser(url):
+    """Open a URL in browser.
+
+    Parameters
+    ----------
+    url: str
+        URL to open.
+    """
+    open_new_tab(url)
+ 
 
 def fetch_npm_package(package_name):
     """Fetch a package using node package manager.
