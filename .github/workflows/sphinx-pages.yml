@@ -1,6 +1,7 @@
 name: Pages
-on:
-  push:
+on: [push]
+jobs:
+  build:
     inputs:
       - name: documentation_path
         description: Path to the documentation directory
@@ -10,8 +11,6 @@ on:
         description: Install requirements before building the documentation
         required: true
         default: true
-jobs:
-  build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
