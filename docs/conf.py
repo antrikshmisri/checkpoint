@@ -66,7 +66,7 @@ html_favicon = '_static/favicon.ico'
 html_theme_options = {
     'display_version': True,
     # Toc options
-    'navigation_depth': 4,
+    'navigation_depth': 2,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
