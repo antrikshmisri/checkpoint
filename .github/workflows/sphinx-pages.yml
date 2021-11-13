@@ -2,15 +2,6 @@ name: Pages
 on: [push]
 jobs:
   build:
-    inputs:
-      - name: documentation_path
-        description: Path to the documentation directory
-        required: true
-        default: docs
-      - name: install_requirements
-        description: Install requirements before building the documentation
-        required: true
-        default: true
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -19,6 +10,9 @@ jobs:
         fetch-depth: 0 # otherwise, you will failed to push refs to dest repo
     - name: Build and Commit
       uses: sphinx-notes/pages@master
+      with:
+        documentation_path: docs
+        install_requirements: true
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
