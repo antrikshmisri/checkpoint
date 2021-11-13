@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint package</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="genindex.html"/>
+
+  <link rel="stylesheet" href="_static/css/insegel.css"/>
+  <link rel="stylesheet" href="_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+      <script type="text/javascript" src="_static/documentation_options.js"></script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="index.html"><img src="_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <section id="checkpoint-package">
+<h1>checkpoint package<a class="headerlink" href="#checkpoint-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="checkpoint.tests.html">checkpoint.tests package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#checkpoint-tests-test-crypt-module">checkpoint.tests.test_crypt module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#checkpoint-tests-test-io-module">checkpoint.tests.test_io module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#checkpoint-tests-test-readers-module">checkpoint.tests.test_readers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#checkpoint-tests-test-sequences-module">checkpoint.tests.test_sequences module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#checkpoint-tests-test-utils-module">checkpoint.tests.test_utils module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.tests.html#module-checkpoint.tests">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-checkpoint.crypt">
+<span id="checkpoint-crypt-module"></span><h2>checkpoint.crypt module<a class="headerlink" href="#module-checkpoint.crypt" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="checkpoint.crypt.Crypt">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.crypt.</span></span><span class="sig-name descname"><span class="pre">Crypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/checkpoint/checkpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#Crypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.Crypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to perform cryptographical operations</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.crypt.Crypt.decrypt">
+<span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modify_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#Crypt.decrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.Crypt.decrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decrypt a specific file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Path to the file or content that isto be decrypted</p></li>
+<li><p><strong>modify_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the hash will be written in the target file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.crypt.Crypt.encrypt">
+<span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modify_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#Crypt.encrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.Crypt.encrypt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encrypt a specific file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Path to the file or content that isto be encrypted</p></li>
+<li><p><strong>modify_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the hash will be written in the target file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="checkpoint.crypt.generate_key">
+<span class="sig-prename descclassname"><span class="pre">checkpoint.crypt.</span></span><span class="sig-name descname"><span class="pre">generate_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/checkpoint/checkpoint'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#generate_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.generate_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a key to encrypt/decrypt files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the key, should end with .key extension</p></li>
+<li><p><strong>path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path where key isto be stored</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-checkpoint.io">
+<span id="checkpoint-io-module"></span><h2>checkpoint.io module<a class="headerlink" href="#module-checkpoint.io" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="checkpoint.io.IO">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.io.</span></span><span class="sig-name descname"><span class="pre">IO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/checkpoint/checkpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to perform Input/Output opreations.</p>
+<p>Provides methods to perform various IO operations
+in the target directory.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="checkpoint.io.IO.path">
+<span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#checkpoint.io.IO.path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to the target directory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="checkpoint.io.IO.mode">
+<span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#checkpoint.io.IO.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mode of operations, valid values are
+<cite>a</cite>: IO has all permissions (R/W/X/A)
+<cite>m</cite>: IO has moderate permissions (R/W/A)
+<cite>s</cite>: IO has limited permissions (R/A)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.delete_dir">
+<span class="sig-name descname"><span class="pre">delete_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.delete_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.delete_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a sub directory in the root directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dir_name</strong> (<em>str</em>) – Name of the sub directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.get_file_extension">
+<span class="sig-name descname"><span class="pre">get_file_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.get_file_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.get_file_extension" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the extension from the file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Path to the file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.make_dir">
+<span class="sig-name descname"><span class="pre">make_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.make_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.make_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a sub directory in the root directory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>dir_name</strong> (<em>str</em>) – Name of the sub directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="checkpoint.io.IO.mode_mapping">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode_mapping</span></span><a class="headerlink" href="#checkpoint.io.IO.mode_mapping" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.open">
+<span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a file in a given mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Name of the file</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Mode of operation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#id1" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.read">
+<span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read the content of a file</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Name of the file</p></li>
+<li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode of operation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.setup">
+<span class="sig-name descname"><span class="pre">setup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.setup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the IO class.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.update_paths">
+<span class="sig-name descname"><span class="pre">update_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.update_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.update_paths" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the paths of files, sub_dirs w.r.t the path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the target directory</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.walk_directory">
+<span class="sig-name descname"><span class="pre">walk_directory</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.walk_directory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.walk_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Walk through the root directory.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="checkpoint.io.IO.write">
+<span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write some content into a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file</strong> (<em>str</em>) – Name of the file</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Mode of operation</p></li>
+<li><p><strong>content</strong> (<em>str</em>) – Content to write in the file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="checkpoint-readers-module">
+<h2>checkpoint.readers module<a class="headerlink" href="#checkpoint-readers-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="checkpoint-sequences-module">
+<h2>checkpoint.sequences module<a class="headerlink" href="#checkpoint-sequences-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="checkpoint-utils-module">
+<h2>checkpoint.utils module<a class="headerlink" href="#checkpoint-utils-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-checkpoint">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-checkpoint" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">checkpoint</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">checkpoint package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#subpackages">Subpackages</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="checkpoint.tests.html">checkpoint.tests package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-checkpoint.crypt">checkpoint.crypt module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-checkpoint.io">checkpoint.io module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checkpoint-readers-module">checkpoint.readers module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checkpoint-sequences-module">checkpoint.sequences module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#checkpoint-utils-module">checkpoint.utils module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-checkpoint">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+                <li class="footer-element">
+                    
+                        <a href="_sources/checkpoint.rst.txt" rel="nofollow"> source</a>
+                    
+                </li>
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

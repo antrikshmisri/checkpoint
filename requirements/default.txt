@@ -1,5 +1,0 @@
-numpy
-pillow
-pyfiglet==0.8.post1
-joblib
-cryptography
