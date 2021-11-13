@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.autosummary',
     'sphinx.ext.viewcode',
     'sphinx.ext.napoleon',
+    'sphinx.ext.githubpages'
 ]
 
 # Generate the API documentation when building
@@ -60,6 +61,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'insegel'
 import insegel
 html_theme_path = [insegel.get_path(), ]
+html_logo = '_static/logo.png'
+html_favicon = '_static/favicon.ico'
 html_theme_options = {
     'display_version': True,
     # Toc options
