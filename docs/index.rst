@@ -9,7 +9,9 @@ Welcome to checkpoint's documentation!
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
+   
+   getting_started
+   installation
    modules
 
 

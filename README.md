@@ -1,5 +1,11 @@
 # checkpoint
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d530dec72a679fe43d46/maintainability)](https://codeclimate.com/github/antrikshmisri/checkpoint/maintainability) [![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![Downloads](https://pepy.tech/badge/pycheckpoint)](https://pepy.tech/project/pycheckpoint) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d530dec72a679fe43d46/maintainability)](https://codeclimate.com/github/antrikshmisri/checkpoint/maintainability)
+
+
+[![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![Downloads](https://pepy.tech/badge/pycheckpoint)](https://pepy.tech/project/pycheckpoint)
+
+
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
 
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
@@ -20,6 +26,8 @@ Checkpoint provides multiple `Sequence` classes that have memeber functions whic
 
 Checkpoint also supports custom sequences that can be used to initialize checkpoint in different environments. For example, if checkpoint isto be initialized in a UI enviroment a sequence for UI can be created and passed to the `Checkpoint` constructor.
 
+**Detailed documentation can be found [here](http://checkpoint.antriksh.live/)**
+
 ## How to use checkpoint?
 
 Currently, checkpoint can only be used in a CLI environment. The following is an example of how to use checkpoint in a CLI environment.
@@ -35,7 +43,7 @@ checkpoint --action=init --path=path/to/project
 checkpoint --name=restore_point_name --action=create --path=path/to/project
 ```
 
-##### Restoring a restore point
+##### Jumping to a restore point
 ```bash
 checkpoint --name=restore_point_name --action=restore --path=path/to/project
 ```
@@ -43,6 +51,11 @@ checkpoint --name=restore_point_name --action=restore --path=path/to/project
 ##### Deleting a restore point
 ```bash
 checkpoint --name=restore_point_name --action=delete --path=path/to/project
+```
+
+##### Version of checkpoint
+```bash
+checkpoint --name=restore_point_name --action=version --path=path/to/project
 ```
 
 ## Installation
@@ -71,7 +84,7 @@ pip install .
 ```
 ##### 5. Run the tests
 ```bash
-pip install -r requirements/test.txt
+pip intall -r requirements/test.txt
 pytest -v checkpoint/tests/
 ```
 
