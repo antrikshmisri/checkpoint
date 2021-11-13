@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint.tests.test_io</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="../../../genindex.html"/>
+
+  <link rel="stylesheet" href="../../../_static/css/insegel.css"/>
+  <link rel="stylesheet" href="../../../_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="../../../index.html"><img src="../../../_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <h1>Source code for checkpoint.tests.test_io</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">rmtree</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryDirectory</span> <span class="k">as</span> <span class="n">InTemporaryDirectory</span>
+
+<span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">io</span>
+
+
+<div class="viewcode-block" id="test_io"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_io.test_io">[docs]</a><span class="k">def</span> <span class="nf">test_io</span><span class="p">():</span>
+
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp&#39;</span><span class="p">))</span>
+
+        <span class="n">simple_io</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp&#39;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+        <span class="n">simple_io</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">tdir</span>
+        <span class="n">simple_io</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="s1">&#39;s&#39;</span>
+
+        <span class="n">root_file</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">simple_io</span><span class="o">.</span><span class="n">walk_directory</span><span class="p">():</span>
+            <span class="n">root_file</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">])</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">root_file</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">tdir</span><span class="p">)</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_io</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">)</span>
+        <span class="n">rmtree</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp&#39;</span><span class="p">))</span>  <span class="c1"># Remove the temporary directory</span>
+
+        <span class="n">a_io</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+        <span class="n">a_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp.txt&#39;</span><span class="p">),</span>
+                   <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s1">&#39;Temporary File&#39;</span><span class="p">)</span>
+        <span class="n">ext</span> <span class="o">=</span> <span class="n">a_io</span><span class="o">.</span><span class="n">get_file_extension</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp.txt&#39;</span><span class="p">))</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="s1">&#39;txt&#39;</span><span class="p">)</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="n">a_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp.txt&#39;</span><span class="p">))</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;Temporary File&#39;</span><span class="p">)</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp.txt&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">IOError</span><span class="p">):</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">a_io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;invalid mode&#39;</span><span class="p">)</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="n">a_io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="s1">&#39;Temporary File&#39;</span><span class="p">)</span>
+
+        <span class="n">s_io</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">IOError</span><span class="p">):</span>
+            <span class="n">s_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp.txt&#39;</span><span class="p">),</span>
+                       <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">content</span><span class="o">=</span><span class="s2">&quot;Invalid Permission&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">IOError</span><span class="p">):</span>
+            <span class="n">s_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;temp.txt&#39;</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">IOError</span><span class="p">):</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="s1">&#39;invalid_path&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;invalid_mode&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">simple_io</span><span class="o">.</span><span class="n">mode_mapping</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">,</span> <span class="s1">&#39;third_invalid_value&#39;</span><span class="p">]</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_io</span><span class="o">.</span><span class="n">mode_mappings</span><span class="p">,</span> <span class="n">simple_io</span><span class="o">.</span><span class="n">mode_mapping</span><span class="p">)</span>
+
+        <span class="n">simple_io</span><span class="o">.</span><span class="n">mode_mapping</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="s1">&#39;wb+&#39;</span> <span class="ow">in</span> <span class="n">simple_io</span><span class="o">.</span><span class="n">mode_mappings</span><span class="p">[</span><span class="s1">&#39;s&#39;</span><span class="p">],</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">new_dir</span> <span class="o">=</span> <span class="n">simple_io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="s1">&#39;test_dir&#39;</span><span class="p">)</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">new_dir</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">simple_io</span><span class="o">.</span><span class="n">delete_dir</span><span class="p">(</span><span class="n">new_dir</span><span class="p">)</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">new_dir</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span></div>
+</pre></div>
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

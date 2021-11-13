@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint.tests.test_readers</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="../../../genindex.html"/>
+
+  <link rel="stylesheet" href="../../../_static/css/insegel.css"/>
+  <link rel="stylesheet" href="../../../_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="../../../index.html"><img src="../../../_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <h1>Source code for checkpoint.tests.test_readers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryDirectory</span> <span class="k">as</span> <span class="n">InTemporaryDirectory</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">readers</span>
+<span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
+
+
+<div class="viewcode-block" id="test_reader"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_readers.test_reader">[docs]</a><span class="k">def</span> <span class="nf">test_reader</span><span class="p">():</span>
+    <span class="k">class</span> <span class="nc">SimpleReader</span><span class="p">(</span><span class="n">readers</span><span class="o">.</span><span class="n">Reader</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;test&#39;</span>
+
+        <span class="k">def</span> <span class="nf">_validate_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">core_reader</span> <span class="o">=</span> <span class="n">SimpleReader</span><span class="p">(</span><span class="n">valid_extensions</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;txt&#39;</span><span class="p">])</span>
+
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">tdir</span><span class="p">)</span>
+        <span class="n">invalid_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;invalid.extension&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">invalid_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;Test Content&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">core_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">invalid_file</span><span class="p">)</span>
+
+        <span class="n">valid_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;valid.txt&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">valid_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;Test Content&#39;</span><span class="p">)</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">core_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">valid_file</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">])</span>
+
+        <span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;txt&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">core_reader</span><span class="o">.</span><span class="n">validate_extensions</span><span class="p">(</span><span class="n">extensions</span><span class="p">),</span> <span class="p">[])</span></div>
+
+
+<div class="viewcode-block" id="test_text_reader"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_readers.test_text_reader">[docs]</a><span class="k">def</span> <span class="nf">test_text_reader</span><span class="p">():</span>
+    <span class="n">simple_text_reader</span> <span class="o">=</span> <span class="n">readers</span><span class="o">.</span><span class="n">TextReader</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">invalid_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;invalid.extension&#39;</span><span class="p">)</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">tdir</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">invalid_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;Test Content&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">simple_text_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">invalid_file</span><span class="p">)</span>
+
+        <span class="n">valid_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;valid.txt&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">valid_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;Test Content&#39;</span><span class="p">)</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_text_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">valid_file</span><span class="p">),</span>
+                         <span class="p">[{</span><span class="n">valid_file</span><span class="p">:</span> <span class="s1">&#39;Test Content&#39;</span><span class="p">}])</span>
+
+        <span class="n">valid_extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;txt&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">]</span>
+        <span class="n">simple_text_reader</span><span class="o">.</span><span class="n">validate_extensions</span><span class="p">(</span><span class="n">valid_extensions</span><span class="p">)</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">valid_extensions</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;txt&#39;</span><span class="p">,</span> <span class="s1">&#39;log&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="test_image_reader"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_readers.test_image_reader">[docs]</a><span class="k">def</span> <span class="nf">test_image_reader</span><span class="p">():</span>
+    <span class="n">image_reader</span> <span class="o">=</span> <span class="n">readers</span><span class="o">.</span><span class="n">ImageReader</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">invalid_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;invalid.ext&#39;</span><span class="p">)</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">tdir</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">invalid_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;Invalid image data&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">image_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">invalid_file</span><span class="p">)</span>
+
+        <span class="n">test_size</span> <span class="o">=</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="n">img_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="o">*</span><span class="n">test_size</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="n">valid_file</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;valid.png&#39;</span><span class="p">)</span>
+
+        <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img_data</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">valid_file</span><span class="p">)</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">image_reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">valid_file</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                         <span class="p">{</span><span class="n">valid_file</span><span class="p">:</span> <span class="n">img_data</span><span class="o">.</span><span class="n">tobytes</span><span class="p">()})</span>
+
+        <span class="n">extensions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid&#39;</span><span class="p">]</span>
+        <span class="n">image_reader</span><span class="o">.</span><span class="n">validate_extensions</span><span class="p">(</span><span class="n">extensions</span><span class="p">)</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">extensions</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;jpg&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="test_get_all_readers"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_readers.test_get_all_readers">[docs]</a><span class="k">def</span> <span class="nf">test_get_all_readers</span><span class="p">():</span>
+    <span class="n">all_readers</span> <span class="o">=</span> <span class="n">readers</span><span class="o">.</span><span class="n">get_all_readers</span><span class="p">()</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_array_equal</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">all_readers</span><span class="p">),</span> <span class="nb">set</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">readers</span><span class="o">.</span><span class="n">TextReader</span><span class="p">,</span> <span class="n">readers</span><span class="o">.</span><span class="n">ImageReader</span><span class="p">]))</span></div>
+</pre></div>
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

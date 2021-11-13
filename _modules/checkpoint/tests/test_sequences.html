@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint.tests.test_sequences</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../../_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../../_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="../../../genindex.html"/>
+
+  <link rel="stylesheet" href="../../../_static/css/insegel.css"/>
+  <link rel="stylesheet" href="../../../_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="../../../index.html"><img src="../../../_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <h1>Source code for checkpoint.tests.test_sequences</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">argparse</span> <span class="k">import</span> <span class="n">ArgumentParser</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">isfile</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span> <span class="k">as</span> <span class="n">pjoin</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">rmtree</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryDirectory</span> <span class="k">as</span> <span class="n">InTemporaryDirectory</span>
+
+<span class="kn">import</span> <span class="nn">numpy.testing</span> <span class="k">as</span> <span class="nn">npt</span>
+<span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">version</span>
+<span class="kn">from</span> <span class="nn">checkpoint.crypt</span> <span class="k">import</span> <span class="n">Crypt</span>
+<span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">checkpoint.sequences</span> <span class="k">import</span> <span class="p">(</span><span class="n">CheckpointSequence</span><span class="p">,</span> <span class="n">CLISequence</span><span class="p">,</span> <span class="n">IOSequence</span><span class="p">,</span>
+                                  <span class="n">Sequence</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="test_sequence"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_sequences.test_sequence">[docs]</a><span class="k">def</span> <span class="nf">test_sequence</span><span class="p">():</span>
+    <span class="n">simple_sequence</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;simple_sequence&#39;</span><span class="p">)</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_sequence</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="s1">&#39;simple_sequence&#39;</span><span class="p">)</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">simple_sequence</span><span class="p">),</span>
+                     <span class="n">f</span><span class="s1">&#39;Name: </span><span class="si">{simple_sequence.name}</span><span class="s1">, Member Function: {[]}&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">invalid_sequence_function</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">&quot;Invalid function, doesn&#39;t start with &#39;seq&#39;&quot;</span>
+
+    <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">simple_sequence</span><span class="o">.</span><span class="n">add_sequence_function</span><span class="p">(</span><span class="n">invalid_sequence_function</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">seq_test_sequence_function</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{simple_sequence.name}</span><span class="s2">&quot;</span>
+
+    <span class="n">simple_sequence</span><span class="o">.</span><span class="n">add_sequence_function</span><span class="p">(</span><span class="n">seq_test_sequence_function</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span>
+        <span class="n">simple_sequence</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">seq_test_sequence_function</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">simple_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">execution_policy</span><span class="o">=</span><span class="s2">&quot;invalid&quot;</span><span class="p">)</span>
+
+    <span class="n">simple_sub_sequence</span> <span class="o">=</span> <span class="n">Sequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;simple_sub_sequence&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">seq_test_sub_sequence_function</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{simple_sub_sequence.name}</span><span class="s2">&quot;</span>
+
+    <span class="n">simple_sub_sequence</span><span class="o">.</span><span class="n">add_sequence_function</span><span class="p">(</span><span class="n">seq_test_sub_sequence_function</span><span class="p">)</span>
+    <span class="n">simple_sequence</span><span class="o">.</span><span class="n">add_sub_sequence</span><span class="p">(</span><span class="n">simple_sub_sequence</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+        <span class="n">simple_sequence</span><span class="o">.</span><span class="n">add_sub_sequence</span><span class="p">(</span><span class="n">IO</span><span class="p">())</span>
+
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span>
+        <span class="n">simple_sequence</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">simple_sub_sequence</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">return_vals</span> <span class="o">=</span> <span class="n">simple_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span>
+        <span class="n">execution_policy</span><span class="o">=</span><span class="s2">&quot;increasing_order&quot;</span><span class="p">)</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">,</span> <span class="p">[</span><span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{simple_sequence.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                   <span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{simple_sub_sequence.name}</span><span class="s2">&quot;</span><span class="p">])</span>
+
+    <span class="n">return_vals</span> <span class="o">=</span> <span class="n">simple_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">()</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">,</span> <span class="p">[</span><span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{simple_sub_sequence.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                   <span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{simple_sequence.name}</span><span class="s2">&quot;</span><span class="p">])</span>
+
+    <span class="n">simple_sequence</span><span class="o">.</span><span class="n">flush_sequence</span><span class="p">()</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_sequence</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="n">simple_sequence</span><span class="o">.</span><span class="n">sequence_functions</span> <span class="o">=</span> <span class="p">[</span><span class="n">seq_test_sequence_function</span><span class="p">]</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">simple_sequence</span><span class="o">.</span><span class="n">sequence_functions</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                     <span class="n">seq_test_sequence_function</span><span class="p">)</span>
+
+    <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;seq_test_method&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">}</span>
+
+    <span class="k">class</span> <span class="nc">SequenceMemeberMethods</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="o">=</span><span class="s2">&quot;Sequence_With_Member_Methods&quot;</span><span class="p">,</span>
+                     <span class="n">order_dict</span><span class="o">=</span><span class="n">order_dict</span><span class="p">):</span>
+            <span class="nb">super</span><span class="p">(</span><span class="n">SequenceMemeberMethods</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+                <span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">seq_test_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">f</span><span class="s2">&quot;Memeber function of </span><span class="si">{self.name}</span><span class="s2">&quot;</span>
+
+    <span class="n">sequence_with_member_methods</span> <span class="o">=</span> <span class="n">SequenceMemeberMethods</span><span class="p">()</span>
+    <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">sequence_with_member_methods</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">[</span><span class="mi">100</span><span class="p">],</span>
+                     <span class="n">sequence_with_member_methods</span><span class="o">.</span><span class="n">seq_test_method</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_io_sequence"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_sequences.test_io_sequence">[docs]</a><span class="k">def</span> <span class="nf">test_io_sequence</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+        <span class="n">_checkpoint_sequernce</span> <span class="o">=</span> <span class="n">CheckpointSequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;checkpoint_sequence&#39;</span><span class="p">,</span>
+                                                   <span class="n">order_dict</span><span class="o">=</span><span class="p">{</span>
+                                                       <span class="s1">&#39;seq_init_checkpoint&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+                                                   <span class="n">root_dir</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="nb">list</span><span class="p">())</span>
+
+        <span class="n">_checkpoint_sequernce</span><span class="o">.</span><span class="n">seq_init_checkpoint</span><span class="p">()</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="s1">&#39;text_files&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="s1">&#39;binary_files&#39;</span><span class="p">)</span>
+        <span class="c1"># Writing into test files</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;text_files&#39;</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;text_files&#39;</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test1&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;binary_files&#39;</span><span class="p">,</span> <span class="s1">&#39;test.bin&#39;</span><span class="p">),</span> <span class="s1">&#39;wb+&#39;</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+
+        <span class="n">io_sequence</span> <span class="o">=</span> <span class="n">IOSequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;test_io_sequence&#39;</span><span class="p">,</span>
+                                 <span class="n">root_dir</span><span class="o">=</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;binary_files&#39;</span><span class="p">])</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">):</span>
+            <span class="n">io_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">()</span>
+
+        <span class="n">return_vals</span> <span class="o">=</span> <span class="n">io_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">text_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;text_files&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Testing Walk Directory phase of sequence</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">{</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;text_files&#39;</span><span class="p">):</span> <span class="p">[</span>
+                         <span class="n">pjoin</span><span class="p">(</span><span class="n">text_path</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">text_path</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">)]})</span>
+
+        <span class="c1"># Testing Group files by extension phase of sequence</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="p">{</span><span class="s1">&#39;txt&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">pjoin</span><span class="p">(</span>
+            <span class="n">text_path</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">text_path</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">)]})</span>
+
+        <span class="c1"># Testing Map Readers phase of sequence</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                         <span class="p">[</span><span class="s1">&#39;txt&#39;</span><span class="p">]</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="s1">&#39;TextReader&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span>
+            <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="s1">&#39;bin&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">return_vals</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Testing Read files phase of sequence</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">return_vals</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[[{</span><span class="n">pjoin</span><span class="p">(</span><span class="n">text_path</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">):</span> <span class="s1">&#39;test&#39;</span><span class="p">},</span> <span class="p">{</span>
+                         <span class="n">pjoin</span><span class="p">(</span><span class="n">text_path</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">):</span> <span class="s1">&#39;test1&#39;</span><span class="p">}]])</span>
+
+        <span class="c1"># Testing Encryption phase of sequence</span>
+        <span class="n">crypt_obj</span> <span class="o">=</span> <span class="n">Crypt</span><span class="p">(</span><span class="s1">&#39;crypt.key&#39;</span><span class="p">,</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">))</span>
+        <span class="n">dec_content</span> <span class="o">=</span> <span class="n">crypt_obj</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span>
+            <span class="n">return_vals</span><span class="p">[</span><span class="mi">4</span><span class="p">][</span><span class="n">pjoin</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s1">&#39;text_files&#39;</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">)])</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">dec_content</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="test_checkpoint_sequence"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_sequences.test_checkpoint_sequence">[docs]</a><span class="k">def</span> <span class="nf">test_checkpoint_sequence</span><span class="p">(</span><span class="n">capsys</span><span class="p">):</span>
+    <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;seq_init_checkpoint&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s1">&#39;seq_create_checkpoint&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+        <span class="s1">&#39;seq_delete_checkpoint&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s1">&#39;seq_restore_checkpoint&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">&#39;seq_version&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">)</span>
+        <span class="n">checkpoint_sequence</span> <span class="o">=</span> <span class="n">CheckpointSequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;checkpoint_sequence&#39;</span><span class="p">,</span>
+                                                 <span class="n">order_dict</span><span class="o">=</span><span class="n">order_dict</span><span class="p">,</span>
+                                                 <span class="n">root_dir</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="nb">list</span><span class="p">())</span>
+
+        <span class="c1"># Testing checkpoint initialization phase of sequence</span>
+        <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">seq_init_checkpoint</span><span class="p">()</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isdir</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isfile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;crypt.key&#39;</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test1&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Testing checkpoint creation phase of sequence</span>
+        <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">seq_create_checkpoint</span><span class="p">()</span>
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span>
+                                <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
+
+        <span class="n">checkpoint_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">io</span><span class="o">.</span><span class="n">walk_directory</span><span class="p">()]</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">checkpoint_files</span><span class="p">),</span> <span class="nb">sorted</span><span class="p">([</span>
+                         <span class="s1">&#39;.metadata&#39;</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{checkpoint_sequence.sequence_name}</span><span class="s1">.json&#39;</span><span class="p">]))</span>
+
+        <span class="n">checkpoint_sequence_two</span> <span class="o">=</span> <span class="n">CheckpointSequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;checkpoint_sequence_two&#39;</span><span class="p">,</span>
+                                                     <span class="n">order_dict</span><span class="o">=</span><span class="n">order_dict</span><span class="p">,</span>
+                                                     <span class="n">root_dir</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="nb">list</span><span class="p">())</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">tdir</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;added text&#39;</span><span class="p">)</span>
+        <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="s1">&#39;added text&#39;</span><span class="p">)</span>
+        <span class="n">checkpoint_sequence_two</span><span class="o">.</span><span class="n">seq_create_checkpoint</span><span class="p">()</span>
+
+        <span class="c1"># Testing checkpoint restoration phase of sequence</span>
+        <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">seq_restore_checkpoint</span><span class="p">()</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">root</span><span class="p">,</span>
+                    <span class="n">file</span> <span class="ow">in</span> <span class="n">io</span><span class="o">.</span><span class="n">walk_directory</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;.checkpoint&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">root</span><span class="p">]</span>
+
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;test1&#39;</span><span class="p">])</span>
+
+        <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">seq_delete_checkpoint</span><span class="p">()</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">checkpoint_sequence</span><span class="o">.</span><span class="n">seq_version</span><span class="p">()</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+        <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">version</span> <span class="ow">in</span> <span class="n">stdout</span><span class="o">.</span><span class="n">out</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">checkpoint_duplicate</span> <span class="o">=</span> <span class="n">CheckpointSequence</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;checkpoint_sequence_two&#39;</span><span class="p">,</span>
+                                                  <span class="n">order_dict</span><span class="o">=</span><span class="n">order_dict</span><span class="p">,</span>
+                                                  <span class="n">root_dir</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="nb">list</span><span class="p">())</span>
+
+        <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+            <span class="n">checkpoint_duplicate</span><span class="o">.</span><span class="n">seq_create_checkpoint</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="test_CLI_sequence"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_sequences.test_CLI_sequence">[docs]</a><span class="k">def</span> <span class="nf">test_CLI_sequence</span><span class="p">():</span>
+    <span class="c1"># TODO: Add a recording option to test CLI sequence based on a recording file</span>
+    <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+        <span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;.checkpoint&#39;</span><span class="p">])</span>
+
+        <span class="n">all_args</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;init&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;init&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;create&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;restore_point&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;create&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;restore&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;restore_point&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;restore&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;delete&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;restore_point&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">],</span>
+                    <span class="s1">&#39;invalid_action&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;-n&#39;</span><span class="p">,</span> <span class="s1">&#39;restore_point&#39;</span><span class="p">,</span> <span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;-a&#39;</span><span class="p">,</span> <span class="s1">&#39;invalid_action&#39;</span><span class="p">]}</span>
+
+        <span class="n">arg_parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Test CLI sequence&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;-n&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--name&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Name of the restore point.&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s1">&#39;restore_point&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;-p&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--path&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the project.&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="n">tdir</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;-a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--action&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Action to perform.&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s1">&#39;init&#39;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">arg_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--ignore-dirs&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span>
+            <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;.git&quot;</span><span class="p">,</span> <span class="s2">&quot;.idea&quot;</span><span class="p">,</span> <span class="s2">&quot;.vscode&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;.venv&quot;</span><span class="p">,</span> <span class="s2">&quot;node_modules&quot;</span><span class="p">,</span> <span class="s2">&quot;__pycache__&quot;</span><span class="p">],</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Ignore directories.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">args</span> <span class="ow">in</span> <span class="n">all_args</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;init&#39;</span><span class="p">:</span>
+                <span class="n">cli_sequence</span> <span class="o">=</span> <span class="n">CLISequence</span><span class="p">(</span><span class="n">arg_parser</span><span class="o">=</span><span class="n">arg_parser</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+                <span class="n">cli_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isdir</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
+                <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span>
+                    <span class="n">isfile</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;crypt.key&#39;</span><span class="p">)),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;create&#39;</span><span class="p">:</span>
+                <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test&#39;</span><span class="p">)</span>
+                <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test1&#39;</span><span class="p">)</span>
+
+                <span class="n">cli_sequence</span> <span class="o">=</span> <span class="n">CLISequence</span><span class="p">(</span><span class="n">arg_parser</span><span class="o">=</span><span class="n">arg_parser</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+                <span class="n">cli_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span>
+                                        <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+                <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;restore&#39;</span><span class="p">:</span>
+                <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test changed&#39;</span><span class="p">)</span>
+                <span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;test1.txt&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test1 changed&#39;</span><span class="p">)</span>
+
+                <span class="n">cli_sequence</span> <span class="o">=</span> <span class="n">CLISequence</span><span class="p">(</span><span class="n">arg_parser</span><span class="o">=</span><span class="n">arg_parser</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+                <span class="n">cli_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">contents</span> <span class="o">=</span> <span class="p">[</span><span class="n">io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                            <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">io</span><span class="o">.</span><span class="n">walk_directory</span><span class="p">()]</span>
+
+                <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;test&#39;</span><span class="p">,</span> <span class="s1">&#39;test1&#39;</span><span class="p">])</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+                <span class="n">cli_sequence</span> <span class="o">=</span> <span class="n">CLISequence</span><span class="p">(</span><span class="n">arg_parser</span><span class="o">=</span><span class="n">arg_parser</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+                <span class="n">cli_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+                <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">npt</span><span class="o">.</span><span class="n">assert_equal</span><span class="p">(</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">),</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;invalid_action&#39;</span><span class="p">:</span>
+                <span class="n">cli_sequence</span> <span class="o">=</span> <span class="n">CLISequence</span><span class="p">(</span><span class="n">arg_parser</span><span class="o">=</span><span class="n">arg_parser</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">npt</span><span class="o">.</span><span class="n">assert_raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+                    <span class="n">cli_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started.html#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

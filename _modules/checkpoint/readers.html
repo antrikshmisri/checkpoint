@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint.readers</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="../../genindex.html"/>
+
+  <link rel="stylesheet" href="../../_static/css/insegel.css"/>
+  <link rel="stylesheet" href="../../_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="../../index.html"><img src="../../_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <h1>Source code for checkpoint.readers</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module that provides readers for different file extensions.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getmembers</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">cpu_count</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryDirectory</span> <span class="k">as</span> <span class="n">InTemporaryDirectory</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
+
+<span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
+
+
+<div class="viewcode-block" id="get_all_readers"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.get_all_readers">[docs]</a><span class="k">def</span> <span class="nf">get_all_readers</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Get all the readers from the module.&quot;&quot;&quot;</span>
+    <span class="n">readers</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">getmembers</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="vm">__name__</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;Reader&#39;</span><span class="p">:</span>
+            <span class="n">readers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">readers</span></div>
+
+
+<div class="viewcode-block" id="Reader"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.Reader">[docs]</a><span class="k">class</span> <span class="nc">Reader</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">abc</span><span class="o">.</span><span class="n">ABCMeta</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Umbrella for all reader classes.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">valid_extensions</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the Reader class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        valid_extensions: list</span>
+<span class="sd">            List of valid extensions for the reader</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">valid_extensions</span> <span class="o">=</span> <span class="n">valid_extensions</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_cores</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            Path to the file that is to be read</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        content: str</span>
+<span class="sd">            Content of the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;This method must be implemented by the child class.&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_validate_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extensions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate if the additional extensions are valid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extensions: list</span>
+<span class="sd">            List of extensions to be validated</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        invalid_idxs: list</span>
+<span class="sd">            List of indices of invalid extensions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;This method must be implemented by the child class.&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Reader.read"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.Reader.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">files</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        files: list</span>
+<span class="sd">            List of files to be read</span>
+<span class="sd">        validate: bool</span>
+<span class="sd">            Flag to validate the extensions</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        content: list</span>
+<span class="sd">            Content of the file/files</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Add parallelization</span>
+        <span class="n">contents</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">exts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">files</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">get_file_extension</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="n">exts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ext</span><span class="p">)</span>
+
+        <span class="n">invalid_idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_extensions</span><span class="p">(</span><span class="n">exts</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">invalid_idxs</span><span class="p">:</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">_ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">get_file_extension</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">validate</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_ext</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">valid_extensions</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="n">f</span><span class="s2">&quot;Invalid file extension: </span><span class="si">{_ext}</span><span class="s2"> for reader </span><span class="si">{self.__class__.__name__}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="n">contents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">(</span><span class="n">file</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">contents</span></div>
+
+<div class="viewcode-block" id="Reader.validate_extensions"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.Reader.validate_extensions">[docs]</a>    <span class="k">def</span> <span class="nf">validate_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extensions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate if the additional extensions are valid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extensions: list</span>
+<span class="sd">            List of extensions to be validated</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        invalid_idxs: list</span>
+<span class="sd">            List of indices of invalid extensions</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_validate_extensions</span><span class="p">(</span><span class="n">extensions</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="TextReader"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.TextReader">[docs]</a><span class="k">class</span> <span class="nc">TextReader</span><span class="p">(</span><span class="n">Reader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to read text files.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initilaize the TextReader class.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TextReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="s1">&#39;txt&#39;</span><span class="p">,</span> <span class="s1">&#39;md&#39;</span><span class="p">,</span> <span class="s1">&#39;rst&#39;</span><span class="p">,</span> <span class="s1">&#39;py&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;css&#39;</span><span class="p">,</span> <span class="s1">&#39;js&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;txt&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            Path to the file that is to be read</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        content: dict</span>
+<span class="sd">            Dictionary containing the content of the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span><span class="n">file_path</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)}</span>
+
+    <span class="k">def</span> <span class="nf">_validate_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extensions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate if the extensions work with the current reader.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extensions: list</span>
+<span class="sd">            List of extensions to be validated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">invalid_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">extensions</span><span class="p">:</span>
+                <span class="n">temp_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;test.</span><span class="si">{ext}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">(</span><span class="n">temp_file</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">UnicodeDecodeError</span><span class="p">:</span>
+                        <span class="n">invalid_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extensions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ext</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">invalid_idxs</span></div>
+
+
+<div class="viewcode-block" id="ImageReader"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.ImageReader">[docs]</a><span class="k">class</span> <span class="nc">ImageReader</span><span class="p">(</span><span class="n">Reader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to read image files.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `ImageReader` class&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;jpeg&#39;</span><span class="p">,</span> <span class="s1">&#39;gif&#39;</span><span class="p">,</span>
+                                           <span class="s1">&#39;bmp&#39;</span><span class="p">,</span> <span class="s1">&#39;tiff&#39;</span><span class="p">,</span> <span class="s1">&#39;tif&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            Path to the file that is to be read</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        content: dict</span>
+<span class="sd">            Dictionary containing the content of the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">img_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">file_path</span><span class="p">:</span> <span class="n">img_arr</span><span class="o">.</span><span class="n">tostring</span><span class="p">()}</span>
+
+    <span class="k">def</span> <span class="nf">_validate_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extensions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate if the extensions work with the current reader.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extensions: list</span>
+<span class="sd">            List of extensions to be validated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">invalid_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">test_dimensions</span> <span class="o">=</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">300</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">extensions</span><span class="p">:</span>
+                <span class="n">img_arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="o">*</span><span class="n">test_dimensions</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+                <span class="n">temp_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;test.</span><span class="si">{ext}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">Image</span><span class="o">.</span><span class="n">fromarray</span><span class="p">(</span><span class="n">img_arr</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">temp_file</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="n">invalid_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extensions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ext</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">invalid_idxs</span><span class="p">:</span>
+            <span class="n">extensions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span></div>
+</pre></div>
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

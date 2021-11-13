@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint.utils</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="../../genindex.html"/>
+
+  <link rel="stylesheet" href="../../_static/css/insegel.css"/>
+  <link rel="stylesheet" href="../../_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="../../index.html"><img src="../../_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <h1>Source code for checkpoint.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Module that provides utility functions/classes.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">inspect</span> <span class="k">import</span> <span class="n">getmodule</span><span class="p">,</span> <span class="n">stack</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">getcwd</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">isfile</span>
+
+<span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">checkpoint.readers</span> <span class="k">import</span> <span class="n">get_all_readers</span>
+
+
+<div class="viewcode-block" id="LogColors"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.utils.LogColors">[docs]</a><span class="k">class</span> <span class="nc">LogColors</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Provides colors for terminal logs.&quot;&quot;&quot;</span>
+    <span class="n">HEADER</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[95m&#39;</span>
+    <span class="n">BLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span>
+    <span class="n">CYAN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[96m&#39;</span>
+    <span class="n">SUCCESS</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span>
+    <span class="n">ERROR</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span>
+    <span class="n">ENDC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
+    <span class="n">BOLD</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1m&#39;</span>
+    <span class="n">UNDERLINE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[4m&#39;</span></div>
+
+
+<div class="viewcode-block" id="Logger"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.utils.Logger">[docs]</a><span class="k">class</span> <span class="nc">Logger</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Provides logging utility functions.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="s1">&#39;logs.log&#39;</span><span class="p">,</span> <span class="n">log_mode</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the logger.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            Path to the log file.</span>
+<span class="sd">        log_mode : str</span>
+<span class="sd">            Log mode, can take values `t` or `f`.</span>
+<span class="sd">            `t`: log in terminal</span>
+<span class="sd">            `f`: log in file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">isfile</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_io_mode</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_io_mode</span> <span class="o">=</span> <span class="s1">&#39;m&#39;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span> <span class="o">=</span> <span class="n">file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_log_dir_path</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_dir_path</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_log_dir_path</span> <span class="o">=</span> <span class="n">getcwd</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_dir_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_io_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_mode</span> <span class="o">=</span> <span class="n">log_mode</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_colors</span> <span class="o">=</span> <span class="n">LogColors</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Logger.log"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.utils.Logger.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">as_obj</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">log_caller</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Log a message.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        msg : str</span>
+<span class="sd">            Message to log.</span>
+<span class="sd">        colors : list</span>
+<span class="sd">            List of colors to use for the message.</span>
+<span class="sd">        as_obj : bool</span>
+<span class="sd">            If True, the message will be logged as an object.</span>
+<span class="sd">        timestamp : bool</span>
+<span class="sd">            If True, the current time will be added to the message.</span>
+<span class="sd">        log_caller : bool</span>
+<span class="sd">            If True, the current function name will be added to the message.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">_caller</span> <span class="o">=</span> <span class="n">stack</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">_file</span> <span class="o">=</span> <span class="n">getmodule</span><span class="p">(</span><span class="n">_caller</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">.</span><span class="vm">__file__</span> <span class="o">*</span> <span class="n">log_caller</span>
+        <span class="n">_timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%H:%M:%S&#39;</span><span class="p">)</span> <span class="o">*</span> <span class="n">timestamp</span>
+
+        <span class="n">colors</span> <span class="o">=</span> <span class="n">colors</span> <span class="ow">or</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">log_colors</span><span class="o">.</span><span class="n">BOLD</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">colors</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">as_obj</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">{(</span><span class="n">_file</span><span class="p">,</span> <span class="n">_timestamp</span><span class="p">):</span> <span class="n">msg</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;[</span><span class="si">{_file}</span><span class="s1">, </span><span class="si">{_timestamp}</span><span class="s1">]: </span><span class="si">{msg}</span><span class="s1">&#39;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_mode</span> <span class="o">==</span> <span class="s1">&#39;t&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;{&#39;&#39;.join(colors)}</span><span class="si">{msg}{self.log_colors.ENDC}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_mode</span> <span class="o">==</span> <span class="s1">&#39;f&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">as_obj</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_file_path</span><span class="p">,</span> <span class="s1">&#39;a&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">_msg_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">_msg_val</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">_msg</span> <span class="o">=</span> <span class="p">{</span><span class="n">_msg_key</span><span class="p">:</span> <span class="n">_msg_val</span><span class="p">}</span>
+
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">_msg</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="get_reader_by_extension"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.utils.get_reader_by_extension">[docs]</a><span class="k">def</span> <span class="nf">get_reader_by_extension</span><span class="p">(</span><span class="n">extension</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the reader by an extension.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    extension : str</span>
+<span class="sd">        Extension of the file.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    reader: :class: `checkpoint.readers.Reader`</span>
+<span class="sd">        Reader class.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">readers</span> <span class="o">=</span> <span class="n">get_all_readers</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">readers</span><span class="p">:</span>
+        <span class="n">reader_obj</span> <span class="o">=</span> <span class="n">reader</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">reader_obj</span><span class="o">.</span><span class="n">valid_extensions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">reader_obj</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{LogColors.ERROR}</span><span class="s1">No reader found for </span><span class="si">{extension}{LogColors.ENDC}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>

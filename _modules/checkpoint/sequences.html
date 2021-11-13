@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: checkpoint.sequences</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="../../_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="../../genindex.html"/>
+
+  <link rel="stylesheet" href="../../_static/css/insegel.css"/>
+  <link rel="stylesheet" href="../../_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="../../index.html"><img src="../../_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <h1>Source code for checkpoint.sequences</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">count</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="k">import</span> <span class="n">cpu_count</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">TemporaryDirectory</span> <span class="k">as</span> <span class="n">InTemporaryDirectory</span>
+<span class="kn">from</span> <span class="nn">types</span> <span class="k">import</span> <span class="n">MethodType</span>
+
+<span class="kn">from</span> <span class="nn">joblib</span> <span class="k">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+
+<span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">version</span>
+<span class="kn">from</span> <span class="nn">checkpoint.crypt</span> <span class="k">import</span> <span class="n">Crypt</span><span class="p">,</span> <span class="n">generate_key</span>
+<span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">checkpoint.readers</span> <span class="k">import</span> <span class="n">get_all_readers</span>
+<span class="kn">from</span> <span class="nn">checkpoint.utils</span> <span class="k">import</span> <span class="n">LogColors</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">get_reader_by_extension</span>
+
+
+<div class="viewcode-block" id="Sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence">[docs]</a><span class="k">class</span> <span class="nc">Sequence</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Class to represent a sequence of operations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the sequence class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sequence_name: str</span>
+<span class="sd">            Name of the sequence.</span>
+<span class="sd">        order_dict: dict, optional</span>
+<span class="sd">            Dictionary of function names and their order in the sequence.</span>
+<span class="sd">        logger: `checkpoint.utils.Logger`, optional</span>
+<span class="sd">            Logger for the sequence class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">Logger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span> <span class="o">=</span> <span class="n">sequence_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span> <span class="o">=</span> <span class="n">order_dict</span> <span class="ow">or</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_functions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_functions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_sequence_functions</span><span class="p">()</span>
+
+        <span class="c1"># User hook that is triggered when the sequence has finished</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">on_sequence_end</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">seq</span><span class="p">:</span> <span class="kc">None</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the string representation of the Sequence.&quot;&quot;&quot;</span>
+        <span class="n">_member_functions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_func</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">_func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;Name: </span><span class="si">{self.name}</span><span class="s1">, Member Function: </span><span class="si">{_member_functions}</span><span class="s1">&#39;</span>
+
+<div class="viewcode-block" id="Sequence.add_sequence_function"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.add_sequence_function">[docs]</a>    <span class="k">def</span> <span class="nf">add_sequence_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a member function to the sequence.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        func: method</span>
+<span class="sd">            Function that is to be added to the sequence.</span>
+<span class="sd">        order: int, optional</span>
+<span class="sd">            The order of the function in the sequence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;seq&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Function name must start with &quot;seq&quot;&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">order</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">:</span>
+            <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Warning: overriting </span><span class="si">{self.sequence_dict[order].__name__}</span><span class="s1"> with </span><span class="si">{func.__name__}</span><span class="s1">&#39;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                <span class="n">_msg</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span></div>
+
+<div class="viewcode-block" id="Sequence.add_sub_sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.add_sub_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">add_sub_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence</span><span class="p">,</span> <span class="n">order</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a sub sequence to the current sequence.</span>
+
+<span class="sd">        Parameter</span>
+<span class="sd">        ---------</span>
+<span class="sd">        sequence: :class: `Sequence`</span>
+<span class="sd">            The sub sequence that is to be added</span>
+<span class="sd">        order: int, optional</span>
+<span class="sd">            The order of the sub sequence in the sequence</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">sequence</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Sub sequence must be of type Sequence&#39;</span><span class="p">)</span>
+
+        <span class="n">_iterator</span> <span class="o">=</span> <span class="p">(</span><span class="n">count</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">order</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">func_obj</span> <span class="ow">in</span> <span class="n">sequence</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_sequence_function</span><span class="p">(</span><span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">order</span><span class="o">=</span><span class="nb">next</span><span class="p">(</span><span class="n">_iterator</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Sequence.execute_sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.execute_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">execute_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">execution_policy</span><span class="o">=</span><span class="s1">&#39;decreasing_order&#39;</span><span class="p">,</span> <span class="n">pass_args</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Execute all functions in the current sequence.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        execution_policy: str</span>
+<span class="sd">            The policy to be followed while executing the functions.</span>
+<span class="sd">            Possible values are &#39;increasing_order&#39; or &#39;decreasing_order&#39;.</span>
+<span class="sd">        pass_args: bool</span>
+<span class="sd">            If True, the arguments of the executed function will be passed to the next function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span><span class="p">()</span>
+        <span class="n">_return_values</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">execution_policy</span> <span class="o">==</span> <span class="s1">&#39;decreasing_order&#39;</span><span class="p">:</span>
+            <span class="n">_sorted_sequence</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">func_obj</span> <span class="ow">in</span> <span class="n">_sorted_sequence</span><span class="p">:</span>
+                <span class="n">context_text</span> <span class="o">=</span> <span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
+                    <span class="s1">&#39;seq_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">pass_args</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_return_values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                            <span class="n">_return_value</span> <span class="o">=</span> <span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">](</span><span class="n">_return_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">_return_value</span> <span class="o">=</span> <span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]()</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">_return_value</span> <span class="o">=</span> <span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]()</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{context_text}</span><span class="s1"> ❌&#39;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                        <span class="n">_msg</span><span class="p">,</span> <span class="p">[</span><span class="n">LogColors</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">UNDERLINE</span><span class="p">],</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{context_text}</span><span class="s1"> failed with error: </span><span class="si">{e}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+                <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{context_text}</span><span class="s1"> ✔️&#39;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="n">_msg</span><span class="p">,</span> <span class="p">[</span><span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">UNDERLINE</span><span class="p">],</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">_return_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_return_value</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_sequence_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">execution_policy</span> <span class="o">==</span> <span class="s1">&#39;increasing_order&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">pass_args</span><span class="p">:</span>
+                    <span class="n">_return_value</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">_return_values</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">_return_value</span> <span class="o">=</span> <span class="n">func</span><span class="p">()</span>
+
+                <span class="n">_return_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_return_value</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">on_sequence_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s1">&#39;</span><span class="si">{execution_policy}</span><span class="s1"> is an invalid execution policy&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_return_values</span></div>
+
+<div class="viewcode-block" id="Sequence.update_order"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.update_order">[docs]</a>    <span class="k">def</span> <span class="nf">update_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update the order of sequence functions in sequence dict.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="Sequence.flush_sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.flush_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">flush_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Flush the sequence.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Sequence.get_sequence_functions"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.get_sequence_functions">[docs]</a>    <span class="k">def</span> <span class="nf">get_sequence_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get all the sequence functions.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_functions</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;seq&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span> <span class="n">MethodType</span><span class="p">):</span>
+                <span class="n">_func</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence_functions</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">sequence_functions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_func</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">generate_sequence</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Sequence.generate_sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.generate_sequence">[docs]</a>    <span class="k">def</span> <span class="nf">generate_sequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate a sequence from all memeber functions.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_functions</span><span class="p">:</span>
+            <span class="n">_name</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+            <span class="n">_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span><span class="p">[</span><span class="n">_name</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_sequence_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_order</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">sequence_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_functions</span>
+
+    <span class="nd">@sequence_functions</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">sequence_functions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">functions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the value of sequence functions to a list.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        functions: list of methods</span>
+<span class="sd">            List of methods that are to be assigned</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_functions</span> <span class="o">=</span> <span class="n">functions</span><span class="p">[:]</span></div>
+
+
+<div class="viewcode-block" id="IOSequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.IOSequence">[docs]</a><span class="k">class</span> <span class="nc">IOSequence</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to represent a sequence of IO operations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;IO_Sequence&#39;</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the IO sequence class.</span>
+
+<span class="sd">        Default execution sequence is:</span>
+<span class="sd">        1. Walk through the root directory</span>
+<span class="sd">        2. Group files by extension</span>
+<span class="sd">        3. Map readers based on extension</span>
+<span class="sd">        4. Read files</span>
+<span class="sd">        5. Encrypt the files</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sequence_name: str</span>
+<span class="sd">            Name of the sequence.</span>
+<span class="sd">        order_dict: dict, optional</span>
+<span class="sd">            Dictionary of function names and their order in the sequence.</span>
+<span class="sd">        root_dir: str, optional</span>
+<span class="sd">            The root directory.</span>
+<span class="sd">        ignore_dirs: list of str, optional</span>
+<span class="sd">            List of directories to be ignored.</span>
+<span class="sd">        num_cores: int, optional</span>
+<span class="sd">            Number of cores to be used for parallel processing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_order_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;seq_walk_directories&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+            <span class="s1">&#39;seq_group_files&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+            <span class="s1">&#39;seq_map_readers&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s1">&#39;seq_read_files&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;seq_encrypt_files&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">IOSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span>
+                                         <span class="n">order_dict</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_order_dict</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="o">=</span> <span class="n">ignore_dirs</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;.checkpoint&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_cores</span> <span class="o">=</span> <span class="n">num_cores</span> <span class="ow">or</span> <span class="n">cpu_count</span><span class="p">()</span>
+
+<div class="viewcode-block" id="IOSequence.seq_walk_directories"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.IOSequence.seq_walk_directories">[docs]</a>    <span class="k">def</span> <span class="nf">seq_walk_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Walk through all directories in the root directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        root_directory: str</span>
+<span class="sd">            The root directory to be walked through.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">directory2files</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">walk_directory</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">directory2files</span><span class="p">:</span>
+                <span class="n">directory2files</span><span class="p">[</span><span class="n">root</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">directory2files</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">directory2files</span></div>
+
+<div class="viewcode-block" id="IOSequence.seq_group_files"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.IOSequence.seq_group_files">[docs]</a>    <span class="k">def</span> <span class="nf">seq_group_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory2files</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Group files in the same directory.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        directory2files: dict</span>
+<span class="sd">            Dictionary of directory names and their files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">extensions_dict</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">directory2files</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">base_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+                <span class="n">extension</span> <span class="o">=</span> <span class="n">base_file</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">extension</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">extensions_dict</span><span class="p">:</span>
+                    <span class="n">extensions_dict</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">file</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">extensions_dict</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extensions_dict</span></div>
+
+<div class="viewcode-block" id="IOSequence.seq_map_readers"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.IOSequence.seq_map_readers">[docs]</a>    <span class="k">def</span> <span class="nf">seq_map_readers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extensions_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Map the extensions to their respective Readers.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extensions_dict: dict</span>
+<span class="sd">            Dictionary of extensions and their files.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of extensions and their Readers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_readers</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">unavailabe_extensions</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">extension</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">extensions_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_reader_by_extension</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]:</span>
+                <span class="n">all_readers</span> <span class="o">=</span> <span class="n">get_all_readers</span><span class="p">()</span>
+                <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
+                    <span class="n">temp_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;temp.</span><span class="si">{extension}</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test content&#39;</span><span class="p">)</span>
+                    <span class="n">selected_reader</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">all_readers</span><span class="p">:</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Trying </span><span class="si">{reader.__name__}</span><span class="s1"> for extension </span><span class="si">{extension}</span><span class="s1">&#39;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                                <span class="n">_msg</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">BOLD</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="n">reader</span> <span class="o">=</span> <span class="n">reader</span><span class="p">()</span>
+                            <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                            <span class="n">selected_reader</span> <span class="o">=</span> <span class="n">reader</span>
+                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                            <span class="n">selected_reader</span> <span class="o">=</span> <span class="kc">None</span>
+                            <span class="k">continue</span>
+
+                    <span class="k">if</span> <span class="n">selected_reader</span><span class="p">:</span>
+                        <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{selected_reader.__class__.__name__}</span><span class="s1"> selected&#39;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="n">_msg</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                        <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_reader</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">unavailabe_extensions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+                        <span class="k">del</span> <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                            <span class="n">f</span><span class="s1">&#39;No reader found for extension </span><span class="si">{extension}</span><span class="s1">, skipping&#39;</span><span class="p">,</span>
+                            <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">unavailabe_extensions</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">extensions_dict</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">_readers</span><span class="p">,</span> <span class="n">extensions_dict</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="IOSequence.seq_read_files"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.IOSequence.seq_read_files">[docs]</a>    <span class="k">def</span> <span class="nf">seq_read_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">readers_extension</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the gathered files using their respective reader.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        readers_extension: list</span>
+<span class="sd">            Readers dict and extensions dict packed in a list.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of files and their content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">readers_dict</span><span class="p">,</span> <span class="n">extension_dict</span> <span class="o">=</span> <span class="n">readers_extension</span>
+
+        <span class="n">contents</span> <span class="o">=</span> \
+            <span class="n">Parallel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_cores</span><span class="p">)(</span><span class="n">delayed</span><span class="p">(</span><span class="n">readers_dict</span><span class="p">[</span><span class="n">ext</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">)(</span><span class="n">files</span><span class="p">,</span>
+                                     <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="p">(</span><span class="n">ext</span><span class="p">,</span> <span class="n">files</span><span class="p">)</span> <span class="ow">in</span>
+                                     <span class="n">extension_dict</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">contents</span></div>
+
+<div class="viewcode-block" id="IOSequence.seq_encrypt_files"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.IOSequence.seq_encrypt_files">[docs]</a>    <span class="k">def</span> <span class="nf">seq_encrypt_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Encrypt the read files.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        contents: dict</span>
+<span class="sd">            Dictionary of file paths and their content.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary of file paths and their encrypted content.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: Parallelize this</span>
+        <span class="n">path2content</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">crypt_obj</span> <span class="o">=</span> <span class="n">Crypt</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s1">&#39;crypt.key&#39;</span><span class="p">,</span> <span class="n">key_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">contents</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">path2content</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">crypt_obj</span><span class="o">.</span><span class="n">encrypt</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">path2content</span></div></div>
+
+
+<div class="viewcode-block" id="CheckpointSequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence">[docs]</a><span class="k">class</span> <span class="nc">CheckpointSequence</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sequence to perform checkpoint operations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the CheckpointSequence class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sequence_name: str</span>
+<span class="sd">            Name of the sequence.</span>
+<span class="sd">        order_dict: dict</span>
+<span class="sd">            Dictionary of function names and their order in the sequence.</span>
+<span class="sd">        root_dir: str</span>
+<span class="sd">            The root directory.</span>
+<span class="sd">        ignore_dirs: list of str</span>
+<span class="sd">            List of directories to be ignored.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span> <span class="o">=</span> <span class="n">sequence_name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span> <span class="o">=</span> <span class="n">order_dict</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="o">=</span> <span class="n">ignore_dirs</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CheckpointSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CheckpointSequence.seq_init_checkpoint"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_init_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">seq_init_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the checkpoint directory.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="s1">&#39;.checkpoint&#39;</span><span class="p">)</span>
+        <span class="n">generate_key</span><span class="p">(</span><span class="s1">&#39;crypt.key&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CheckpointSequence.seq_create_checkpoint"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_create_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">seq_create_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new checkpoint for the target directory.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s1">&#39;Checkpoint with name </span><span class="si">{self.sequence_name}</span><span class="s1"> already exists&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+
+        <span class="n">_io_sequence</span> <span class="o">=</span> <span class="n">IOSequence</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span>
+                                  <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+
+        <span class="n">enc_files</span> <span class="o">=</span> <span class="n">_io_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
+        <span class="n">checkpoint_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.sequence_name}</span><span class="s1">.json&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">checkpoint_file_path</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">checkpoint_file</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">enc_files</span><span class="p">,</span> <span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">root2file</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">walk_directory</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">root2file</span><span class="p">:</span>
+                <span class="n">root2file</span><span class="p">[</span><span class="n">root</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">root2file</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">)]</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="s1">&#39;.metadata&#39;</span><span class="p">),</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">metadata_file</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">root2file</span><span class="p">,</span> <span class="n">metadata_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CheckpointSequence.seq_delete_checkpoint"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_delete_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">seq_delete_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Delete the checkpoint for the target directory.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">delete_dir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CheckpointSequence.seq_restore_checkpoint"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_restore_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">seq_restore_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Restore back to a specific checkpoint.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
+                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+        <span class="n">_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">)</span>
+        <span class="n">crypt</span> <span class="o">=</span> <span class="n">Crypt</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s1">&#39;crypt.key&#39;</span><span class="p">,</span> <span class="n">key_path</span><span class="o">=</span><span class="n">_key</span><span class="p">)</span>
+
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.sequence_name}</span><span class="s1">.json&#39;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">checkpoint_file</span><span class="p">:</span>
+            <span class="n">checkpoint_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">checkpoint_file</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">checkpoint_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">crypt</span><span class="o">.</span><span class="n">decrypt</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="CheckpointSequence.seq_version"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_version">[docs]</a>    <span class="k">def</span> <span class="nf">seq_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Print the version of the sequence.&quot;&quot;&quot;</span>
+        <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Running version </span><span class="si">{version}</span><span class="s1">&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_msg</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="CLISequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CLISequence">[docs]</a><span class="k">class</span> <span class="nc">CLISequence</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Sequence for the CLI environment.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;CLI_Sequence&#39;</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">arg_parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the CLISequence class.</span>
+
+<span class="sd">        Default execution sequence is:</span>
+
+<span class="sd">        1. Parse the arguments.</span>
+<span class="sd">        2. Determine the action to perform from the arguments.</span>
+<span class="sd">        3. Perform the action.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sequence_name: str</span>
+<span class="sd">            Name of the sequence.</span>
+<span class="sd">        order_dict: dict</span>
+<span class="sd">            Dictionary of the order of the functions in the sequence.</span>
+<span class="sd">        arg_parser: ArgumentParser</span>
+<span class="sd">            Argument parser for the CLI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_order_dict</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;seq_parse_args&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s1">&#39;seq_determine_action&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s1">&#39;seq_perform_action&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arg_parser</span> <span class="o">=</span> <span class="n">arg_parser</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CLISequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="n">sequence_name</span><span class="p">,</span>
+                                          <span class="n">order_dict</span><span class="o">=</span><span class="n">order_dict</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_order_dict</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CLISequence.seq_parse_args"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CLISequence.seq_parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">seq_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Parse the arguments from the CLI.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arg_parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">args</span></div>
+
+<div class="viewcode-block" id="CLISequence.seq_determine_action"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CLISequence.seq_determine_action">[docs]</a>    <span class="k">def</span> <span class="nf">seq_determine_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determine the action to be performed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        args: ArgumentParser</span>
+<span class="sd">            Parsed arguments from the CLI.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;create&#39;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;seq_create_checkpoint&#39;</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;restore&#39;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;seq_restore_checkpoint&#39;</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;delete&#39;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;seq_delete_checkpoint&#39;</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;init&#39;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;seq_init_checkpoint&#39;</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s1">&#39;version&#39;</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="s1">&#39;seq_version&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid action.&#39;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">action</span><span class="p">,</span> <span class="n">args</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="CLISequence.seq_perform_action"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CLISequence.seq_perform_action">[docs]</a>    <span class="k">def</span> <span class="nf">seq_perform_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">action_args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Perform the action.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        action_args: list</span>
+<span class="sd">            List containing action and args NameSpace.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">action</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">action_args</span>
+        <span class="n">_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">_path</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">_ignore_dirs</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">_helper_actions</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;seq_init_checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;seq_version&#39;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">_name</span> <span class="ow">and</span> <span class="n">_path</span><span class="p">)</span> <span class="ow">and</span> <span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_helper_actions</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{args.action}</span><span class="s1"> requires a valid name and a path&#39;</span><span class="p">)</span>
+
+        <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">action</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="n">_checkpoint_sequence</span> <span class="o">=</span> <span class="n">CheckpointSequence</span><span class="p">(</span>
+            <span class="n">_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">,</span> <span class="n">_path</span><span class="p">,</span> <span class="n">_ignore_dirs</span><span class="p">)</span>
+        <span class="n">action_function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_checkpoint_sequence</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
+        <span class="n">action_function</span><span class="p">()</span></div></div>
+</pre></div>
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started.html#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>
