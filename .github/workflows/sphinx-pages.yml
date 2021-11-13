@@ -1,14 +1,15 @@
 name: Pages
-on: [push]
-inputs:
-  - name: documentation_path
-    description: Path to the documentation directory
-    required: true
-    default: docs
-  - name: install_requirements
-    description: Install requirements before building the documentation
-    required: true
-    default: true
+on:
+  push:
+    inputs:
+      - name: documentation_path
+        description: Path to the documentation directory
+        required: true
+        default: docs
+      - name: install_requirements
+        description: Install requirements before building the documentation
+        required: true
+        default: true
 jobs:
   build:
     runs-on: ubuntu-latest
