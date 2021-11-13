@@ -43,7 +43,7 @@ checkpoint --action=init --path=path/to/project
 checkpoint --name=restore_point_name --action=create --path=path/to/project
 ```
 
-##### Restoring a restore point
+##### Jumping to a restore point
 ```bash
 checkpoint --name=restore_point_name --action=restore --path=path/to/project
 ```
@@ -51,6 +51,11 @@ checkpoint --name=restore_point_name --action=restore --path=path/to/project
 ##### Deleting a restore point
 ```bash
 checkpoint --name=restore_point_name --action=delete --path=path/to/project
+```
+
+##### Version of checkpoint
+```bash
+checkpoint --name=restore_point_name --action=version --path=path/to/project
 ```
 
 ## Installation
@@ -79,6 +84,7 @@ pip install .
 ```
 ##### 5. Run the tests
 ```bash
+pip intall -r requirements/test.txt
 pytest -v checkpoint/tests/
 ```
 
