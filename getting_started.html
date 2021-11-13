@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2D2D2D" />
+  
+  <title>Checkpoint :: Getting Started with Checkpoint CLI Tool</title>
+  
+
+  <link rel="icon" type="image/png" sizes="32x32" href="_static/img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="_static/img/favicon-16x16.png">
+  <link rel="index" title="Index" href="genindex.html"/>
+
+  <link rel="stylesheet" href="_static/css/insegel.css"/>
+  <link rel="stylesheet" href="_static/css/custom.css"/>
+
+  <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+      <script type="text/javascript" src="_static/documentation_options.js"></script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+  
+
+  <script src="https://email.tl.fortawesome.com/c/eJxNjUEOgyAQAF8jR7Kw6wIHDh7sP1Cw2mgxgmn6-3JsMqc5zEQfE8dkxOY1KKMUOI3ACFKRJpSW2AAp7ontYIaxI6i7XPJVwyeVfCQ550Os3jLrGSNOLgbdAy6s0PBk2TFNjEbsfq31LB0OnX407pJa5v2faRadwSW63mn5KuLyR9j2tgx3zecanl-55R_-jjPs"></script> 
+</head>
+
+<body>
+  <div id="insegel-container">
+    <header>
+      <div id="logo-container">
+          
+          <a href="index.html"><img src="_static/logo.png"></a>
+          
+      </div>
+      <div id="project-container">
+        
+        <h1>Checkpoint Documentation</h1>
+        
+      </div>
+    </header>
+
+    <div id="content-container">
+
+      <div id="main-content-container">
+        <div id="main-content" role="main">
+          
+  <section id="getting-started-with-checkpoint-cli-tool">
+<h1>Getting Started with Checkpoint CLI Tool<a class="headerlink" href="#getting-started-with-checkpoint-cli-tool" title="Permalink to this headline">¶</a></h1>
+<p>The following article explains the basics of the Checkpoint CLI tool
+as well as how to use the CLI tool.</p>
+<section id="what-is-checkpoint-cli-tool">
+<h2>What is Checkpoint CLI Tool?<a class="headerlink" href="#what-is-checkpoint-cli-tool" title="Permalink to this headline">¶</a></h2>
+<p>Checkpoint CLI Tool is a command line interface (CLI) tool that allows you to perform the following actions:</p>
+<ul class="simple">
+<li><p>Create restore points in your project locally/headlessly</p></li>
+<li><p>Jump back and forth between restore points without worrying about changed files</p></li>
+<li><p>Delete unwanted restore points</p></li>
+<li><p>Exporting the project snapshot based on the restore points</p></li>
+<li><p>Simple, clutter-free yet modern looking user interface</p></li>
+<li><p>Modifying the tool to use custom user interface</p></li>
+</ul>
+</section>
+<section id="what-is-a-restore-point">
+<h2>What is a restore point?<a class="headerlink" href="#what-is-a-restore-point" title="Permalink to this headline">¶</a></h2>
+<p>A restore point in checkpoint is essentially a snapshot of the project at a specific point in time.
+This is represented as a directory with the name of the restore point. The checkpoint initialized directory contains a .checkpoint directory,
+which contains all the restore points and related information. The directory structure of .checkpoint is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Target Directory
+│   .config
+│   crypt.key
+├───v1.0
+│       .metadata
+│       v1.0.json
+├───v1.1
+│      .metadata
+│       v1.1.json
+└───v1.2
+        .metadata
+        v1.2.json
+</pre></div>
+</div>
+<p>Each restore point has a few files that hold certain information about the restore point. These files are:</p>
+<ul class="simple">
+<li><p>.metadata: This file contains the metadata of the restore point which includes all root directories and files present inside them.</p></li>
+<li><p>.json: This file contains all files present in the target directory and the hash associated with them.</p></li>
+</ul>
+<p>The .checkpoint directory contains some files that are used to store some global information about the project. These files are:</p>
+<ul class="simple">
+<li><p>.config: This file contains the configuration of the project which includes current checkpoint, all checkpoints etc.</p></li>
+<li><p>crypt.key: This file contains the encryption key used to encrypt/decrypt the project files.</p></li>
+</ul>
+</section>
+<section id="using-the-checkpoint-cli-tool">
+<h2>Using the Checkpoint CLI Tool<a class="headerlink" href="#using-the-checkpoint-cli-tool" title="Permalink to this headline">¶</a></h2>
+<p>Checkpoint provides a command line interface (CLI) tool as well as a user interface (TBD) following is a quick overview of the CLI tool:</p>
+<section id="initializing-the-project-with-checkpoint">
+<h3>Initializing the project with checkpoint<a class="headerlink" href="#initializing-the-project-with-checkpoint" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>init --name<span class="o">=</span>&lt;name&gt; --ignore-dirs<span class="o">=</span>&lt;dirs&gt;
+</pre></div>
+</div>
+</section>
+<section id="creating-a-restore-point-checkpoint">
+<h3>Creating a restore point/checkpoint<a class="headerlink" href="#creating-a-restore-point-checkpoint" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>create --name<span class="o">=</span>&lt;name&gt; --ignore-dirs<span class="o">=</span>&lt;dirs&gt;
+</pre></div>
+</div>
+</section>
+<section id="jumping-to-a-restore-point-checkpoint">
+<h3>Jumping to a restore point/checkpoint<a class="headerlink" href="#jumping-to-a-restore-point-checkpoint" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>restore --name<span class="o">=</span>&lt;name&gt;
+</pre></div>
+</div>
+</section>
+<section id="deleting-a-restore-point-checkpoint">
+<h3>Deleting a restore point/checkpoint<a class="headerlink" href="#deleting-a-restore-point-checkpoint" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>delete --name<span class="o">=</span>&lt;name&gt;
+</pre></div>
+</div>
+</section>
+<section id="version-of-the-tool">
+<h3>Version of the tool<a class="headerlink" href="#version-of-the-tool" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --action<span class="o">=</span>version --path<span class="o">=</span>&lt;path&gt;
+</pre></div>
+</div>
+</section>
+<section id="running-gui-version-of-the-tool-tbd">
+<h3>Running GUI version of the tool (TBD)<a class="headerlink" href="#running-gui-version-of-the-tool-tbd" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --run-ui
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+        </div>
+      </div>
+
+      <div id="side-menu-container">
+
+        <div id="search" role="search">
+        <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+            <input type="text" name="q" placeholder="Search..." />
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+        </form>
+</div>
+
+        <div id="side-menu" role="navigation">
+
+          
+  
+    
+  
+  
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started with Checkpoint CLI Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-checkpoint-cli-tool">What is Checkpoint CLI Tool?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#what-is-a-restore-point">What is a restore point?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-checkpoint-cli-tool">Using the Checkpoint CLI Tool</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Setting up checkpoint in development environment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-checkpoint-from-pypi">Installing checkpoint from PyPI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-latest-development-version">Installing latest development version</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#checkpoint-in-development-environment-setup-steps">Checkpoint in development environment setup steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="modules.html">checkpoint</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="checkpoint.html">checkpoint package</a></li>
+</ul>
+</li>
+</ul>
+
+  
+
+
+        </div>
+
+        
+
+      </div>
+
+    </div>
+
+<footer>
+    <div id="footer-info">
+        <ul id="build-details">
+            
+                <li class="footer-element">
+                    
+                        <a href="_sources/getting_started.rst.txt" rel="nofollow"> source</a>
+                    
+                </li>
+            
+
+            
+
+            
+        </ul>
+
+        
+            <div id="copyright">
+                &copy; 2021-2021, Antriksh Misri
+            </div>
+        
+
+        <div id="credit">
+            created with <a href="http://sphinx-doc.org/">Sphinx</a> and <a href="https://github.com/Autophagy/insegel">Insegel</a>
+
+        </div>
+    </div>
+
+    <a id="menu-toggle" class="fa fa-bars" aria-hidden="true"></a>
+
+    <script type="text/javascript">
+      $("#menu-toggle").click(function() {
+        $("#menu-toggle").toggleClass("toggled");
+        $("#side-menu-container").slideToggle(300);
+      });
+    </script>
+
+</footer> 
+
+</div>
+
+</body>
+</html>
