@@ -20,6 +20,8 @@ Checkpoint provides multiple `Sequence` classes that have memeber functions whic
 
 Checkpoint also supports custom sequences that can be used to initialize checkpoint in different environments. For example, if checkpoint isto be initialized in a UI enviroment a sequence for UI can be created and passed to the `Checkpoint` constructor.
 
+**Detailed documentation can be found [here](http://checkpoint.antriksh.live/)**
+
 ## How to use checkpoint?
 
 Currently, checkpoint can only be used in a CLI environment. The following is an example of how to use checkpoint in a CLI environment.
