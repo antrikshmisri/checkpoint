@@ -28,3 +28,7 @@ input {
     box-shadow: 2px 2px 8px #2a2c2d, -2px -2px 8px #36393b !important;
     color: #a4a5a7 !important;
 }
+
+header #logo-container img {
+    filter: drop-shadow(2px 2px 8px #2a2c2d);
+}
