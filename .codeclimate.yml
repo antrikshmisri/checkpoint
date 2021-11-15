@@ -1,0 +1,5 @@
+## exclude these files/folders from codeclimate
+exclude_patterns:
+- "ui/"
+- "docs/"
+- "tests/"
