@@ -130,7 +130,7 @@ def get_ignore_dirs(target_dir):
     with open(config_path, 'r') as f:
         config = json.load(f)
         ignore_dirs = config['ignore_dirs']
-    
+
     return ignore_dirs
 
 
@@ -145,7 +145,7 @@ def get_current_checkpoint(target_dir):
     with open(config_path, 'r') as f:
         config = json.load(f)
         current_checkpoint = config['current_checkpoint']
-    
+
     return current_checkpoint
 
 
@@ -234,7 +234,7 @@ def open_browser(url):
         URL to open.
     """
     open_new_tab(url)
- 
+
 
 def fetch_npm_package(package_name):
     """Fetch a package using node package manager.

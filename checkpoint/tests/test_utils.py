@@ -1,6 +1,6 @@
 import json
-from sys import version
 from os.path import join as pjoin
+from sys import version
 from tempfile import TemporaryDirectory as InTemporaryDirectory
 
 import numpy.testing as npt
@@ -61,5 +61,4 @@ def test_execute_command():
     for line in utils.execute_command(command):
         npt.assert_equal(line.startswith('Python'), True)
         python_version = line.split('Python ')[-1].split('\n')[0]
-        print(python_version, version.split(" ")[0].strip())
-        npt.assert_equal(python_version , version.split(" ")[0].strip())
+        npt.assert_equal(python_version, version.split(" ")[0].strip())
