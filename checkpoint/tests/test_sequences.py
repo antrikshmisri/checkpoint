@@ -106,12 +106,12 @@ def test_io_sequence():
         text_path = pjoin(io.path, 'text_files')
 
         # Testing Walk Directory phase of sequence
-        npt.assert_equal(return_vals[0], {pjoin(tdir, 'text_files'): [
-                         pjoin(text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
+        npt.assert_equal(set(list(return_vals[0].values())[0]), set([
+                         pjoin(text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]))
 
         # Testing Group files by extension phase of sequence
-        npt.assert_equal(return_vals[1], {'txt': [pjoin(
-            text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]})
+        npt.assert_equal(set(list(return_vals[1].values())[0]), set([pjoin(
+            text_path, 'test.txt'), pjoin(text_path, 'test1.txt')]))
 
         # Testing Map Readers phase of sequence
         npt.assert_equal(return_vals[2][0]
@@ -123,8 +123,11 @@ def test_io_sequence():
         npt.assert_equal(return_vals[2][1], return_vals[1])
 
         # Testing Read files phase of sequence
-        npt.assert_equal(return_vals[3], [[{pjoin(text_path, 'test.txt'): 'test'}, {
-                         pjoin(text_path, 'test1.txt'): 'test1'}]])
+        read_files = [{pjoin(text_path, 'test.txt'): 'test'}, {
+            pjoin(text_path, 'test1.txt'): 'test1'}]
+
+        for obj in return_vals[3][0]:
+            npt.assert_equal(obj in read_files, True)
 
         # Testing Encryption phase of sequence
         crypt_obj = Crypt('crypt.key', pjoin(io.path, '.checkpoint'))
@@ -133,7 +136,7 @@ def test_io_sequence():
         npt.assert_equal(dec_content.decode('utf-8'), 'test')
 
 
-def test_checkpoint_sequence(capsys):
+def test_checkpoint_sequence():
     order_dict = {
         'seq_init_checkpoint': 4,
         'seq_create_checkpoint': 3,
@@ -145,7 +148,7 @@ def test_checkpoint_sequence(capsys):
         io = IO(path=tdir, mode='a')
         checkpoint_sequence = CheckpointSequence(sequence_name='checkpoint_sequence',
                                                  order_dict=order_dict,
-                                                 root_dir=tdir, ignore_dirs=list())
+                                                 root_dir=tdir, ignore_dirs=list(),)
 
         # Testing checkpoint initialization phase of sequence
         checkpoint_sequence.seq_init_checkpoint()
@@ -180,14 +183,15 @@ def test_checkpoint_sequence(capsys):
         contents = [io.read(pjoin(root, file), 'r') for root,
                     file in io.walk_directory() if '.checkpoint' not in root]
 
-        npt.assert_equal(contents, ['test', 'test1'])
+        npt.assert_equal(set(contents), set(['test', 'test1']))
 
         checkpoint_sequence.seq_delete_checkpoint()
         npt.assert_equal(isdir(checkpoint_path), False)
 
         checkpoint_sequence.seq_version()
-        stdout = capsys.readouterr()
-        npt.assert_equal(version in stdout.out, True)
+        with open('logs.log', 'r') as f:
+            logs = f.read()
+            npt.assert_equal(version in logs, True)
 
         checkpoint_duplicate = CheckpointSequence(sequence_name='checkpoint_sequence_two',
                                                   order_dict=order_dict,
@@ -195,6 +199,8 @@ def test_checkpoint_sequence(capsys):
 
         with npt.assert_raises(ValueError):
             checkpoint_duplicate.seq_create_checkpoint()
+
+        io.write('logs.log', 'w', '')
 
 
 def test_CLI_sequence():
@@ -247,7 +253,8 @@ def test_CLI_sequence():
         for action, args in all_args.items():
             print(action, args)
             if action == 'init':
-                cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
+                cli_sequence = CLISequence(
+                    arg_parser=arg_parser, args=args, terminal_log=True)
                 cli_sequence.execute_sequence(pass_args=True)
 
                 npt.assert_equal(isdir(pjoin(tdir, '.checkpoint')), True)
@@ -274,7 +281,7 @@ def test_CLI_sequence():
                 contents = [io.read(pjoin(root, file), 'r')
                             for root, file in io.walk_directory()]
 
-                npt.assert_equal(contents, ['test', 'test1'])
+                npt.assert_equal(set(contents), set(['test', 'test1']))
             elif action == 'delete':
                 cli_sequence = CLISequence(arg_parser=arg_parser, args=args)
                 cli_sequence.execute_sequence(pass_args=True)

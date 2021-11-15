@@ -76,7 +76,7 @@ source venv/bin/activate
 
 ##### 3. Get the dependencies
 ```bash
-pip install -r requirements.txt
+pip install -r requirements/default.txt
 ```
 ##### 4. Install checkpoint as a local project.
 ```bash

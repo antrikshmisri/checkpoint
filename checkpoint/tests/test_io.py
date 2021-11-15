@@ -11,10 +11,14 @@ def test_io():
 
     with InTemporaryDirectory() as tdir:
         os.mkdir(pjoin(tdir, 'temp'))
+        with npt.assert_raises(ValueError):
+            _ = io.IO(path=pjoin(tdir, 'temp'), mode='invalid_mode')
 
         simple_io = io.IO(path=pjoin(tdir, 'temp'), mode='a')
         simple_io.path = tdir
         simple_io.mode = 's'
+        npt.assert_equal(simple_io.files, [])
+        npt.assert_equal(simple_io.sub_dirs, [])
 
         root_file = []
         for root, file in simple_io.walk_directory():
@@ -28,6 +32,11 @@ def test_io():
         a_io = io.IO(path=tdir, mode='a')
         a_io.write(file=pjoin(tdir, 'temp.txt'),
                    mode='x', content='Temporary File')
+
+        a_io.update_paths(tdir)
+        npt.assert_equal(a_io.files, [os.path.join(tdir, 'temp.txt')])
+        npt.assert_equal(a_io.sub_dirs, [])
+
         ext = a_io.get_file_extension(pjoin(tdir, 'temp.txt'))
         npt.assert_equal(ext, 'txt')
 
@@ -68,3 +77,25 @@ def test_io():
 
         simple_io.delete_dir(new_dir)
         npt.assert_equal(os.path.isdir(new_dir), False)
+
+        non_lazy_io = io.IO(path=tdir, mode='a', lazy=False)
+        non_lazy_io.make_dir('test_dir')
+        non_lazy_io.update_paths(tdir)
+
+        npt.assert_equal(non_lazy_io.files, [os.path.join(tdir, 'temp.txt')])
+        npt.assert_equal(non_lazy_io.sub_dirs, [
+                         os.path.join(tdir, 'test_dir')])
+
+        with npt.assert_raises(IOError):
+            _ = non_lazy_io.make_dir('test_dir')
+
+        _ = non_lazy_io.make_dir('test_dir_two')
+        new_dir = non_lazy_io.make_dir('test_dir_two')
+
+        npt.assert_equal(os.path.isdir(new_dir), True)
+        npt.assert_equal(new_dir, pjoin(tdir, 'test_dir_two'))
+
+        non_lazy_io.delete_dir(new_dir)
+
+        with npt.assert_raises(IOError):
+            non_lazy_io.delete_dir(new_dir)

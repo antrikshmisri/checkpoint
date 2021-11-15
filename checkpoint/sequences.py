@@ -18,7 +18,7 @@ from checkpoint.utils import LogColors, Logger, get_reader_by_extension
 class Sequence:
     """Class to represent a sequence of operations."""
 
-    def __init__(self, sequence_name, order_dict=None, logger=None):
+    def __init__(self, sequence_name, order_dict=None, logger=None, terminal_log=False):
         """Initialize the sequence class.
 
         Parameters
@@ -29,8 +29,12 @@ class Sequence:
             Dictionary of function names and their order in the sequence.
         logger: `checkpoint.utils.Logger`, optional
             Logger for the sequence class
+        log: bool, optional
+            If True, the sequence will be logged.
         """
-        self.logger = logger or Logger()
+        self.terminal_log = terminal_log
+        self.log_mode = 't' if self.terminal_log else 'f'
+        self.logger = logger or Logger(log_mode=self.log_mode)
         self.sequence_name = sequence_name
         self.sequence_dict = OrderedDict()
         self.order_dict = order_dict or {}
@@ -40,8 +44,9 @@ class Sequence:
 
         self.get_sequence_functions()
 
-        # User hook that is triggered when the sequence has finished
+        # User hook that is triggered when the sequence/sequence function has finished
         self.on_sequence_end = lambda seq: None
+        self.on_sequence_function_end = lambda seq: None
 
     def __repr__(self):
         """Return the string representation of the Sequence."""
@@ -65,7 +70,7 @@ class Sequence:
         if order in self.sequence_dict:
             _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
             self.logger.log(
-                _msg, LogColors.WARNING, timestamp=True, log_caller=True)
+                _msg, LogColors.WARNING, timestamp=True, log_caller=True, log_type="INFO")
 
         self.sequence_dict[order] = func
 
@@ -115,14 +120,19 @@ class Sequence:
                     else:
                         _return_value = func_obj[1]()
                 except Exception as e:
-                    _msg = f'{context_text} ❌'
+                    _msg = f'{context_text}'
                     self.logger.log(
-                        _msg, [LogColors.ERROR, LogColors.UNDERLINE], timestamp=True)
+                        _msg, [LogColors.ERROR, LogColors.UNDERLINE],
+                        timestamp=True, log_type="ERROR")
+
                     raise type(e)(f'{context_text} failed with error: {e}')
 
-                _msg = f'{context_text} ✔️'
+                _msg = f'{context_text}'
                 self.logger.log(
-                    _msg, [LogColors.SUCCESS, LogColors.UNDERLINE], timestamp=True)
+                    _msg, [LogColors.SUCCESS, LogColors.UNDERLINE],
+                    timestamp=True, log_type="SUCCESS")
+
+                self.on_sequence_function_end(self)
                 _return_values.append(_return_value)
             self.on_sequence_end(self)
 
@@ -194,7 +204,8 @@ class IOSequence(Sequence):
     """Class to represent a sequence of IO operations."""
 
     def __init__(self, sequence_name='IO_Sequence', order_dict=None,
-                 root_dir=None, ignore_dirs=None, num_cores=None):
+                 root_dir=None, ignore_dirs=None, num_cores=None,
+                 terminal_log=False):
         """Initialize the IO sequence class.
 
         Default execution sequence is:
@@ -216,6 +227,8 @@ class IOSequence(Sequence):
             List of directories to be ignored.
         num_cores: int, optional
             Number of cores to be used for parallel processing.
+        terminal_log: bool, optional
+            If True, messages will be logged to the terminal
         """
         self.default_order_dict = {
             'seq_walk_directories': 4,
@@ -226,7 +239,8 @@ class IOSequence(Sequence):
         }
 
         super(IOSequence, self).__init__(sequence_name,
-                                         order_dict or self.default_order_dict)
+                                         order_dict or self.default_order_dict,
+                                         terminal_log=terminal_log)
 
         self.root_dir = root_dir or os.getcwd()
         self.ignore_dirs = ignore_dirs or []
@@ -300,7 +314,7 @@ class IOSequence(Sequence):
                         try:
                             _msg = f'Trying {reader.__name__} for extension {extension}'
                             self.logger.log(
-                                _msg, colors=LogColors.BOLD, log_caller=True)
+                                _msg, colors=LogColors.BOLD, log_caller=True, log_type="INFO")
                             reader = reader()
                             reader.read(temp_file, validate=False)
                             selected_reader = reader
@@ -311,14 +325,14 @@ class IOSequence(Sequence):
                     if selected_reader:
                         _msg = f'{selected_reader.__class__.__name__} selected'
                         self.logger.log(
-                            _msg, colors=LogColors.SUCCESS, timestamp=True)
+                            _msg, colors=LogColors.SUCCESS, timestamp=True, log_type="SUCCESS")
                         _readers[extension] = selected_reader
                     else:
                         unavailabe_extensions.append(extension)
                         del _readers[extension]
                         self.logger.log(
                             f'No reader found for extension {extension}, skipping',
-                            colors=LogColors.ERROR, log_caller=True)
+                            colors=LogColors.ERROR, log_caller=True, log_type="ERROR")
 
         for extension in unavailabe_extensions:
             del extensions_dict[extension]
@@ -375,7 +389,8 @@ class IOSequence(Sequence):
 class CheckpointSequence(Sequence):
     """Sequence to perform checkpoint operations."""
 
-    def __init__(self, sequence_name, order_dict, root_dir, ignore_dirs):
+    def __init__(self, sequence_name, order_dict, root_dir, ignore_dirs,
+                 terminal_log=False):
         """Initialize the CheckpointSequence class.
 
         Parameters
@@ -388,44 +403,77 @@ class CheckpointSequence(Sequence):
             The root directory.
         ignore_dirs: list of str
             List of directories to be ignored.
+        terminal_log: bool, optional
+            If True, messages will be logged to the terminal
         """
         self.sequence_name = sequence_name
         self.order_dict = order_dict
         self.root_dir = root_dir
         self.ignore_dirs = ignore_dirs
-        super(CheckpointSequence, self).__init__(sequence_name, order_dict)
+        super(CheckpointSequence, self).__init__(sequence_name, order_dict,
+                                                 terminal_log=terminal_log)
+
+    def _validate_checkpoint(self):
+        """Validate if a checkpoint is valid."""
+        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        if not os.path.isdir(checkpoint_path):
+            raise ValueError(f'Checkpoint {self.sequence_name} does not exist')
+
 
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
-        self._io = IO(path=self.root_dir, mode="a",
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
-        path = self._io.make_dir('.checkpoint')
+        path = _io.make_dir('.checkpoint')
         generate_key('crypt.key', path)
+
+        checkpoint_config = {
+            'current_checkpoint': None,
+            'checkpoints': [],
+            'ignore_dirs': self.ignore_dirs,
+            'root_dir': self.root_dir,
+        }
+
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
+        _io.write(config_path, 'w+', json.dumps(checkpoint_config))
+
 
     def seq_create_checkpoint(self):
         """Create a new checkpoint for the target directory."""
-        if self.sequence_name in os.listdir(os.path.join(self.root_dir, '.checkpoint')):
-            raise ValueError(
-                f'Checkpoint with name {self.sequence_name} already exists')
-        self._io = IO(path=self.root_dir, mode="a",
+        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        if os.path.isdir(checkpoint_path):
+            raise ValueError(f'Checkpoint {self.sequence_name} already exists')
+
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
 
         _io_sequence = IOSequence(root_dir=self.root_dir,
-                                  ignore_dirs=self.ignore_dirs)
+                                  ignore_dirs=self.ignore_dirs,
+                                  terminal_log=self.terminal_log)
 
         enc_files = _io_sequence.execute_sequence(pass_args=True)[-1]
 
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
-        checkpoint_path = self._io.make_dir(checkpoint_path)
+        checkpoint_path = _io.make_dir(checkpoint_path)
         checkpoint_file_path = os.path.join(
             checkpoint_path, f'{self.sequence_name}.json')
+
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
 
         with open(checkpoint_file_path, 'w+') as checkpoint_file:
             json.dump(enc_files, checkpoint_file, indent=4)
 
+        with open(config_path, 'r') as config_file:
+            checkpoint_config = json.load(config_file)
+            checkpoint_config['checkpoints'].append(self.sequence_name)
+            checkpoint_config['current_checkpoint'] = self.sequence_name
+
+        with open(config_path, 'w+') as config_file:
+            json.dump(checkpoint_config, config_file, indent=4)
+
         root2file = {}
-        for root, file in self._io.walk_directory():
+        for root, file in _io.walk_directory():
             if root in root2file:
                 root2file[root].append(os.path.join(root, file))
             else:
@@ -436,15 +484,31 @@ class CheckpointSequence(Sequence):
 
     def seq_delete_checkpoint(self):
         """Delete the checkpoint for the target directory."""
-        self._io = IO(path=self.root_dir, mode="a",
+        self._validate_checkpoint()
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
-        self._io.delete_dir(checkpoint_path)
+
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
+        with open(config_path, 'r') as config_file:
+            checkpoint_config = json.load(config_file)
+            checkpoint_config['checkpoints'].remove(self.sequence_name)
+            if len(checkpoint_config['checkpoints']):
+                _new_current_checkpoint = checkpoint_config['checkpoints'][-1]
+            else:
+                _new_current_checkpoint = None
+            checkpoint_config['current_checkpoint'] = _new_current_checkpoint
+
+        with open(config_path, 'w+') as config_file:
+            json.dump(checkpoint_config, config_file, indent=4)
+
+        _io.delete_dir(checkpoint_path)
 
     def seq_restore_checkpoint(self):
         """Restore back to a specific checkpoint."""
-        self._io = IO(path=self.root_dir, mode="a",
+        self._validate_checkpoint()
+        _io = IO(path=self.root_dir, mode="a",
                       ignore_dirs=self.ignore_dirs)
         _key = os.path.join(self.root_dir, '.checkpoint')
         crypt = Crypt(key='crypt.key', key_path=_key)
@@ -452,24 +516,33 @@ class CheckpointSequence(Sequence):
         checkpoint_path = os.path.join(self.root_dir, '.checkpoint',
                                        self.sequence_name, f'{self.sequence_name}.json')
 
+        config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
+
         with open(checkpoint_path, 'r') as checkpoint_file:
             checkpoint_dict = json.load(checkpoint_file)
 
+        with open(config_path, 'r') as config_file:
+            checkpoint_config = json.load(config_file)
+            checkpoint_config['current_checkpoint'] = self.sequence_name
+
+        with open(config_path, 'w+') as config_file:
+            json.dump(checkpoint_config, config_file, indent=4)
+
         for file, content in checkpoint_dict.items():
             content = crypt.decrypt(content)
-            self._io.write(file, 'wb+', content)
+            _io.write(file, 'wb+', content)
 
     def seq_version(self):
         """Print the version of the sequence."""
         _msg = f'Running version {version}'
-        self.logger.log(_msg, timestamp=True)
+        self.logger.log(_msg, timestamp=True, log_type="INFO")
 
 
 class CLISequence(Sequence):
     """Sequence for the CLI environment."""
 
     def __init__(self, sequence_name='CLI_Sequence', order_dict=None,
-                 arg_parser=None, args=None):
+                 arg_parser=None, args=None, terminal_log=False):
         """Initialize the CLISequence class.
 
         Default execution sequence is:
@@ -495,7 +568,8 @@ class CLISequence(Sequence):
         self.args = args
         self.arg_parser = arg_parser
         super(CLISequence, self).__init__(sequence_name=sequence_name,
-                                          order_dict=order_dict or self.default_order_dict)
+                                          order_dict=order_dict or self.default_order_dict,
+                                          terminal_log=terminal_log)
 
     def seq_parse_args(self):
         """Parse the arguments from the CLI."""
@@ -547,6 +621,7 @@ class CLISequence(Sequence):
 
         order_dict = {action: 0}
         _checkpoint_sequence = CheckpointSequence(
-            _name, order_dict, _path, _ignore_dirs)
+            _name, order_dict, _path, _ignore_dirs,
+            terminal_log=self.terminal_log)
         action_function = getattr(_checkpoint_sequence, action)
         action_function()
