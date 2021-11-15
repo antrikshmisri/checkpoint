@@ -461,7 +461,6 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">CheckpointSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">,</span>
                                                  <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">)</span>
 
-
     <span class="k">def</span> <span class="nf">_validate_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate if a checkpoint is valid.&quot;&quot;&quot;</span>
         <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
@@ -507,17 +506,17 @@
         <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">_io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">)</span>
         <span class="n">checkpoint_file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">checkpoint_path</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.sequence_name}</span><span class="s1">.json&#39;</span><span class="p">)</span>
-        
+
         <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;.config&#39;</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">checkpoint_file_path</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">checkpoint_file</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">enc_files</span><span class="p">,</span> <span class="n">checkpoint_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-        
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">checkpoint_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
             <span class="n">checkpoint_config</span><span class="p">[</span><span class="s1">&#39;checkpoints&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
             <span class="n">checkpoint_config</span><span class="p">[</span><span class="s1">&#39;current_checkpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span>
-        
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">checkpoint_config</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
@@ -538,7 +537,7 @@
                       <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
         <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
-        
+
         <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;.config&#39;</span><span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">checkpoint_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
@@ -564,16 +563,16 @@
 
         <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span>
                                        <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{self.sequence_name}</span><span class="s1">.json&#39;</span><span class="p">)</span>
-        
+
         <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;.config&#39;</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">checkpoint_file</span><span class="p">:</span>
             <span class="n">checkpoint_dict</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">checkpoint_file</span><span class="p">)</span>
-        
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">checkpoint_config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
             <span class="n">checkpoint_config</span><span class="p">[</span><span class="s1">&#39;current_checkpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span>
-        
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_file</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">checkpoint_config</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
