@@ -212,7 +212,7 @@ def generate_tree(checkpoint_name, target_directory):
 @eel.expose
 def validate_path(path):
     """Validate a path.
-    
+
     Parameters
     ----------
     path: str
@@ -288,7 +288,7 @@ def init_ui():
             os.getcwd(), "node_modules/electron/dist/electron.exe")
         if not os.path.isfile(_electron_path):
             raise Exception(
-                f'Electron not found in path {_electron_path}.\nPlease install using npm i electron')
+                f'Electron not found in path {_electron_path}.\n')
 
         eel.init("./src")
         eel.browsers.set_path('electron', _electron_path)

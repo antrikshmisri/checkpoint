@@ -413,7 +413,6 @@ class CheckpointSequence(Sequence):
         super(CheckpointSequence, self).__init__(sequence_name, order_dict,
                                                  terminal_log=terminal_log)
 
-
     def _validate_checkpoint(self):
         """Validate if a checkpoint is valid."""
         checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
@@ -459,17 +458,17 @@ class CheckpointSequence(Sequence):
         checkpoint_path = _io.make_dir(checkpoint_path)
         checkpoint_file_path = os.path.join(
             checkpoint_path, f'{self.sequence_name}.json')
-        
+
         config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
 
         with open(checkpoint_file_path, 'w+') as checkpoint_file:
             json.dump(enc_files, checkpoint_file, indent=4)
-        
+
         with open(config_path, 'r') as config_file:
             checkpoint_config = json.load(config_file)
             checkpoint_config['checkpoints'].append(self.sequence_name)
             checkpoint_config['current_checkpoint'] = self.sequence_name
-        
+
         with open(config_path, 'w+') as config_file:
             json.dump(checkpoint_config, config_file, indent=4)
 
@@ -490,7 +489,7 @@ class CheckpointSequence(Sequence):
                       ignore_dirs=self.ignore_dirs)
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
-        
+
         config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
         with open(config_path, 'r') as config_file:
             checkpoint_config = json.load(config_file)
@@ -516,16 +515,16 @@ class CheckpointSequence(Sequence):
 
         checkpoint_path = os.path.join(self.root_dir, '.checkpoint',
                                        self.sequence_name, f'{self.sequence_name}.json')
-        
+
         config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
 
         with open(checkpoint_path, 'r') as checkpoint_file:
             checkpoint_dict = json.load(checkpoint_file)
-        
+
         with open(config_path, 'r') as config_file:
             checkpoint_config = json.load(config_file)
             checkpoint_config['current_checkpoint'] = self.sequence_name
-        
+
         with open(config_path, 'w+') as config_file:
             json.dump(checkpoint_config, config_file, indent=4)
 
