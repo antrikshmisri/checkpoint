@@ -69,7 +69,7 @@
 <span class="sd">        `s`: IO has limited permissions (R/A)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lazy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="p">[]):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the IO class.</span>
 
 <span class="sd">        Parameters</span>
@@ -83,18 +83,14 @@
 <span class="sd">            `s`: IO has limited permissions (R/A)</span>
 <span class="sd">        ignore_dirs: list</span>
 <span class="sd">            List of directories to ignore</span>
-<span class="sd">        lazy: bool, optional</span>
-<span class="sd">            If True, the IO class will not update sub_dirs and files</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_mode</span> <span class="o">=</span> <span class="nb">str</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="o">=</span> <span class="n">ignore_dirs</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="o">=</span> <span class="n">ignore_dirs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sub_dirs</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">lazy</span> <span class="o">=</span> <span class="n">lazy</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="n">mode</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
@@ -115,11 +111,7 @@
                               <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">*</span><span class="s1">&#39;rwa&#39;</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">],</span>
                               <span class="s1">&#39;s&#39;</span><span class="p">:</span> <span class="p">[</span><span class="o">*</span><span class="s1">&#39;ra&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">]}</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lazy</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">files</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sub_dirs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IO.update_paths"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.io.IO.update_paths">[docs]</a>    <span class="k">def</span> <span class="nf">update_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update the paths of files, sub_dirs w.r.t the path.</span>
@@ -134,11 +126,9 @@
 
         <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
             <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">path</span> <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">subdirs</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">))</span>
-
-                <span class="k">for</span> <span class="n">subdir</span> <span class="ow">in</span> <span class="n">subdirs</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">sub_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">subdir</span><span class="p">))</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sub_dirs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pjoin</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">dir</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="IO.walk_directory"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.io.IO.walk_directory">[docs]</a>    <span class="k">def</span> <span class="nf">walk_directory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Walk through the root directory.&quot;&quot;&quot;</span>
@@ -146,12 +136,6 @@
             <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="nb">dir</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">root</span> <span class="k">for</span> <span class="nb">dir</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">):</span>
                 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
                     <span class="k">yield</span> <span class="p">[</span><span class="n">root</span><span class="p">,</span> <span class="n">file</span><span class="p">]</span></div>
-
-    <span class="k">def</span> <span class="nf">_validate_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_mappings</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
-                <span class="n">f</span><span class="s1">&#39;Mode </span><span class="si">{mode}</span><span class="s1"> not allowed with IO mode </span><span class="si">{self.mode}</span><span class="s1">&#39;</span>
-            <span class="p">)</span>
 
 <div class="viewcode-block" id="IO.read"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.io.IO.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read the content of a file</span>
@@ -163,7 +147,10 @@
 <span class="sd">        mode: str, optional</span>
 <span class="sd">            Mode of operation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_mappings</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s1">&#39;Mode </span><span class="si">{mode}</span><span class="s1"> not allowed with IO mode </span><span class="si">{self.mode}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
 
@@ -181,7 +168,11 @@
 <span class="sd">        content: str</span>
 <span class="sd">            Content to write in the file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_mappings</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s1">&#39;Mode </span><span class="si">{mode}</span><span class="s1"> not allowed with IO mode </span><span class="si">{self.mode}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 
@@ -195,7 +186,11 @@
 <span class="sd">        mode: str</span>
 <span class="sd">            Mode of operation</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_mode</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode_mappings</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mode</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
+                <span class="n">f</span><span class="s1">&#39;Mode </span><span class="si">{mode}</span><span class="s1"> not allowed with IO mode </span><span class="si">{self.mode}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
         <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="IO.get_file_extension"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.io.IO.get_file_extension">[docs]</a>    <span class="k">def</span> <span class="nf">get_file_extension</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
@@ -217,7 +212,7 @@
 <span class="sd">        dir_name: str</span>
 <span class="sd">            Name of the sub directory</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">dir_name</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_dirs</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">dir_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sub_dirs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span>
                 <span class="n">f</span><span class="s1">&#39;</span><span class="si">{dir_name}</span><span class="s1"> already exists&#39;</span>
             <span class="p">)</span>
@@ -260,8 +255,7 @@
 <span class="sd">            New path</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_path</span> <span class="o">=</span> <span class="n">path</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lazy</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">update_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_paths</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_path</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
