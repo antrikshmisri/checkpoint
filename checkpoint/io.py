@@ -21,7 +21,7 @@ class IO:
         `s`: IO has limited permissions (R/A)
     """
 
-    def __init__(self, path=os.getcwd(), mode="a", ignore_dirs=[], lazy=True):
+    def __init__(self, path=None, mode="a", ignore_dirs=None, lazy=True):
         """Initialize the IO class.
 
         Parameters
@@ -40,13 +40,13 @@ class IO:
         """
         self._path = str()
         self._mode = str()
-        self.ignore_dirs = ignore_dirs
+        self.ignore_dirs = ignore_dirs or []
         self.files = []
         self.sub_dirs = []
 
         self.lazy = lazy
 
-        self.path = path
+        self.path = path or os.getcwd()
         self.mode = mode
 
         if not isdir(self.path):
@@ -86,9 +86,11 @@ class IO:
 
         for path, subdirs, files in os.walk(path):
             if all(dir not in path for dir in self.ignore_dirs):
-                for file, dir in zip(files, subdirs):
+                for file in files:
                     self.files.append(pjoin(path, file))
-                    self.sub_dirs.append(pjoin(path, dir))
+
+                for subdir in subdirs:
+                    self.sub_dirs.append(pjoin(path, subdir))
 
     def walk_directory(self):
         """Walk through the root directory."""
@@ -96,6 +98,12 @@ class IO:
             if all(dir not in root for dir in self.ignore_dirs):
                 for file in files:
                     yield [root, file]
+
+    def _validate_mode(self, mode):
+        if mode not in self.mode_mappings[self.mode]:
+            raise IOError(
+                f'Mode {mode} not allowed with IO mode {self.mode}'
+            )
 
     def read(self, file, mode='r'):
         """Read the content of a file
@@ -107,10 +115,7 @@ class IO:
         mode: str, optional
             Mode of operation
         """
-        if mode not in self.mode_mappings[self.mode]:
-            raise IOError(
-                f'Mode {mode} not allowed with IO mode {self.mode}'
-            )
+        self._validate_mode(mode)
         with open(file, mode) as f:
             content = f.read()
 
@@ -128,11 +133,7 @@ class IO:
         content: str
             Content to write in the file
         """
-        if mode not in self.mode_mappings[self.mode]:
-            raise IOError(
-                f'Mode {mode} not allowed with IO mode {self.mode}'
-            )
-
+        self._validate_mode(mode)
         with open(file, mode) as f:
             f.write(content)
 
@@ -146,11 +147,7 @@ class IO:
         mode: str
             Mode of operation
         """
-        if mode not in self.mode_mappings[self.mode]:
-            raise IOError(
-                f'Mode {mode} not allowed with IO mode {self.mode}'
-            )
-
+        self._validate_mode(mode)
         return open(file, mode)
 
     def get_file_extension(self, file_path):
@@ -172,7 +169,7 @@ class IO:
         dir_name: str
             Name of the sub directory
         """
-        if dir_name in self.sub_dirs:
+        if os.path.join(self.path, dir_name) in self.sub_dirs:
             raise IOError(
                 f'{dir_name} already exists'
             )
