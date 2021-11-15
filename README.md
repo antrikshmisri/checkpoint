@@ -30,7 +30,14 @@ Checkpoint also supports custom sequences that can be used to initialize checkpo
 
 ## How to use checkpoint?
 
-Currently, checkpoint can only be used in a CLI environment. The following is an example of how to use checkpoint in a CLI environment.
+To run checkpoint in UI environment, run the following command:
+
+##### Run checkpoint in UI environment
+```bash
+checkpoint --run-ui
+```
+
+The following is an example of how to use checkpoint in a CLI environment.
 
 ##### Initialize checkpoint in the target project
 ```bash
