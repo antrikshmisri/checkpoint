@@ -26,13 +26,19 @@
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
+ 
+<div>
+ 
+<b> Checkpoint is a tool that helps you to create restore points for your project <br/>
+Unlike other tools like git, checkpoint makes the whole process as simple as a few click <br/>
+Plus, there is no need for a remote repository, checkpoint does everything locall <br/>
+</b>
+
+</div>
+ 
 </span>
 <br />
 
-
-## Create restore points for your project locally
-
-Checkpoint is a tool that helps you to create restore points for your project. This is very similar to git tagging, the only difference between these two is that checkpoint doesn't require the project to be git initialized. It also doesn't require you to have a git remote. 
 
 ## How does it work?
 
