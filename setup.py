@@ -31,10 +31,10 @@ setup(
     keywords=['checkpoint', 'cli', 'executable'],
     include_package_data=True,
     packages=['checkpoint'],
-    install_requires=['cryptography==3.4.7',
-                      'joblib==1.0.1',
-                      'numpy==1.20.3',
-                      'pytest==6.2.4'],
+    install_requires=['cryptography',
+                      'joblib',
+                      'numpy',
+                      'pytest'],
     entry_points={
         'console_scripts': [
             'checkpoint=checkpoint.__main__:run',
