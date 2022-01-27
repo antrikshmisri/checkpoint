@@ -1,0 +1,20 @@
+.about {
+  &__middle-img {
+    position: relative;
+    img {
+      margin: -25% auto 5% auto;
+      width: 80%;
+      height: auto;
+      box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+    }
+  }
+
+  &__content {
+    margin: 10% auto 10% auto;
+    h1 {
+      font-size: 6rem;
+      margin: 0 auto;
+      text-align: center;
+    }
+  }
+}
