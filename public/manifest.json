@@ -1,0 +1,15 @@
+{
+  "short_name": "checkpoint",
+  "name": "Checkpoint is a tool that helps you to create restore points for your project",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/antrikshmisri/checkpoint/master/docs/_static/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

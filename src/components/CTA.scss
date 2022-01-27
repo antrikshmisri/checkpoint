@@ -1,0 +1,17 @@
+.cta {
+  margin: 10% auto 10% auto;
+  text-align: center;
+
+  h1 {
+    font-size: 6rem;
+    margin-bottom: 5%;
+  }
+
+  &__links {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    margin-top: 5%;
+  }
+}
