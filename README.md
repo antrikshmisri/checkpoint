@@ -6,10 +6,8 @@
  
 <span align="center">
  
-<div>
-[![checkpoint logo](https://github.com/antrikshmisri/checkpoint/blob/master/docs/_static/logo.png?raw=true)](http://checkpoint.antriksh.live/)
+[![checkpoint logo](https://raw.githubusercontent.com/antrikshmisri/checkpoint/master/docs/_static/logo.png)](http://checkpoint.antriksh.live/)
  
-</div>
 <br />
  
 [![pip install pycheckpoint](https://raw.githubusercontent.com/antrikshmisri/DATA/34bf992f0f7f6e265d33b193e460ec073579551b/imgs/pip-install-pycheckpoint.svg)](https://github.com/antrikshmisri/checkpoint)
