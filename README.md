@@ -1,7 +1,7 @@
-<span align="center">
- # Checkpoint
+<h1 align="center">
+Checkpoint
  
-</span>
+</h1>
 <br />
  
 <span align="center">
