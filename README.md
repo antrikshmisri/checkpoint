@@ -24,7 +24,7 @@ Checkpoint
 <div>
 <b> Checkpoint is a tool that helps you to create restore points for your project <br/>
 Unlike other tools like git, checkpoint makes the whole process as simple as a few click <br/>
-Plus, there is no need for a remote repository, checkpoint does everything locall <br/>
+Plus, there is no need for a remote repository, checkpoint does everything locally <br/>
 </b>
  
 </div>
