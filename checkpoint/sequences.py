@@ -378,10 +378,28 @@ class IOSequence(Sequence):
         crypt_obj = Crypt(key='crypt.key', key_path=os.path.join(
             self.root_dir, '.checkpoint'))
 
-        for content in contents:
-            for obj in content:
+        # for content in contents:
+        #     for obj in content:
+        #         path = list(obj.keys())[0]
+        #         path2content[path] = crypt_obj.encrypt(path)
+
+        # return path2content
+
+        #param1=list(obj.keys())[0]
+        #param2=crypt_obj.encrypt(path)
+        # def get_path2content(param1):
+        #     path2content[param1] = crypt_obj.encrypt(param1)
+        
+        # Parallel(self.num_cores)\
+        # (delayed(get_path2content)\
+        # (((list(obj.keys())[0]) for obj in content) for content in contents))
+
+        def set_path2content(param1):
+            for obj in param1:
                 path = list(obj.keys())[0]
                 path2content[path] = crypt_obj.encrypt(path)
+
+        Parallel(self.num_cores)(delayed(set_path2content)(content) for content in contents)
 
         return path2content
 
