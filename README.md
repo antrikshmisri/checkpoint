@@ -12,6 +12,9 @@ Checkpoint
 [![pip install pycheckpoint](https://raw.githubusercontent.com/antrikshmisri/DATA/34bf992f0f7f6e265d33b193e460ec073579551b/imgs/pip-install-pycheckpoint.svg)](https://github.com/antrikshmisri/checkpoint)
  
 [![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/) [![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
+ 
+ <br />
+ 
  [![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d530dec72a679fe43d46/maintainability)](https://codeclimate.com/github/antrikshmisri/checkpoint/maintainability)
  
  
