@@ -195,7 +195,8 @@
                         <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                        <span class="n">_current_task_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{LogColors.ERROR}{_msg}</span><span class="s2"> - FAILED</span><span class="si">{LogColors.ENDC}</span><span class="s2">&quot;</span>
+                        <span class="n">_current_task_id</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{LogColors.ERROR}{_msg}</span><span class="s2"> - FAILED</span><span class="si">{LogColors.ENDC}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">_stop_progress_bars</span><span class="p">()</span>
@@ -207,7 +208,8 @@
                     <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;SUCCESS&quot;</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="n">_current_task_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{LogColors.SUCCESS}{_msg}</span><span class="s2"> - SUCCESS</span><span class="si">{LogColors.ENDC}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span>
+                    <span class="n">_current_task_id</span><span class="p">,</span>
+                    <span class="n">description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{LogColors.SUCCESS}{_msg}</span><span class="s2"> - SUCCESS</span><span class="si">{LogColors.ENDC}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span>
                 <span class="p">)</span>
 
                 <span class="n">_return_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_return_value</span><span class="p">)</span>
