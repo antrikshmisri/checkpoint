@@ -89,4 +89,4 @@ def test_image_reader():
 def test_get_all_readers():
     all_readers = readers.get_all_readers()
     npt.assert_array_equal(set(all_readers), set(
-        [readers.TextReader, readers.ImageReader]))
+        [readers.TextReader, readers.ImageReader, readers.ByteReader]))

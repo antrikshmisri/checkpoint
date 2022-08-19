@@ -15,11 +15,11 @@ def file_path(request):
 
 
 def test_logger(capsys, file_path):
-
+    file_path = file_path.replace("/", "\\")
     with InTemporaryDirectory() as tdir:
         log_file_path = pjoin(tdir, 'logs.log')
         log_message = 'This is a test message'
-        log_color = '\033[92m'
+        log_color = utils.LogColors.SUCCESS
 
         terminal_loger = utils.Logger(log_mode='t')
         file_logger = utils.Logger(file_path=log_file_path, log_mode='f')

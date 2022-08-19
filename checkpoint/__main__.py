@@ -63,7 +63,7 @@ def run(args=None):
                 exit(0)
     else:
         cli_sequence = CLISequence(
-            arg_parser=checkpoint_arg_parser, args=args, terminal_log=True)
+            arg_parser=checkpoint_arg_parser, args=args, terminal_log=True, env='CLI')
         cli_sequence.execute_sequence(pass_args=True)
 
 
