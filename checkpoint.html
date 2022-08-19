@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#2D2D2D" />
@@ -20,6 +20,7 @@
       <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
   
 
@@ -47,9 +48,9 @@
         <div id="main-content" role="main">
           
   <section id="checkpoint-package">
-<h1>checkpoint package<a class="headerlink" href="#checkpoint-package" title="Permalink to this headline">¶</a></h1>
+<h1>checkpoint package<a class="headerlink" href="#checkpoint-package" title="Permalink to this heading">¶</a></h1>
 <section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="checkpoint.tests.html">checkpoint.tests package</a><ul>
@@ -66,10 +67,10 @@
 </div>
 </section>
 <section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">¶</a></h2>
 </section>
 <section id="module-checkpoint.crypt">
-<span id="checkpoint-crypt-module"></span><h2>checkpoint.crypt module<a class="headerlink" href="#module-checkpoint.crypt" title="Permalink to this headline">¶</a></h2>
+<span id="checkpoint-crypt-module"></span><h2>checkpoint.crypt module<a class="headerlink" href="#module-checkpoint.crypt" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.crypt.Crypt">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.crypt.</span></span><span class="sig-name descname"><span class="pre">Crypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/checkpoint/checkpoint'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iterations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#Crypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.Crypt" title="Permalink to this definition">¶</a></dt>
@@ -80,7 +81,7 @@
 <span class="sig-name descname"><span class="pre">decrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modify_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#Crypt.decrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.Crypt.decrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Decrypt a specific file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file</strong> (<em>str</em>) – Path to the file or content that isto be decrypted</p></li>
 <li><p><strong>modify_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the hash will be written in the target file</p></li>
@@ -94,7 +95,7 @@
 <span class="sig-name descname"><span class="pre">encrypt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modify_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#Crypt.encrypt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.Crypt.encrypt" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encrypt a specific file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file</strong> (<em>str</em>) – Path to the file or content that isto be encrypted</p></li>
 <li><p><strong>modify_file</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, the hash will be written in the target file</p></li>
@@ -110,7 +111,7 @@
 <span class="sig-prename descclassname"><span class="pre">checkpoint.crypt.</span></span><span class="sig-name descname"><span class="pre">generate_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/home/runner/work/checkpoint/checkpoint'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/crypt.html#generate_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.crypt.generate_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a key to encrypt/decrypt files</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>name</strong> (<em>str</em>) – Name of the key, should end with .key extension</p></li>
 <li><p><strong>path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path where key isto be stored</p></li>
@@ -121,7 +122,7 @@
 
 </section>
 <section id="module-checkpoint.io">
-<span id="checkpoint-io-module"></span><h2>checkpoint.io module<a class="headerlink" href="#module-checkpoint.io" title="Permalink to this headline">¶</a></h2>
+<span id="checkpoint-io-module"></span><h2>checkpoint.io module<a class="headerlink" href="#module-checkpoint.io" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.io.IO">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.io.</span></span><span class="sig-name descname"><span class="pre">IO</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'a'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lazy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO" title="Permalink to this definition">¶</a></dt>
@@ -134,7 +135,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#checkpoint.io.IO.path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to the target directory</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -148,7 +149,7 @@ in the target directory.</p>
 <cite>m</cite>: IO has moderate permissions (R/W/A)
 <cite>s</cite>: IO has limited permissions (R/A)</p>
 <dl class="field-list simple">
-<dt class="field-odd">Type</dt>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
@@ -159,7 +160,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">delete_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.delete_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.delete_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Delete a sub directory in the root directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dir_name</strong> (<em>str</em>) – Name of the sub directory</p>
 </dd>
 </dl>
@@ -170,7 +171,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">get_file_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.get_file_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.get_file_extension" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the extension from the file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Path to the file</p>
 </dd>
 </dl>
@@ -181,7 +182,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">make_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dir_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.make_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.make_dir" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a sub directory in the root directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dir_name</strong> (<em>str</em>) – Name of the sub directory</p>
 </dd>
 </dl>
@@ -202,7 +203,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">open</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.open"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.open" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open a file in a given mode.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file</strong> (<em>str</em>) – Name of the file</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode of operation</p></li>
@@ -221,7 +222,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'r'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the content of a file</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file</strong> (<em>str</em>) – Name of the file</p></li>
 <li><p><strong>mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Mode of operation</p></li>
@@ -241,7 +242,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">update_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.update_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.update_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>Update the paths of files, sub_dirs w.r.t the path.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to the target directory</p>
 </dd>
 </dl>
@@ -258,7 +259,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/io.html#IO.write"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.io.IO.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write some content into a file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>file</strong> (<em>str</em>) – Name of the file</p></li>
 <li><p><strong>mode</strong> (<em>str</em>) – Mode of operation</p></li>
@@ -272,12 +273,12 @@ in the target directory.</p>
 
 </section>
 <section id="module-checkpoint.readers">
-<span id="checkpoint-readers-module"></span><h2>checkpoint.readers module<a class="headerlink" href="#module-checkpoint.readers" title="Permalink to this headline">¶</a></h2>
+<span id="checkpoint-readers-module"></span><h2>checkpoint.readers module<a class="headerlink" href="#module-checkpoint.readers" title="Permalink to this heading">¶</a></h2>
 <p>Module that provides readers for different file extensions.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.readers.ImageReader">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.readers.</span></span><span class="sig-name descname"><span class="pre">ImageReader</span></span><a class="reference internal" href="_modules/checkpoint/readers.html#ImageReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.readers.ImageReader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#checkpoint.readers.Reader" title="checkpoint.readers.Reader"><code class="xref py py-class docutils literal notranslate"><span class="pre">checkpoint.readers.Reader</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#checkpoint.readers.Reader" title="checkpoint.readers.Reader"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reader</span></code></a></p>
 <p>Class to read image files.</p>
 </dd></dl>
 
@@ -291,16 +292,16 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">read</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">files</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/readers.html#Reader.read"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.readers.Reader.read" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the content of the file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>files</strong> (<em>list</em>) – List of files to be read</p></li>
 <li><p><strong>validate</strong> (<em>bool</em>) – Flag to validate the extensions</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>content</strong> – Content of the file/files</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
 </dd>
 </dl>
@@ -311,13 +312,13 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">validate_extensions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extensions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/readers.html#Reader.validate_extensions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.readers.Reader.validate_extensions" title="Permalink to this definition">¶</a></dt>
 <dd><p>Validate if the additional extensions are valid.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>extensions</strong> (<em>list</em>) – List of extensions to be validated</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>invalid_idxs</strong> – List of indices of invalid extensions</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list</p>
 </dd>
 </dl>
@@ -328,7 +329,7 @@ in the target directory.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.readers.TextReader">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.readers.</span></span><span class="sig-name descname"><span class="pre">TextReader</span></span><a class="reference internal" href="_modules/checkpoint/readers.html#TextReader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.readers.TextReader" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#checkpoint.readers.Reader" title="checkpoint.readers.Reader"><code class="xref py py-class docutils literal notranslate"><span class="pre">checkpoint.readers.Reader</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#checkpoint.readers.Reader" title="checkpoint.readers.Reader"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reader</span></code></a></p>
 <p>Class to read text files.</p>
 </dd></dl>
 
@@ -340,18 +341,18 @@ in the target directory.</p>
 
 </section>
 <section id="module-checkpoint.sequences">
-<span id="checkpoint-sequences-module"></span><h2>checkpoint.sequences module<a class="headerlink" href="#module-checkpoint.sequences" title="Permalink to this headline">¶</a></h2>
+<span id="checkpoint-sequences-module"></span><h2>checkpoint.sequences module<a class="headerlink" href="#module-checkpoint.sequences" title="Permalink to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.sequences.CLISequence">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.sequences.</span></span><span class="sig-name descname"><span class="pre">CLISequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'CLI_Sequence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arg_parser</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#CLISequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.CLISequence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#checkpoint.sequences.Sequence" title="checkpoint.sequences.Sequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">checkpoint.sequences.Sequence</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#checkpoint.sequences.Sequence" title="checkpoint.sequences.Sequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a></p>
 <p>Sequence for the CLI environment.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="checkpoint.sequences.CLISequence.seq_determine_action">
 <span class="sig-name descname"><span class="pre">seq_determine_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#CLISequence.seq_determine_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.CLISequence.seq_determine_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine the action to be performed.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>ArgumentParser</em>) – Parsed arguments from the CLI.</p>
 </dd>
 </dl>
@@ -368,7 +369,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">seq_perform_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">action_args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#CLISequence.seq_perform_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.CLISequence.seq_perform_action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the action.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>action_args</strong> (<em>list</em>) – List containing action and args NameSpace.</p>
 </dd>
 </dl>
@@ -379,7 +380,7 @@ in the target directory.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.sequences.CheckpointSequence">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.sequences.</span></span><span class="sig-name descname"><span class="pre">CheckpointSequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dirs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#CheckpointSequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.CheckpointSequence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#checkpoint.sequences.Sequence" title="checkpoint.sequences.Sequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">checkpoint.sequences.Sequence</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#checkpoint.sequences.Sequence" title="checkpoint.sequences.Sequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a></p>
 <p>Sequence to perform checkpoint operations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="checkpoint.sequences.CheckpointSequence.seq_create_checkpoint">
@@ -416,20 +417,20 @@ in the target directory.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.sequences.IOSequence">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">checkpoint.sequences.</span></span><span class="sig-name descname"><span class="pre">IOSequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sequence_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'IO_Sequence'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_dirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">terminal_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#IOSequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.IOSequence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#checkpoint.sequences.Sequence" title="checkpoint.sequences.Sequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">checkpoint.sequences.Sequence</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#checkpoint.sequences.Sequence" title="checkpoint.sequences.Sequence"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sequence</span></code></a></p>
 <p>Class to represent a sequence of IO operations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="checkpoint.sequences.IOSequence.seq_encrypt_files">
 <span class="sig-name descname"><span class="pre">seq_encrypt_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#IOSequence.seq_encrypt_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.IOSequence.seq_encrypt_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Encrypt the read files.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>contents</strong> (<em>dict</em>) – Dictionary of file paths and their content.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dictionary of file paths and their encrypted content.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -440,7 +441,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">seq_group_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory2files</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#IOSequence.seq_group_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.IOSequence.seq_group_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Group files in the same directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>directory2files</strong> (<em>dict</em>) – Dictionary of directory names and their files.</p>
 </dd>
 </dl>
@@ -451,13 +452,13 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">seq_map_readers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extensions_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#IOSequence.seq_map_readers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.IOSequence.seq_map_readers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Map the extensions to their respective Readers.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>extensions_dict</strong> (<em>dict</em>) – Dictionary of extensions and their files.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dictionary of extensions and their Readers.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -468,13 +469,13 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">seq_read_files</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">readers_extension</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#IOSequence.seq_read_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.IOSequence.seq_read_files" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the gathered files using their respective reader.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>readers_extension</strong> (<em>list</em>) – Readers dict and extensions dict packed in a list.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Dictionary of files and their content.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
@@ -485,7 +486,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">seq_walk_directories</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#IOSequence.seq_walk_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.IOSequence.seq_walk_directories" title="Permalink to this definition">¶</a></dt>
 <dd><p>Walk through all directories in the root directory.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>root_directory</strong> (<em>str</em>) – The root directory to be walked through.</p>
 </dd>
 </dl>
@@ -503,7 +504,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">add_sequence_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">order</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#Sequence.add_sequence_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.Sequence.add_sequence_function" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a member function to the sequence.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>func</strong> (<em>method</em>) – Function that is to be added to the sequence.</p></li>
 <li><p><strong>order</strong> (<em>int</em><em>, </em><em>optional</em>) – The order of the function in the sequence</p></li>
@@ -529,7 +530,7 @@ in the target directory.</p>
 <span class="sig-name descname"><span class="pre">execute_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">execution_policy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'decreasing_order'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pass_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/sequences.html#Sequence.execute_sequence"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.sequences.Sequence.execute_sequence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute all functions in the current sequence.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>execution_policy</strong> (<em>str</em>) – The policy to be followed while executing the functions.
 Possible values are ‘increasing_order’ or ‘decreasing_order’.</p></li>
@@ -577,7 +578,7 @@ Possible values are ‘increasing_order’ or ‘decreasing_order’.</p></li>
 
 </section>
 <section id="module-checkpoint.utils">
-<span id="checkpoint-utils-module"></span><h2>checkpoint.utils module<a class="headerlink" href="#module-checkpoint.utils" title="Permalink to this headline">¶</a></h2>
+<span id="checkpoint-utils-module"></span><h2>checkpoint.utils module<a class="headerlink" href="#module-checkpoint.utils" title="Permalink to this heading">¶</a></h2>
 <p>Module that provides utility functions/classes.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="checkpoint.utils.LogColors">
@@ -641,7 +642,7 @@ Possible values are ‘increasing_order’ or ‘decreasing_order’.</p></li>
 <span class="sig-name descname"><span class="pre">log</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">as_obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestamp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_caller</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">log_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'INFO'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/utils.html#Logger.log"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.utils.Logger.log" title="Permalink to this definition">¶</a></dt>
 <dd><p>Log a message.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>msg</strong> (<em>str</em>) – Message to log.</p></li>
 <li><p><strong>colors</strong> (<em>list</em>) – List of colors to use for the message.</p></li>
@@ -661,10 +662,10 @@ Possible values are ‘increasing_order’ or ‘decreasing_order’.</p></li>
 <span class="sig-prename descclassname"><span class="pre">checkpoint.utils.</span></span><span class="sig-name descname"><span class="pre">execute_command</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/utils.html#execute_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.utils.execute_command" title="Permalink to this definition">¶</a></dt>
 <dd><p>Execute a command and get continuous output.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>command</strong> (<em>str</em>) – Command to execute.</p>
 </dd>
-<dt class="field-even">Yields</dt>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>line</strong> (<em>str</em>) – Output line.</p>
 </dd>
 </dl>
@@ -675,15 +676,15 @@ Possible values are ‘increasing_order’ or ‘decreasing_order’.</p></li>
 <span class="sig-prename descclassname"><span class="pre">checkpoint.utils.</span></span><span class="sig-name descname"><span class="pre">get_reader_by_extension</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extension</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/checkpoint/utils.html#get_reader_by_extension"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#checkpoint.utils.get_reader_by_extension" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the reader by an extension.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>extension</strong> (<em>str</em>) – Extension of the file.</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>reader</strong> – Reader class.</p>
 </dd>
-<dt class="field-odd">Return type</dt>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="field-list simple">
-<dt class="field-odd">class</dt>
+<dt class="field-odd">class<span class="colon">:</span></dt>
 <dd class="field-odd"><p><cite>checkpoint.readers.Reader</cite></p>
 </dd>
 </dl>
@@ -694,7 +695,7 @@ Possible values are ‘increasing_order’ or ‘decreasing_order’.</p></li>
 
 </section>
 <section id="module-checkpoint">
-<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-checkpoint" title="Permalink to this headline">¶</a></h2>
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-checkpoint" title="Permalink to this heading">¶</a></h2>
 </section>
 </section>
 

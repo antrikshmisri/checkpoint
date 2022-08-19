@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#2D2D2D" />
@@ -20,6 +20,7 @@
       <script type="text/javascript" src="_static/documentation_options.js"></script>
       <script type="text/javascript" src="_static/jquery.js"></script>
       <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/_sphinx_javascript_frameworks_compat.js"></script>
       <script type="text/javascript" src="_static/doctools.js"></script>
   
 
@@ -47,11 +48,11 @@
         <div id="main-content" role="main">
           
   <section id="getting-started-with-checkpoint-cli-tool">
-<h1>Getting Started with Checkpoint CLI Tool<a class="headerlink" href="#getting-started-with-checkpoint-cli-tool" title="Permalink to this headline">¶</a></h1>
+<h1>Getting Started with Checkpoint CLI Tool<a class="headerlink" href="#getting-started-with-checkpoint-cli-tool" title="Permalink to this heading">¶</a></h1>
 <p>The following article explains the basics of the Checkpoint CLI tool
 as well as how to use the CLI tool.</p>
 <section id="what-is-checkpoint-cli-tool">
-<h2>What is Checkpoint CLI Tool?<a class="headerlink" href="#what-is-checkpoint-cli-tool" title="Permalink to this headline">¶</a></h2>
+<h2>What is Checkpoint CLI Tool?<a class="headerlink" href="#what-is-checkpoint-cli-tool" title="Permalink to this heading">¶</a></h2>
 <p>Checkpoint CLI Tool is a command line interface (CLI) tool that allows you to perform the following actions:</p>
 <ul class="simple">
 <li><p>Create restore points in your project locally/headlessly</p></li>
@@ -63,7 +64,7 @@ as well as how to use the CLI tool.</p>
 </ul>
 </section>
 <section id="what-is-a-restore-point">
-<h2>What is a restore point?<a class="headerlink" href="#what-is-a-restore-point" title="Permalink to this headline">¶</a></h2>
+<h2>What is a restore point?<a class="headerlink" href="#what-is-a-restore-point" title="Permalink to this heading">¶</a></h2>
 <p>A restore point in checkpoint is essentially a snapshot of the project at a specific point in time.
 This is represented as a directory with the name of the restore point. The checkpoint initialized directory contains a .checkpoint directory,
 which contains all the restore points and related information. The directory structure of .checkpoint is as follows:</p>
@@ -93,40 +94,40 @@ which contains all the restore points and related information. The directory str
 </ul>
 </section>
 <section id="using-the-checkpoint-cli-tool">
-<h2>Using the Checkpoint CLI Tool<a class="headerlink" href="#using-the-checkpoint-cli-tool" title="Permalink to this headline">¶</a></h2>
+<h2>Using the Checkpoint CLI Tool<a class="headerlink" href="#using-the-checkpoint-cli-tool" title="Permalink to this heading">¶</a></h2>
 <p>Checkpoint provides a command line interface (CLI) tool as well as a user interface (TBD) following is a quick overview of the CLI tool:</p>
 <section id="initializing-the-project-with-checkpoint">
-<h3>Initializing the project with checkpoint<a class="headerlink" href="#initializing-the-project-with-checkpoint" title="Permalink to this headline">¶</a></h3>
+<h3>Initializing the project with checkpoint<a class="headerlink" href="#initializing-the-project-with-checkpoint" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>init --name<span class="o">=</span>&lt;name&gt; --ignore-dirs<span class="o">=</span>&lt;dirs&gt;
 </pre></div>
 </div>
 </section>
 <section id="creating-a-restore-point-checkpoint">
-<h3>Creating a restore point/checkpoint<a class="headerlink" href="#creating-a-restore-point-checkpoint" title="Permalink to this headline">¶</a></h3>
+<h3>Creating a restore point/checkpoint<a class="headerlink" href="#creating-a-restore-point-checkpoint" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>create --name<span class="o">=</span>&lt;name&gt; --ignore-dirs<span class="o">=</span>&lt;dirs&gt;
 </pre></div>
 </div>
 </section>
 <section id="jumping-to-a-restore-point-checkpoint">
-<h3>Jumping to a restore point/checkpoint<a class="headerlink" href="#jumping-to-a-restore-point-checkpoint" title="Permalink to this headline">¶</a></h3>
+<h3>Jumping to a restore point/checkpoint<a class="headerlink" href="#jumping-to-a-restore-point-checkpoint" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>restore --name<span class="o">=</span>&lt;name&gt;
 </pre></div>
 </div>
 </section>
 <section id="deleting-a-restore-point-checkpoint">
-<h3>Deleting a restore point/checkpoint<a class="headerlink" href="#deleting-a-restore-point-checkpoint" title="Permalink to this headline">¶</a></h3>
+<h3>Deleting a restore point/checkpoint<a class="headerlink" href="#deleting-a-restore-point-checkpoint" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --path<span class="o">=</span>&lt;path&gt; --action<span class="o">=</span>delete --name<span class="o">=</span>&lt;name&gt;
 </pre></div>
 </div>
 </section>
 <section id="version-of-the-tool">
-<h3>Version of the tool<a class="headerlink" href="#version-of-the-tool" title="Permalink to this headline">¶</a></h3>
+<h3>Version of the tool<a class="headerlink" href="#version-of-the-tool" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --action<span class="o">=</span>version --path<span class="o">=</span>&lt;path&gt;
 </pre></div>
 </div>
 </section>
 <section id="running-gui-version-of-the-tool-tbd">
-<h3>Running GUI version of the tool (TBD)<a class="headerlink" href="#running-gui-version-of-the-tool-tbd" title="Permalink to this headline">¶</a></h3>
+<h3>Running GUI version of the tool (TBD)<a class="headerlink" href="#running-gui-version-of-the-tool-tbd" title="Permalink to this heading">¶</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ checkpoint --run-ui
 </pre></div>
 </div>
