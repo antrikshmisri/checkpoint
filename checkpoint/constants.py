@@ -1,3 +1,4 @@
+#: All readers mapped to their respective valid extensions
 FILE_READER2EXTENSIONS = {
     "TEXT_READER": [
         'txt', 'md', 'rst', 'py',
