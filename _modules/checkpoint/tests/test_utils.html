@@ -64,11 +64,11 @@
 
 
 <div class="viewcode-block" id="test_logger"><a class="viewcode-back" href="../../../checkpoint.tests.html#checkpoint.tests.test_utils.test_logger">[docs]</a><span class="k">def</span> <span class="nf">test_logger</span><span class="p">(</span><span class="n">capsys</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
         <span class="n">log_file_path</span> <span class="o">=</span> <span class="n">pjoin</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="s1">&#39;logs.log&#39;</span><span class="p">)</span>
         <span class="n">log_message</span> <span class="o">=</span> <span class="s1">&#39;This is a test message&#39;</span>
-        <span class="n">log_color</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span>
+        <span class="n">log_color</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span>
 
         <span class="n">terminal_loger</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="n">log_mode</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">)</span>
         <span class="n">file_logger</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">Logger</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">log_file_path</span><span class="p">,</span> <span class="n">log_mode</span><span class="o">=</span><span class="s1">&#39;f&#39;</span><span class="p">)</span>
