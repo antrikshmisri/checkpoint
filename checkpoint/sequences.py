@@ -146,7 +146,8 @@ class Sequence:
                         timestamp=True, log_type="ERROR")
 
                     self._progress.update(
-                        _current_task_id, description=f"{LogColors.ERROR}{_msg} - FAILED{LogColors.ENDC}"
+                        _current_task_id,
+                        description=f"{LogColors.ERROR}{_msg} - FAILED{LogColors.ENDC}"
                     )
 
                     self._stop_progress_bars()
@@ -158,7 +159,8 @@ class Sequence:
                     timestamp=True, log_type="SUCCESS")
 
                 self._progress.update(
-                    _current_task_id, description=f"{LogColors.SUCCESS}{_msg} - SUCCESS{LogColors.ENDC}", advance=1
+                    _current_task_id,
+                    description=f"{LogColors.SUCCESS}{_msg} - SUCCESS{LogColors.ENDC}", advance=1
                 )
 
                 _return_values.append(_return_value)
