@@ -57,17 +57,23 @@
 
 <span class="kn">from</span> <span class="nn">joblib</span> <span class="k">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
 
+<span class="kn">from</span> <span class="nn">rich.progress</span> <span class="k">import</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">SpinnerColumn</span>
+
 <span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">version</span>
+<span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">__logger__</span> <span class="k">as</span> <span class="n">_logger</span>
 <span class="kn">from</span> <span class="nn">checkpoint.crypt</span> <span class="k">import</span> <span class="n">Crypt</span><span class="p">,</span> <span class="n">generate_key</span>
 <span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
 <span class="kn">from</span> <span class="nn">checkpoint.readers</span> <span class="k">import</span> <span class="n">get_all_readers</span>
-<span class="kn">from</span> <span class="nn">checkpoint.utils</span> <span class="k">import</span> <span class="n">LogColors</span><span class="p">,</span> <span class="n">Logger</span><span class="p">,</span> <span class="n">get_reader_by_extension</span>
+<span class="kn">from</span> <span class="nn">checkpoint.utils</span> <span class="k">import</span> <span class="n">LogColors</span><span class="p">,</span> <span class="n">get_reader_by_extension</span>
 
 
 <div class="viewcode-block" id="Sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence">[docs]</a><span class="k">class</span> <span class="nc">Sequence</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Class to represent a sequence of operations.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">_progress</span> <span class="o">=</span> <span class="n">Progress</span><span class="p">(</span>
+        <span class="n">SpinnerColumn</span><span class="p">(),</span> <span class="o">*</span><span class="n">Progress</span><span class="o">.</span><span class="n">get_default_columns</span><span class="p">(),</span> <span class="n">transient</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="s1">&#39;UI&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the sequence class.</span>
 
 <span class="sd">        Parameters</span>
@@ -83,13 +89,21 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">terminal_log</span> <span class="o">=</span> <span class="n">terminal_log</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_mode</span> <span class="o">=</span> <span class="s1">&#39;t&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">terminal_log</span> <span class="k">else</span> <span class="s1">&#39;f&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span> <span class="ow">or</span> <span class="n">Logger</span><span class="p">(</span><span class="n">log_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">log_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">env</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">_logger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_mode</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span> <span class="o">=</span> <span class="n">sequence_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span> <span class="o">=</span> <span class="n">order_dict</span> <span class="ow">or</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_sequence_functions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_functions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_state</span> <span class="o">=</span> <span class="s2">&quot;idle&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_task_ids</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">get_sequence_functions</span><span class="p">()</span>
 
@@ -118,7 +132,7 @@
 
         <span class="k">if</span> <span class="n">order</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">:</span>
             <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Warning: overriting </span><span class="si">{self.sequence_dict[order].__name__}</span><span class="s1"> with </span><span class="si">{func.__name__}</span><span class="s1">&#39;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
                 <span class="n">_msg</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="p">[</span><span class="n">order</span><span class="p">]</span> <span class="o">=</span> <span class="n">func</span></div>
@@ -151,6 +165,10 @@
 <span class="sd">        pass_args: bool</span>
 <span class="sd">            If True, the arguments of the executed function will be passed to the next function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_process_task_ids</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress_state</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;idle&quot;</span><span class="p">,</span> <span class="s2">&quot;stopped&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_start_progress_bars</span><span class="p">()</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">update_order</span><span class="p">()</span>
         <span class="n">_return_values</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -159,6 +177,8 @@
             <span class="k">for</span> <span class="n">func_obj</span> <span class="ow">in</span> <span class="n">_sorted_sequence</span><span class="p">:</span>
                 <span class="n">context_text</span> <span class="o">=</span> <span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span>
                     <span class="s1">&#39;seq_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+                <span class="n">_current_task_id</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_task_ids</span><span class="p">[</span><span class="n">context_text</span><span class="p">]</span>
 
                 <span class="k">try</span><span class="p">:</span>
                     <span class="k">if</span> <span class="n">pass_args</span><span class="p">:</span>
@@ -170,19 +190,46 @@
                         <span class="n">_return_value</span> <span class="o">=</span> <span class="n">func_obj</span><span class="p">[</span><span class="mi">1</span><span class="p">]()</span>
                 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                     <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{context_text}</span><span class="s1">&#39;</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
                         <span class="n">_msg</span><span class="p">,</span> <span class="p">[</span><span class="n">LogColors</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">UNDERLINE</span><span class="p">],</span>
                         <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                        <span class="n">_current_task_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{LogColors.ERROR}{_msg}</span><span class="s2"> - FAILED</span><span class="si">{LogColors.ENDC}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_stop_progress_bars</span><span class="p">()</span>
                     <span class="k">raise</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)(</span><span class="n">f</span><span class="s1">&#39;</span><span class="si">{context_text}</span><span class="s1"> failed with error: </span><span class="si">{e}</span><span class="s1">&#39;</span><span class="p">)</span>
 
                 <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{context_text}</span><span class="s1">&#39;</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-                    <span class="n">_msg</span><span class="p">,</span> <span class="p">[</span><span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">UNDERLINE</span><span class="p">],</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="n">_msg</span><span class="p">,</span> <span class="p">[</span><span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">BOLD</span><span class="p">],</span>
                     <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;SUCCESS&quot;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="n">_current_task_id</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{LogColors.SUCCESS}{_msg}</span><span class="s2"> - SUCCESS</span><span class="si">{LogColors.ENDC}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span>
+                <span class="p">)</span>
+
+                <span class="n">_return_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_return_value</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">on_sequence_function_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
                 <span class="n">_return_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_return_value</span><span class="p">)</span>
+
+            <span class="n">_finish_msgs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="s2">&quot;All actions finished successfully!&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;One or more actions failed!&quot;</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">finished</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_finish_msgs</span><span class="p">[</span><span class="s2">&quot;success&quot;</span><span class="p">],</span> <span class="p">[</span>
+                    <span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">BOLD</span><span class="p">],</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;SUCCESS&quot;</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_finish_msgs</span><span class="p">[</span><span class="s2">&quot;error&quot;</span><span class="p">],</span> <span class="p">[</span>
+                    <span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">LogColors</span><span class="o">.</span><span class="n">BOLD</span><span class="p">],</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_stop_progress_bars</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">console</span><span class="o">.</span><span class="n">clear_live</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">on_sequence_end</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
         <span class="k">elif</span> <span class="n">execution_policy</span> <span class="o">==</span> <span class="s1">&#39;increasing_order&#39;</span><span class="p">:</span>
@@ -229,6 +276,31 @@
             <span class="n">_order</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">order_dict</span><span class="p">[</span><span class="n">_name</span><span class="p">]</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">add_sequence_function</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">_order</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="nf">_process_task_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Process the task ids.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">_context_text</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;seq_&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">()</span>
+
+            <span class="n">_current_task_id</span> <span class="o">=</span> <span class="n">Sequence</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">add_task</span><span class="p">(</span>
+                <span class="n">description</span><span class="o">=</span><span class="n">_context_text</span><span class="p">,</span>
+                <span class="n">total</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_task_ids</span><span class="p">[</span><span class="n">_context_text</span><span class="p">]</span> <span class="o">=</span> <span class="n">_current_task_id</span>
+
+    <span class="k">def</span> <span class="nf">_stop_progress_bars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Sequence</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_state</span> <span class="o">=</span> <span class="s2">&quot;stopped&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_start_progress_bars</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">Sequence</span><span class="o">.</span><span class="n">_progress</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_progress_state</span> <span class="o">=</span> <span class="s2">&quot;started&quot;</span>
+
+<div class="viewcode-block" id="Sequence.log"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence.log">[docs]</a>    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Wrapper function for `logger.log`&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">==</span> <span class="s1">&#39;UI&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span>
@@ -254,7 +326,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;IO_Sequence&#39;</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">root_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">num_cores</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="s1">&#39;UI&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the IO sequence class.</span>
 
 <span class="sd">        Default execution sequence is:</span>
@@ -289,7 +361,7 @@
 
         <span class="nb">super</span><span class="p">(</span><span class="n">IOSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span>
                                          <span class="n">order_dict</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_order_dict</span><span class="p">,</span>
-                                         <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">)</span>
+                                         <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="o">=</span> <span class="n">ignore_dirs</span> <span class="ow">or</span> <span class="p">[]</span>
@@ -354,34 +426,40 @@
         <span class="k">for</span> <span class="n">extension</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">extensions_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span> <span class="o">=</span> <span class="n">get_reader_by_extension</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]:</span>
-                <span class="n">all_readers</span> <span class="o">=</span> <span class="n">get_all_readers</span><span class="p">()</span>
-                <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">temp_dir</span><span class="p">:</span>
-                    <span class="n">temp_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">temp_dir</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;temp.</span><span class="si">{extension}</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="s1">&#39;test content&#39;</span><span class="p">)</span>
-                    <span class="n">selected_reader</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="k">for</span> <span class="n">reader</span> <span class="ow">in</span> <span class="n">all_readers</span><span class="p">:</span>
-                        <span class="k">try</span><span class="p">:</span>
-                            <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Trying </span><span class="si">{reader.__name__}</span><span class="s1"> for extension </span><span class="si">{extension}</span><span class="s1">&#39;</span>
-                            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-                                <span class="n">_msg</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">BOLD</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span>
-                            <span class="n">reader</span> <span class="o">=</span> <span class="n">reader</span><span class="p">()</span>
-                            <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                            <span class="n">selected_reader</span> <span class="o">=</span> <span class="n">reader</span>
-                        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                            <span class="n">selected_reader</span> <span class="o">=</span> <span class="kc">None</span>
-                            <span class="k">continue</span>
+                <span class="c1"># all_readers = get_all_readers()</span>
+                <span class="c1"># with InTemporaryDirectory() as temp_dir:</span>
+                <span class="c1">#     temp_file = os.path.join(temp_dir, f&#39;temp.{extension}&#39;)</span>
+                <span class="c1">#     self.io.write(temp_file, &#39;w+&#39;, &#39;test content&#39;)</span>
+                <span class="c1">#     selected_reader = None</span>
+                <span class="c1">#     for reader in all_readers:</span>
+                <span class="c1">#         try:</span>
+                <span class="c1">#             _msg = f&#39;Trying {reader.__name__} for extension {extension}&#39;</span>
+                <span class="c1">#             self.log(</span>
+                <span class="c1">#                 _msg, colors=LogColors.BOLD, log_caller=True, log_type=&quot;INFO&quot;)</span>
+                <span class="c1">#             reader = reader()</span>
+                <span class="c1">#             reader.read(temp_file, validate=False)</span>
+                <span class="c1">#             selected_reader = reader</span>
+                <span class="c1">#         except Exception:</span>
+                <span class="c1">#             selected_reader = None</span>
+                <span class="c1">#             continue</span>
 
-                    <span class="k">if</span> <span class="n">selected_reader</span><span class="p">:</span>
-                        <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;</span><span class="si">{selected_reader.__class__.__name__}</span><span class="s1"> selected&#39;</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-                            <span class="n">_msg</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;SUCCESS&quot;</span><span class="p">)</span>
-                        <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span> <span class="o">=</span> <span class="n">selected_reader</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">unavailabe_extensions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
-                        <span class="k">del</span> <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
-                            <span class="n">f</span><span class="s1">&#39;No reader found for extension </span><span class="si">{extension}</span><span class="s1">, skipping&#39;</span><span class="p">,</span>
-                            <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+                <span class="c1">#     if selected_reader:</span>
+                <span class="c1">#         _msg = f&#39;{selected_reader.__class__.__name__} selected&#39;</span>
+                <span class="c1">#         self.log(</span>
+                <span class="c1">#             _msg, colors=LogColors.SUCCESS, timestamp=True, log_type=&quot;SUCCESS&quot;)</span>
+                <span class="c1">#         _readers[extension] = selected_reader</span>
+                <span class="c1">#     else:</span>
+                <span class="c1">#         unavailabe_extensions.append(extension)</span>
+                <span class="c1">#         del _readers[extension]</span>
+                <span class="c1">#         self.log(</span>
+                <span class="c1">#             f&#39;No reader found for extension {extension}, skipping&#39;,</span>
+                <span class="c1">#             colors=LogColors.WARNING, log_caller=True, log_type=&quot;WARNING&quot;)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span>
+                    <span class="n">f</span><span class="s1">&#39;No reader found for extension </span><span class="si">{extension}</span><span class="s1">, skipping&#39;</span><span class="p">,</span>
+                    <span class="n">colors</span><span class="o">=</span><span class="n">LogColors</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">log_caller</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+
+                <span class="n">unavailabe_extensions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extension</span><span class="p">)</span>
+                <span class="k">del</span> <span class="n">_readers</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">extension</span> <span class="ow">in</span> <span class="n">unavailabe_extensions</span><span class="p">:</span>
             <span class="k">del</span> <span class="n">extensions_dict</span><span class="p">[</span><span class="n">extension</span><span class="p">]</span>
@@ -439,7 +517,7 @@
     <span class="sd">&quot;&quot;&quot;Sequence to perform checkpoint operations.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">,</span> <span class="n">root_dir</span><span class="p">,</span> <span class="n">ignore_dirs</span><span class="p">,</span>
-                 <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="s1">&#39;UI&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the CheckpointSequence class.</span>
 
 <span class="sd">        Parameters</span>
@@ -460,19 +538,19 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span> <span class="o">=</span> <span class="n">root_dir</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span> <span class="o">=</span> <span class="n">ignore_dirs</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CheckpointSequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">,</span>
-                                                 <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">)</span>
+                                                 <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">_validate_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Validate if a checkpoint is valid.&quot;&quot;&quot;</span>
-        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Checkpoint </span><span class="si">{self.sequence_name}</span><span class="s1"> does not exist&#39;</span><span class="p">)</span>
-
 
 <div class="viewcode-block" id="CheckpointSequence.seq_init_checkpoint"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_init_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">seq_init_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the checkpoint directory.&quot;&quot;&quot;</span>
         <span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+                 <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">_io</span><span class="o">.</span><span class="n">make_dir</span><span class="p">(</span><span class="s1">&#39;.checkpoint&#39;</span><span class="p">)</span>
         <span class="n">generate_key</span><span class="p">(</span><span class="s1">&#39;crypt.key&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
 
@@ -486,19 +564,19 @@
         <span class="n">config_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="s1">&#39;.config&#39;</span><span class="p">)</span>
         <span class="n">_io</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">config_path</span><span class="p">,</span> <span class="s1">&#39;w+&#39;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">checkpoint_config</span><span class="p">))</span></div>
 
-
 <div class="viewcode-block" id="CheckpointSequence.seq_create_checkpoint"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_create_checkpoint">[docs]</a>    <span class="k">def</span> <span class="nf">seq_create_checkpoint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a new checkpoint for the target directory.&quot;&quot;&quot;</span>
-        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
+        <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">checkpoint_path</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Checkpoint </span><span class="si">{self.sequence_name}</span><span class="s1"> already exists&#39;</span><span class="p">)</span>
 
         <span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+                 <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
 
         <span class="n">_io_sequence</span> <span class="o">=</span> <span class="n">IOSequence</span><span class="p">(</span><span class="n">root_dir</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span>
                                   <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">,</span>
-                                  <span class="n">terminal_log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal_log</span><span class="p">)</span>
+                                  <span class="n">terminal_log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal_log</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
 
         <span class="n">enc_files</span> <span class="o">=</span> <span class="n">_io_sequence</span><span class="o">.</span><span class="n">execute_sequence</span><span class="p">(</span><span class="n">pass_args</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
@@ -535,7 +613,7 @@
         <span class="sd">&quot;&quot;&quot;Delete the checkpoint for the target directory.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_checkpoint</span><span class="p">()</span>
         <span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+                 <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
         <span class="n">checkpoint_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sequence_name</span><span class="p">)</span>
 
@@ -558,7 +636,7 @@
         <span class="sd">&quot;&quot;&quot;Restore back to a specific checkpoint.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_validate_checkpoint</span><span class="p">()</span>
         <span class="n">_io</span> <span class="o">=</span> <span class="n">IO</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;a&quot;</span><span class="p">,</span>
-                      <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
+                 <span class="n">ignore_dirs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ignore_dirs</span><span class="p">)</span>
         <span class="n">_key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">root_dir</span><span class="p">,</span> <span class="s1">&#39;.checkpoint&#39;</span><span class="p">)</span>
         <span class="n">crypt</span> <span class="o">=</span> <span class="n">Crypt</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="s1">&#39;crypt.key&#39;</span><span class="p">,</span> <span class="n">key_path</span><span class="o">=</span><span class="n">_key</span><span class="p">)</span>
 
@@ -584,14 +662,14 @@
 <div class="viewcode-block" id="CheckpointSequence.seq_version"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CheckpointSequence.seq_version">[docs]</a>    <span class="k">def</span> <span class="nf">seq_version</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Print the version of the sequence.&quot;&quot;&quot;</span>
         <span class="n">_msg</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;Running version </span><span class="si">{version}</span><span class="s1">&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_msg</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">_msg</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_type</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="CLISequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CLISequence">[docs]</a><span class="k">class</span> <span class="nc">CLISequence</span><span class="p">(</span><span class="n">Sequence</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Sequence for the CLI environment.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence_name</span><span class="o">=</span><span class="s1">&#39;CLI_Sequence&#39;</span><span class="p">,</span> <span class="n">order_dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">arg_parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">arg_parser</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">terminal_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="s1">&#39;UI&#39;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the CLISequence class.</span>
 
 <span class="sd">        Default execution sequence is:</span>
@@ -618,7 +696,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">arg_parser</span> <span class="o">=</span> <span class="n">arg_parser</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CLISequence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">sequence_name</span><span class="o">=</span><span class="n">sequence_name</span><span class="p">,</span>
                                           <span class="n">order_dict</span><span class="o">=</span><span class="n">order_dict</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_order_dict</span><span class="p">,</span>
-                                          <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">)</span>
+                                          <span class="n">terminal_log</span><span class="o">=</span><span class="n">terminal_log</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="n">env</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CLISequence.seq_parse_args"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.CLISequence.seq_parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">seq_parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parse the arguments from the CLI.&quot;&quot;&quot;</span>
@@ -671,7 +749,7 @@
         <span class="n">order_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">action</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
         <span class="n">_checkpoint_sequence</span> <span class="o">=</span> <span class="n">CheckpointSequence</span><span class="p">(</span>
             <span class="n">_name</span><span class="p">,</span> <span class="n">order_dict</span><span class="p">,</span> <span class="n">_path</span><span class="p">,</span> <span class="n">_ignore_dirs</span><span class="p">,</span>
-            <span class="n">terminal_log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal_log</span><span class="p">)</span>
+            <span class="n">terminal_log</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">terminal_log</span><span class="p">,</span> <span class="n">env</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="p">)</span>
         <span class="n">action_function</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">_checkpoint_sequence</span><span class="p">,</span> <span class="n">action</span><span class="p">)</span>
         <span class="n">action_function</span><span class="p">()</span></div></div>
 </pre></div>

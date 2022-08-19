@@ -59,6 +59,7 @@
 <span class="kn">from</span> <span class="nn">PIL</span> <span class="k">import</span> <span class="n">Image</span>
 
 <span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
+<span class="kn">from</span> <span class="nn">checkpoint.constants</span> <span class="k">import</span> <span class="n">FILE_READER2EXTENSIONS</span>
 
 
 <div class="viewcode-block" id="get_all_readers"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.get_all_readers">[docs]</a><span class="k">def</span> <span class="nf">get_all_readers</span><span class="p">():</span>
@@ -183,9 +184,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initilaize the TextReader class.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">TextReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="s1">&#39;txt&#39;</span><span class="p">,</span> <span class="s1">&#39;md&#39;</span><span class="p">,</span> <span class="s1">&#39;rst&#39;</span><span class="p">,</span> <span class="s1">&#39;py&#39;</span><span class="p">,</span>
-                                          <span class="s1">&#39;html&#39;</span><span class="p">,</span> <span class="s1">&#39;css&#39;</span><span class="p">,</span> <span class="s1">&#39;js&#39;</span><span class="p">,</span> <span class="s1">&#39;json&#39;</span><span class="p">,</span>
-                                          <span class="s1">&#39;txt&#39;</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TextReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">FILE_READER2EXTENSIONS</span><span class="p">[</span><span class="s2">&quot;TEXT_READER&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
@@ -231,8 +230,8 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the `ImageReader` class&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">ImageReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">([</span><span class="s1">&#39;png&#39;</span><span class="p">,</span> <span class="s1">&#39;jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;jpeg&#39;</span><span class="p">,</span> <span class="s1">&#39;gif&#39;</span><span class="p">,</span>
-                                           <span class="s1">&#39;bmp&#39;</span><span class="p">,</span> <span class="s1">&#39;tiff&#39;</span><span class="p">,</span> <span class="s1">&#39;tif&#39;</span><span class="p">])</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ImageReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">FILE_READER2EXTENSIONS</span><span class="p">[</span><span class="s2">&quot;IMAGE_READER&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
@@ -271,6 +270,51 @@
 
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">invalid_idxs</span><span class="p">:</span>
             <span class="n">extensions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ByteReader"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.readers.ByteReader">[docs]</a><span class="k">class</span> <span class="nc">ByteReader</span><span class="p">(</span><span class="n">Reader</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class to read byte files or files that can&#39;t be decoded by `utf-8` encoder&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the `ByteReader` class&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ByteReader</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">FILE_READER2EXTENSIONS</span><span class="p">[</span><span class="s2">&quot;BYTE_READER&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read the content of the file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path: str</span>
+<span class="sd">            Path to the file that is to be read</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        content: dict</span>
+<span class="sd">            Dictionary containing the content of the file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">file_path</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_io</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span><span class="p">)}</span>
+
+    <span class="k">def</span> <span class="nf">_validate_extensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extensions</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Validate if the extensions work with the current reader.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extensions: list</span>
+<span class="sd">            List of extensions to be validated</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">invalid_idxs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">with</span> <span class="n">InTemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tdir</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ext</span> <span class="ow">in</span> <span class="n">extensions</span><span class="p">:</span>
+                <span class="n">temp_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tdir</span><span class="p">,</span> <span class="n">f</span><span class="s1">&#39;test.</span><span class="si">{ext}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">temp_file</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;test&#39;</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_read</span><span class="p">(</span><span class="n">temp_file</span><span class="p">)</span>
+                <span class="n">invalid_idxs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extensions</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">ext</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">invalid_idxs</span><span class="p">:</span>
+            <span class="n">extensions</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">invalid_idxs</span></div>
 </pre></div>
 
         </div>
