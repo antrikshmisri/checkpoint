@@ -188,8 +188,8 @@ def generate_tree(checkpoint_name, target_directory):
                 split_idx = split_idx - 1
             parent = tree_dict[folder.split("\\")[split_idx]]
 
-        files = [file.split("\\")[-1] for file in files]
-        folder = folder.split("\\")[-1]
+        files = [os.path.basename(file) for file in files]
+        folder = os.path.basename(folder)
         folder_tree = Tree(folder, files=files, parent=parent)
 
         if parent:
@@ -254,7 +254,7 @@ def fetch_npm_package(package_name):
     return npm_out
 
 
-def get_electron_bin():
+def get_electron_bin_prod():
     """Get the binaries for electron using npm.
 
     Returns
@@ -281,11 +281,41 @@ def get_electron_bin():
         raise ValueError(f'{os_name} currently not supported.')
 
 
+def get_electron_bin_dev():
+    """Get the binaries for electron using npm.
+
+    Returns
+    -------
+    path
+        The path to the electron binaries
+    """
+    os_name = os.name
+
+    if os_name == "nt":
+        current_dirname = os.path.dirname(os.path.realpath(__file__))
+        node_modules_path = os.path.join(current_dirname, 'node_modules')
+
+        electron_path = os.path.join(
+            node_modules_path, 'electron', 'dist', 'electron.exe')
+
+    elif os_name == "posix":
+        current_dirname = os.path.dirname(os.path.realpath(__file__))
+        node_modules_path = os.path.join(current_dirname, 'node_modules')
+
+        electron_path = os.path.join(
+            node_modules_path, 'electron')
+
+        with open(os.path.join(electron_path, "path.txt"), "r") as path_file:
+            bin_path = path_file.read()
+            electron_path = os.path.join(electron_path, "dist", bin_path)
+
+    return electron_path
+
+
 def init_ui():
     """Initialize the UI."""
     if IN_DEVELOPMENT:
-        _electron_path = os.path.join(
-            os.getcwd(), "node_modules/electron/dist/electron.exe")
+        _electron_path = get_electron_bin_dev()
         if not os.path.isfile(_electron_path):
             raise Exception(
                 f'Electron not found in path {_electron_path}.\n')
@@ -300,7 +330,7 @@ def init_ui():
             'args': [_electron_path, '.'],
         }, suppress_error=True, size=(1000, 600), mode="electron")
     else:
-        _electron_path = get_electron_bin()
+        _electron_path = get_electron_bin_prod()
 
         if not os.path.isfile(_electron_path):
             print('Warning: Electron not found in global packages\n'

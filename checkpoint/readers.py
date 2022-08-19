@@ -10,6 +10,7 @@ import numpy as np
 from PIL import Image
 
 from checkpoint.io import IO
+from checkpoint.constants import FILE_READER2EXTENSIONS
 
 
 def get_all_readers():
@@ -134,9 +135,7 @@ class TextReader(Reader):
 
     def __init__(self):
         """Initilaize the TextReader class."""
-        super(TextReader, self).__init__(['txt', 'md', 'rst', 'py',
-                                          'html', 'css', 'js', 'json',
-                                          'txt'])
+        super(TextReader, self).__init__(FILE_READER2EXTENSIONS["TEXT_READER"])
 
     def _read(self, file_path):
         """Read the content of the file.
@@ -182,8 +181,8 @@ class ImageReader(Reader):
 
     def __init__(self):
         """Initialize the `ImageReader` class"""
-        super(ImageReader, self).__init__(['png', 'jpg', 'jpeg', 'gif',
-                                           'bmp', 'tiff', 'tif'])
+        super(ImageReader, self).__init__(
+            FILE_READER2EXTENSIONS["IMAGE_READER"])
 
     def _read(self, file_path):
         """Read the content of the file.
@@ -222,3 +221,48 @@ class ImageReader(Reader):
 
         for idx in invalid_idxs:
             extensions.pop(idx)
+
+
+class ByteReader(Reader):
+    """Class to read byte files or files that can't be decoded by `utf-8` encoder"""
+
+    def __init__(self):
+        """Initialize the `ByteReader` class"""
+        super(ByteReader, self).__init__(FILE_READER2EXTENSIONS["BYTE_READER"])
+
+    def _read(self, file_path):
+        """Read the content of the file.
+
+        Parameters
+        ----------
+        file_path: str
+            Path to the file that is to be read
+
+        Returns
+        -------
+        content: dict
+            Dictionary containing the content of the file
+        """
+        return {file_path: self._io.read(file_path, mode='rb')}
+
+    def _validate_extensions(self, extensions):
+        """Validate if the extensions work with the current reader.
+
+        Parameters
+        ----------
+        extensions: list
+            List of extensions to be validated
+        """
+        invalid_idxs = []
+        with InTemporaryDirectory() as tdir:
+            for ext in extensions:
+                temp_file = os.path.join(tdir, f'test.{ext}')
+                with open(temp_file, 'wb') as f:
+                    f.write(b'test')
+                    self._read(temp_file)
+                invalid_idxs.append(extensions.index(ext))
+
+        for idx in invalid_idxs:
+            extensions.pop(idx)
+
+        return invalid_idxs

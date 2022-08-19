@@ -8,17 +8,23 @@ from types import MethodType
 
 from joblib import Parallel, delayed
 
+from rich.progress import Progress, SpinnerColumn
+
 from checkpoint import __version__ as version
+from checkpoint import __logger__ as _logger
 from checkpoint.crypt import Crypt, generate_key
 from checkpoint.io import IO
 from checkpoint.readers import get_all_readers
-from checkpoint.utils import LogColors, Logger, get_reader_by_extension
+from checkpoint.utils import LogColors, get_reader_by_extension
 
 
 class Sequence:
     """Class to represent a sequence of operations."""
 
-    def __init__(self, sequence_name, order_dict=None, logger=None, terminal_log=False):
+    _progress = Progress(
+        SpinnerColumn(), *Progress.get_default_columns(), transient=False)
+
+    def __init__(self, sequence_name, order_dict=None, terminal_log=False, env='UI'):
         """Initialize the sequence class.
 
         Parameters
@@ -34,13 +40,21 @@ class Sequence:
         """
         self.terminal_log = terminal_log
         self.log_mode = 't' if self.terminal_log else 'f'
-        self.logger = logger or Logger(log_mode=self.log_mode)
+        self.env = env
+
+        self.logger = _logger
+        self.logger.log_mode = self.log_mode
+
         self.sequence_name = sequence_name
         self.sequence_dict = OrderedDict()
         self.order_dict = order_dict or {}
 
         self._sequence_functions = self.sequence_dict.items()
         self.sequence_functions = []
+
+        self._progress_state = "idle"
+
+        self._task_ids = {}
 
         self.get_sequence_functions()
 
@@ -69,7 +83,7 @@ class Sequence:
 
         if order in self.sequence_dict:
             _msg = f'Warning: overriting {self.sequence_dict[order].__name__} with {func.__name__}'
-            self.logger.log(
+            self.log(
                 _msg, LogColors.WARNING, timestamp=True, log_caller=True, log_type="INFO")
 
         self.sequence_dict[order] = func
@@ -102,6 +116,10 @@ class Sequence:
         pass_args: bool
             If True, the arguments of the executed function will be passed to the next function.
         """
+        self._process_task_ids()
+        if self._progress_state in ["idle", "stopped"]:
+            self._start_progress_bars()
+
         self.update_order()
         _return_values = []
 
@@ -110,6 +128,8 @@ class Sequence:
             for func_obj in _sorted_sequence:
                 context_text = func_obj[1].__name__.split(
                     'seq_')[-1].replace('_', ' ').title()
+
+                _current_task_id = self._task_ids[context_text]
 
                 try:
                     if pass_args:
@@ -121,19 +141,46 @@ class Sequence:
                         _return_value = func_obj[1]()
                 except Exception as e:
                     _msg = f'{context_text}'
-                    self.logger.log(
+                    self.log(
                         _msg, [LogColors.ERROR, LogColors.UNDERLINE],
                         timestamp=True, log_type="ERROR")
 
+                    self._progress.update(
+                        _current_task_id, description=f"{LogColors.ERROR}{_msg} - FAILED{LogColors.ENDC}"
+                    )
+
+                    self._stop_progress_bars()
                     raise type(e)(f'{context_text} failed with error: {e}')
 
                 _msg = f'{context_text}'
-                self.logger.log(
-                    _msg, [LogColors.SUCCESS, LogColors.UNDERLINE],
+                self.log(
+                    _msg, [LogColors.SUCCESS, LogColors.BOLD],
                     timestamp=True, log_type="SUCCESS")
+
+                self._progress.update(
+                    _current_task_id, description=f"{LogColors.SUCCESS}{_msg} - SUCCESS{LogColors.ENDC}", advance=1
+                )
+
+                _return_values.append(_return_value)
 
                 self.on_sequence_function_end(self)
                 _return_values.append(_return_value)
+
+            _finish_msgs = {
+                "success": "All actions finished successfully!",
+                "error": "One or more actions failed!"
+            }
+
+            if self._progress.finished:
+                self.log(_finish_msgs["success"], [
+                    LogColors.SUCCESS, LogColors.BOLD], timestamp=True, log_type="SUCCESS")
+
+            else:
+                self.log(_finish_msgs["error"], [
+                    LogColors.SUCCESS, LogColors.BOLD], timestamp=True, log_type="ERROR")
+
+            self._stop_progress_bars()
+            self._progress.console.clear_live()
             self.on_sequence_end(self)
 
         elif execution_policy == 'increasing_order':
@@ -180,6 +227,31 @@ class Sequence:
             _order = self.order_dict[_name]
             self.add_sequence_function(func, _order)
 
+    def _process_task_ids(self):
+        """Process the task ids."""
+        for _, func in self.sequence_dict.items():
+            _context_text = func.__name__.split('seq_')[-1].replace(
+                '_', ' ').title()
+
+            _current_task_id = Sequence._progress.add_task(
+                description=_context_text,
+                total=1
+            )
+            self._task_ids[_context_text] = _current_task_id
+
+    def _stop_progress_bars(self):
+        Sequence._progress.stop()
+        self._progress_state = "stopped"
+
+    def _start_progress_bars(self):
+        Sequence._progress.start()
+        self._progress_state = "started"
+
+    def log(self, *args, **kwargs):
+        """Wrapper function for `logger.log`"""
+        if self.env == 'UI':
+            self.logger.log(*args, **kwargs)
+
     @property
     def name(self):
         return self.sequence_name
@@ -205,7 +277,7 @@ class IOSequence(Sequence):
 
     def __init__(self, sequence_name='IO_Sequence', order_dict=None,
                  root_dir=None, ignore_dirs=None, num_cores=None,
-                 terminal_log=False):
+                 terminal_log=False, env='UI'):
         """Initialize the IO sequence class.
 
         Default execution sequence is:
@@ -240,7 +312,7 @@ class IOSequence(Sequence):
 
         super(IOSequence, self).__init__(sequence_name,
                                          order_dict or self.default_order_dict,
-                                         terminal_log=terminal_log)
+                                         terminal_log=terminal_log, env=env)
 
         self.root_dir = root_dir or os.getcwd()
         self.ignore_dirs = ignore_dirs or []
@@ -305,34 +377,40 @@ class IOSequence(Sequence):
         for extension, _ in extensions_dict.items():
             _readers[extension] = get_reader_by_extension(extension)
             if not _readers[extension]:
-                all_readers = get_all_readers()
-                with InTemporaryDirectory() as temp_dir:
-                    temp_file = os.path.join(temp_dir, f'temp.{extension}')
-                    self.io.write(temp_file, 'w+', 'test content')
-                    selected_reader = None
-                    for reader in all_readers:
-                        try:
-                            _msg = f'Trying {reader.__name__} for extension {extension}'
-                            self.logger.log(
-                                _msg, colors=LogColors.BOLD, log_caller=True, log_type="INFO")
-                            reader = reader()
-                            reader.read(temp_file, validate=False)
-                            selected_reader = reader
-                        except Exception:
-                            selected_reader = None
-                            continue
+                # all_readers = get_all_readers()
+                # with InTemporaryDirectory() as temp_dir:
+                #     temp_file = os.path.join(temp_dir, f'temp.{extension}')
+                #     self.io.write(temp_file, 'w+', 'test content')
+                #     selected_reader = None
+                #     for reader in all_readers:
+                #         try:
+                #             _msg = f'Trying {reader.__name__} for extension {extension}'
+                #             self.log(
+                #                 _msg, colors=LogColors.BOLD, log_caller=True, log_type="INFO")
+                #             reader = reader()
+                #             reader.read(temp_file, validate=False)
+                #             selected_reader = reader
+                #         except Exception:
+                #             selected_reader = None
+                #             continue
 
-                    if selected_reader:
-                        _msg = f'{selected_reader.__class__.__name__} selected'
-                        self.logger.log(
-                            _msg, colors=LogColors.SUCCESS, timestamp=True, log_type="SUCCESS")
-                        _readers[extension] = selected_reader
-                    else:
-                        unavailabe_extensions.append(extension)
-                        del _readers[extension]
-                        self.logger.log(
-                            f'No reader found for extension {extension}, skipping',
-                            colors=LogColors.ERROR, log_caller=True, log_type="ERROR")
+                #     if selected_reader:
+                #         _msg = f'{selected_reader.__class__.__name__} selected'
+                #         self.log(
+                #             _msg, colors=LogColors.SUCCESS, timestamp=True, log_type="SUCCESS")
+                #         _readers[extension] = selected_reader
+                #     else:
+                #         unavailabe_extensions.append(extension)
+                #         del _readers[extension]
+                #         self.log(
+                #             f'No reader found for extension {extension}, skipping',
+                #             colors=LogColors.WARNING, log_caller=True, log_type="WARNING")
+                self.log(
+                    f'No reader found for extension {extension}, skipping',
+                    colors=LogColors.WARNING, log_caller=True, log_type="WARNING")
+
+                unavailabe_extensions.append(extension)
+                del _readers[extension]
 
         for extension in unavailabe_extensions:
             del extensions_dict[extension]
@@ -390,7 +468,7 @@ class CheckpointSequence(Sequence):
     """Sequence to perform checkpoint operations."""
 
     def __init__(self, sequence_name, order_dict, root_dir, ignore_dirs,
-                 terminal_log=False):
+                 terminal_log=False, env='UI'):
         """Initialize the CheckpointSequence class.
 
         Parameters
@@ -411,19 +489,19 @@ class CheckpointSequence(Sequence):
         self.root_dir = root_dir
         self.ignore_dirs = ignore_dirs
         super(CheckpointSequence, self).__init__(sequence_name, order_dict,
-                                                 terminal_log=terminal_log)
+                                                 terminal_log=terminal_log, env=env)
 
     def _validate_checkpoint(self):
         """Validate if a checkpoint is valid."""
-        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        checkpoint_path = os.path.join(
+            self.root_dir, '.checkpoint', self.sequence_name)
         if not os.path.isdir(checkpoint_path):
             raise ValueError(f'Checkpoint {self.sequence_name} does not exist')
-
 
     def seq_init_checkpoint(self):
         """Initialize the checkpoint directory."""
         _io = IO(path=self.root_dir, mode="a",
-                      ignore_dirs=self.ignore_dirs)
+                 ignore_dirs=self.ignore_dirs)
         path = _io.make_dir('.checkpoint')
         generate_key('crypt.key', path)
 
@@ -437,19 +515,19 @@ class CheckpointSequence(Sequence):
         config_path = os.path.join(self.root_dir, '.checkpoint', '.config')
         _io.write(config_path, 'w+', json.dumps(checkpoint_config))
 
-
     def seq_create_checkpoint(self):
         """Create a new checkpoint for the target directory."""
-        checkpoint_path = os.path.join(self.root_dir, '.checkpoint', self.sequence_name)
+        checkpoint_path = os.path.join(
+            self.root_dir, '.checkpoint', self.sequence_name)
         if os.path.isdir(checkpoint_path):
             raise ValueError(f'Checkpoint {self.sequence_name} already exists')
 
         _io = IO(path=self.root_dir, mode="a",
-                      ignore_dirs=self.ignore_dirs)
+                 ignore_dirs=self.ignore_dirs)
 
         _io_sequence = IOSequence(root_dir=self.root_dir,
                                   ignore_dirs=self.ignore_dirs,
-                                  terminal_log=self.terminal_log)
+                                  terminal_log=self.terminal_log, env=self.env)
 
         enc_files = _io_sequence.execute_sequence(pass_args=True)[-1]
 
@@ -486,7 +564,7 @@ class CheckpointSequence(Sequence):
         """Delete the checkpoint for the target directory."""
         self._validate_checkpoint()
         _io = IO(path=self.root_dir, mode="a",
-                      ignore_dirs=self.ignore_dirs)
+                 ignore_dirs=self.ignore_dirs)
         checkpoint_path = os.path.join(
             self.root_dir, '.checkpoint', self.sequence_name)
 
@@ -509,7 +587,7 @@ class CheckpointSequence(Sequence):
         """Restore back to a specific checkpoint."""
         self._validate_checkpoint()
         _io = IO(path=self.root_dir, mode="a",
-                      ignore_dirs=self.ignore_dirs)
+                 ignore_dirs=self.ignore_dirs)
         _key = os.path.join(self.root_dir, '.checkpoint')
         crypt = Crypt(key='crypt.key', key_path=_key)
 
@@ -535,14 +613,14 @@ class CheckpointSequence(Sequence):
     def seq_version(self):
         """Print the version of the sequence."""
         _msg = f'Running version {version}'
-        self.logger.log(_msg, timestamp=True, log_type="INFO")
+        self.log(_msg, timestamp=True, log_type="INFO")
 
 
 class CLISequence(Sequence):
     """Sequence for the CLI environment."""
 
     def __init__(self, sequence_name='CLI_Sequence', order_dict=None,
-                 arg_parser=None, args=None, terminal_log=False):
+                 arg_parser=None, args=None, terminal_log=False, env='UI'):
         """Initialize the CLISequence class.
 
         Default execution sequence is:
@@ -569,7 +647,7 @@ class CLISequence(Sequence):
         self.arg_parser = arg_parser
         super(CLISequence, self).__init__(sequence_name=sequence_name,
                                           order_dict=order_dict or self.default_order_dict,
-                                          terminal_log=terminal_log)
+                                          terminal_log=terminal_log, env=env)
 
     def seq_parse_args(self):
         """Parse the arguments from the CLI."""
@@ -622,6 +700,6 @@ class CLISequence(Sequence):
         order_dict = {action: 0}
         _checkpoint_sequence = CheckpointSequence(
             _name, order_dict, _path, _ignore_dirs,
-            terminal_log=self.terminal_log)
+            terminal_log=self.terminal_log, env=self.env)
         action_function = getattr(_checkpoint_sequence, action)
         action_function()

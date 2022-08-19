@@ -12,15 +12,15 @@ from checkpoint.readers import get_all_readers
 
 class LogColors:
     """Provides colors for terminal logs."""
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    SUCCESS = '\033[92m'
-    WARNING = '\033[93m'
-    ERROR = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+    HEADER = '[underline][bold]'
+    BLUE = '[blue]'
+    CYAN = '[cyan]'
+    SUCCESS = '[green]'
+    WARNING = '[yellow]'
+    ERROR = '[red]'
+    ENDC = '[/]'
+    BOLD = '[bold]'
+    UNDERLINE = '[underline]'
 
 
 class Logger:
@@ -74,7 +74,7 @@ class Logger:
         """
 
         _caller = stack()[1]
-        _file = getmodule(_caller[0]).__file__ * log_caller
+        _file = getmodule(_caller[0]).__file__.replace("/", "\\") * log_caller
         _timestamp = datetime.now().strftime('%H:%M:%S') * timestamp
 
         colors = colors or [self.log_colors.BOLD]
@@ -100,6 +100,26 @@ class Logger:
                     json.dump(_msg, f)
                     f.write('\n')
 
+    @property
+    def log_mode(self):
+        return self._log_mode
+
+    @log_mode.setter
+    def log_mode(self, log_mode):
+        """Set the log mode.
+
+        Parameters
+        ----------
+        log_mode: str
+            Log mode, can take values `t` or `f`.
+            `t`: log in terminal
+            `f`: log in file
+        """
+        if log_mode not in ['t', 'f']:
+            raise ValueError(f'Invalid log mode: {log_mode}')
+
+        self._log_mode = log_mode
+
 
 def get_reader_by_extension(extension):
     """Get the reader by an extension.
@@ -120,7 +140,7 @@ def get_reader_by_extension(extension):
         reader_obj = reader()
         if extension in reader_obj.valid_extensions:
             return reader_obj
-    print(f'{LogColors.ERROR}No reader found for {extension}{LogColors.ENDC}')
+    print(f'{LogColors.ERROR}No default reader found for {extension}{LogColors.ENDC}')
 
 
 def execute_command(command):

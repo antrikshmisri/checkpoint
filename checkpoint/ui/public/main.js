@@ -9,7 +9,6 @@ function createWindow() {
       nodeIntegration: true,
       enableRemoteModule: true,
     },
-    transparent: true,
     roundedCorners: true,
     hasShadow: true,
     resizable: true,
