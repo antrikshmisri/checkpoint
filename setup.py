@@ -1,4 +1,4 @@
-from os import path
+from os import path, listdir
 
 from setuptools import setup
 
@@ -17,6 +17,19 @@ classifiers = [
 ]
 
 
+def get_requirements():
+    _requirements_dir = path.join(this_directory, 'requirements')
+    _requirements = []
+
+    for _requirement_file in listdir(_requirements_dir):
+        if _requirement_file.endswith('.txt'):
+            with open(path.join(_requirements_dir, _requirement_file), 'r') as f:
+                for _req in *f.read().splitlines(), :
+                    _requirements.append(_req)
+
+    return _requirements
+
+
 setup(
     name='pycheckpoint',
     version=version,
@@ -31,10 +44,7 @@ setup(
     keywords=['checkpoint', 'cli', 'executable'],
     include_package_data=True,
     packages=['checkpoint'],
-    install_requires=['cryptography',
-                      'joblib',
-                      'numpy',
-                      'pytest'],
+    install_requires=get_requirements(),
     entry_points={
         'console_scripts': [
             'checkpoint=checkpoint.__main__:run',
