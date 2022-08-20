@@ -24,7 +24,7 @@ def get_requirements():
     for _requirement_file in listdir(_requirements_dir):
         if _requirement_file.endswith('.txt'):
             with open(path.join(_requirements_dir, _requirement_file), 'r') as f:
-                for _req in *f.read().splitlines(), :
+                for _req in f.read().splitlines():
                     _requirements.append(_req)
 
     return _requirements
