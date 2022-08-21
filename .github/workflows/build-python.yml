@@ -33,11 +33,19 @@ jobs:
         run: |
           bash "${{ github.workspace }}/scripts/build_installer.sh" "${{matrix.os}}-install-checkpoint"
 
-      - name: Upload Artifacts
+      - name: Upload Artifacts - [macOS, Ubuntu]
+        if: ${{ matrix.os }} != macos
         uses: actions/upload-artifact@v3
         with:
           name: ${{matrix.os}} Installer
           path: dist/${{matrix.os}}-install-checkpoint
+
+      - name: Upload Artifacts - [windows]
+        if: ${{ matrix.os }} == windows
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{matrix.os}} Installer
+          path: dist/${{matrix.os}}-install-checkpoint.exe
 
   publish-to-s3:
     runs-on: ubuntu-latest
