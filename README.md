@@ -34,7 +34,7 @@ Plus, there is no need for a remote repository, checkpoint does everything local
 <br />
 
 <div align="center">
-<b>Checkpoint Installers 
+<h2> Install Checkpoint </h2> 
 
 <br />
 
