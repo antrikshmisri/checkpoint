@@ -1,6 +1,6 @@
 # This workflow will build a python script, generate an executable and upload it.
 
-name: Build python script [macos]
+name: Build python script
 
 on:
   push:
