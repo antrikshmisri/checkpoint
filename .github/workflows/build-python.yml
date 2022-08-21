@@ -1,6 +1,6 @@
 # This workflow will build a python script, generate an executable and upload it.
 
-name: Build python script
+name: Build python script [macos]
 
 on:
   push:
@@ -12,9 +12,9 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos, ubuntu]
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -22,16 +22,40 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pyinstaller
+
       - name: Build script
         run: |
-          bash "${GITHUB_WORKSPACE}/scripts/build_installer.sh" "${{matrix.os}}-install-checkpoint"
+          bash "${{ github.workspace }}/scripts/build_installer.sh" "${{matrix.os}}-install-checkpoint"
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.os }} Installer
-          path: dist/${{ matrix.os }}-install-checkpoint
+          name: ${{matrix.os}} Installer
+          path: dist/${{matrix.os}}-install-checkpoint
+
+  publish-to-s3:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: dist/
+
+      - name: Upload to S3
+        uses: medlypharmacy/s3-artifacts-action@master
+        with:
+          aws_access_key_id: ${{ secrets.S3_BUILD_ARTIFACTS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.S3_BUILD_ARTIFACTS_SECRET_ACCESS_KEY }}
+          aws_s3_bucket_name: ${{ secrets.S3_BUCKET_NAME }}
+          source_path: "dist"
+          destination_path: "installers"
+          exclude_repo_from_destination_path: true
+          resource_type: "DIRECTORY"
