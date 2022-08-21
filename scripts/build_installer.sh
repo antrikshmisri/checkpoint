@@ -12,4 +12,4 @@ else
 fi
 
 echo "Building installer..."
-pyinstaller --onefile --windowed --noconfirm --clean --workpath=build --distpath=dist install.py
+pyinstaller --onefile --windowed --noconfirm --clean --workpath=build --distpath=dist --name=$1 install.py
