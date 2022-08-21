@@ -60,11 +60,12 @@
 <span class="kn">from</span> <span class="nn">rich.progress</span> <span class="k">import</span> <span class="n">Progress</span><span class="p">,</span> <span class="n">SpinnerColumn</span>
 
 <span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">version</span>
-<span class="kn">from</span> <span class="nn">checkpoint</span> <span class="k">import</span> <span class="n">__logger__</span> <span class="k">as</span> <span class="n">_logger</span>
 <span class="kn">from</span> <span class="nn">checkpoint.crypt</span> <span class="k">import</span> <span class="n">Crypt</span><span class="p">,</span> <span class="n">generate_key</span>
 <span class="kn">from</span> <span class="nn">checkpoint.io</span> <span class="k">import</span> <span class="n">IO</span>
 <span class="kn">from</span> <span class="nn">checkpoint.readers</span> <span class="k">import</span> <span class="n">get_all_readers</span>
-<span class="kn">from</span> <span class="nn">checkpoint.utils</span> <span class="k">import</span> <span class="n">LogColors</span><span class="p">,</span> <span class="n">get_reader_by_extension</span>
+<span class="kn">from</span> <span class="nn">checkpoint.utils</span> <span class="k">import</span> <span class="n">LogColors</span><span class="p">,</span> <span class="n">get_reader_by_extension</span><span class="p">,</span> <span class="n">Logger</span>
+
+<span class="n">_logger</span> <span class="o">=</span> <span class="n">Logger</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="Sequence"><a class="viewcode-back" href="../../checkpoint.html#checkpoint.sequences.Sequence">[docs]</a><span class="k">class</span> <span class="nc">Sequence</span><span class="p">:</span>
