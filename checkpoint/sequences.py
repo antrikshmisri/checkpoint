@@ -11,11 +11,12 @@ from joblib import Parallel, delayed
 from rich.progress import Progress, SpinnerColumn
 
 from checkpoint import __version__ as version
-from checkpoint import __logger__ as _logger
 from checkpoint.crypt import Crypt, generate_key
 from checkpoint.io import IO
 from checkpoint.readers import get_all_readers
-from checkpoint.utils import LogColors, get_reader_by_extension
+from checkpoint.utils import LogColors, get_reader_by_extension, Logger
+
+_logger = Logger()
 
 
 class Sequence:

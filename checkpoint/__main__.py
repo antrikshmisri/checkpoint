@@ -1,9 +1,14 @@
 import os
 from argparse import ArgumentParser
 
+from rich import print as rich_print
+
 from checkpoint import __version__ as version
 from checkpoint.sequences import CLISequence
 from checkpoint.utils import execute_command
+
+
+__builtins__['print'] = rich_print
 
 
 def run(args=None):
