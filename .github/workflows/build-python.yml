@@ -12,7 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos, ubuntu]
+        os: [windows, macos, ubuntu]
 
     runs-on: ${{ matrix.os }}-latest
 
@@ -34,7 +34,7 @@ jobs:
           bash "${{ github.workspace }}/scripts/build_installer.sh" "${{matrix.os}}-install-checkpoint"
 
       - name: Upload Artifacts - [macOS, Ubuntu]
-        if: ${{ matrix.os }} != macos
+        if: ${{ matrix.os }} != windows
         uses: actions/upload-artifact@v3
         with:
           name: ${{matrix.os}} Installer
