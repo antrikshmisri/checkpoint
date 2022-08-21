@@ -1,6 +1,7 @@
 import os
 import json
 from subprocess import check_call, PIPE, Popen, CalledProcessError
+from functools import partial
 from urllib.request import urlretrieve
 
 from shutil import rmtree
@@ -241,6 +242,231 @@ class Installer(SetupBase):
         self._application_components.append(component)
 
 
+def _install_prequisite_dependencies(installer, task_name, prequisite_dependencies):
+    """Install prequisite dependencies
+
+    Parameters
+    ----------
+    installer : :class: `install.Installer`
+        The installer object
+    task_name : str
+        The task name
+    prequisite_dependencies : list of str
+        The prequisite dependencies
+    """
+    _dep_check_command_map = {
+        "python@3.8": "python3 --version"
+    }
+
+    task_id = installer.get_task_id(task_name)
+    for _dependency in prequisite_dependencies:
+        installer.add_prequisite_dependency(_dependency)
+
+    for _dependency in installer.prequisite_dependencies:
+        installer._progress.update(
+            task_id, description=f"Installing {_dependency}")
+
+        installer.install_dependecy(
+            _dependency, _dep_check_command_map.get(_dependency, None))
+
+        installer._progress.update(task_id, advance=1)
+
+    installer._progress.update(
+        task_id, description="Prequisite dependencies installed!")
+
+
+def _post_installation_commands(installer, task_name, post_install_commands):
+    """Run commands after prequisite dependencies have been installed.
+
+    Parameters
+    ----------
+    installer: :class: `install.Installer`
+        The installer object
+    taks_name: str
+        The task name
+    post_install_commands : list of str
+        The post install commands
+    """
+    task_id = installer.get_task_id(task_name)
+
+    for _command in post_install_commands:
+        installer._progress.update(
+            task_id, description=f"Running {_command}")
+
+        _process = Popen(
+            _command, shell=True, stdout=PIPE, stderr=PIPE)
+        _process.wait()
+
+        if _process.returncode != 0:
+            installer.log(
+                f"[red]Failed to run {_command}[/]")
+
+            installer.log(
+                f"[red]{_process.stderr.read().decode('utf-8')}[/]")
+
+            raise Exception(f"Failed to run {_command}")
+        else:
+            installer.log(
+                f"[green]{_command} completed![/]")
+
+        installer.log(
+            f"[green]{_command}: Post install command completed[/]")
+
+        installer._progress.update(task_id, advance=1)
+
+
+def _install_application_components(installer, task_name, component_dependencies):
+    task_id = installer.get_task_id(task_name)
+
+    def _handle_external_installation(component):
+        """Handle external installation of application component
+
+        Parameters
+        ----------
+        component: dict
+            The component to be installed
+        task_name: str
+            The task name
+        component_dependencies: list of dict
+            The list of components that are dependencies of the component
+        """
+        _download_url = component["install_url"]
+        _user_directory = os.path.expanduser("~")
+        _installation_path = os.path.join(
+            _user_directory, ".checkpoint")
+
+        if not os.path.exists(_installation_path):
+            os.makedirs(_installation_path)
+
+        # download the component to the installation path using urlretrieve
+        _download_path = os.path.join(
+            _installation_path, os.path.basename(_download_url))
+
+        if not os.path.exists(_download_path):
+            urlretrieve(_download_url, _download_path)
+
+    def _handle_command_installation(component):
+        """Handle command installation of application component
+
+        Parameters
+        ----------
+        component: dict
+            The component to be installed
+        """
+        _command = component["install_command"]
+        _return_dict = installer._run_command(_command)
+
+        _returncode = _return_dict["returncode"]
+        _stderr = _return_dict["stderr"]
+        _stdout = _return_dict["stdout"]
+
+        installer.log(
+            _stdout)
+
+        if _returncode != 0:
+            installer.log(
+                f"[red]{_stderr}[/]")
+
+            raise Exception(f"Failed to install {component['name']}")
+
+    def _determine_install_type(component):
+        """Determine what type of installation is required for the component
+
+        Parameters
+        ----------
+        component: dict
+            The component to be installed
+
+        Returns
+        -------
+        str
+            The type of installation required
+        """
+        if component["package_manager_installable"]:
+            return "package_manager"
+        elif component["install_command"]:
+            return "command"
+        elif component["install_url"]:
+            return "external"
+        else:
+            raise ValueError("Couldn't determine intallation strategy")
+
+    _install_strategy2method = {
+        "package_manager": installer.install_dependecy,
+        "command": _handle_command_installation,
+        "external": _handle_external_installation
+    }
+
+    # install application components
+    for _component in component_dependencies:
+        installer._progress.update(
+            task_id, description=f"Installing {_component['name']}")
+
+        _strat = _determine_install_type(_component)
+
+        if _strat == "package_manager":
+            installer.install_dependecy(_component["name"])
+        else:
+            _install_strategy2method[_strat](_component)
+
+        installer._progress.update(task_id, advance=1)
+
+    installer._progress.update(
+        task_id, description="Application components installed!")
+
+    installer._progress.update(task_id, advance=1)
+
+    def _remove_prequisite_deps():
+        """Remove prerequisite dependencies"""
+        installer._progress.update(
+            task_id, description="Removing prerequisite dependencies"
+        )
+
+        for _dependency in installer.prequisite_dependencies:
+            installer.uninstall_dependency(_dependency)
+
+        installer._progress.update(task_id, advance=1)
+
+    # skip venv cleanup for now
+    # _remove_venv()
+    _remove_prequisite_deps()
+
+    installer._progress.update(
+        task_id, description="Post installation cleanup complete!")
+
+
+def _post_install_cleanup(installer, task_name):
+    """Remove any artifacts left post-installation
+
+    Parameters
+    ----------
+    installer: :class: `install.Installer`
+        The installer object
+    task_name: str
+        Name of the task
+    """
+    task_id = installer.get_task_id(task_name)
+
+    def _remove_venv():
+        """Remove the virtual environment"""
+        installer._progress.update(
+            task_id, description="Removing virutal environment"
+        )
+
+        _venv_path = os.path.join(
+            os.path.join(os.path.abspath(os.path.dirname(__file__))),
+            "venv"
+        )
+
+        installer.log(
+            f"[green]Removing {_venv_path}[/]")
+
+        if os.path.exists(_venv_path):
+            rmtree(_venv_path)
+
+        installer._progress.update(task_id, advance=1)
+
+
 def install():
     installer = Installer(title="Install checkpoint",
                           description="Your installation is starting, it may take a while...")
@@ -268,227 +494,20 @@ def install():
         }
     ]
 
-    def _install_prequisite_dependencies(installer, task_name):
-        """Install prequisite dependencies
-
-        Parameters
-        ----------
-        installer : :class: `install.Installer`
-            The installer object
-        task_name : int
-            The task name
-        """
-        _dep_check_command_map = {
-            "python@3.8": "python3 --version"
-        }
-
-        task_id = installer.get_task_id(task_name)
-        for _dependency in _prequisite_deps:
-            installer.add_prequisite_dependency(_dependency)
-
-        for _dependency in installer.prequisite_dependencies:
-            installer._progress.update(
-                task_id, description=f"Installing {_dependency}")
-
-            installer.install_dependecy(
-                _dependency, _dep_check_command_map.get(_dependency, None))
-
-            installer._progress.update(task_id, advance=1)
-
-        installer._progress.update(
-            task_id, description="Prequisite dependencies installed!")
-
-    def _post_installation_commands(installer, task_name):
-        """Run commands after prequisite dependencies have been installed.
-
-        Parameters
-        ----------
-        installer: :class: `install.Installer`
-            The installer object
-        taks_name: int
-            The task name
-        """
-        task_id = installer.get_task_id(task_name)
-
-        for _command in _post_install_commands:
-            installer._progress.update(
-                task_id, description=f"Running {_command}")
-
-            _process = Popen(
-                _command, shell=True, stdout=PIPE, stderr=PIPE)
-            _process.wait()
-
-            if _process.returncode != 0:
-                installer.log(
-                    f"[red]Failed to run {_command}[/]")
-
-                installer.log(
-                    f"[red]{_process.stderr.read().decode('utf-8')}[/]")
-
-                raise Exception(f"Failed to run {_command}")
-            else:
-                installer.log(
-                    f"[green]{_command} completed![/]")
-
-            installer.log(
-                f"[green]{_command}: Post install command completed[/]")
-
-            installer._progress.update(task_id, advance=1)
-
-    def _install_application_components(installer, task_name):
-        task_id = installer.get_task_id(task_name)
-
-        def _handle_external_installation(component):
-            """Handle external installation of application component
-
-            Parameters
-            ----------
-            component: dict
-                The component to be installed
-            """
-            _download_url = component["install_url"]
-            _user_directory = os.path.expanduser("~")
-            _installation_path = os.path.join(
-                _user_directory, ".checkpoint")
-
-            if not os.path.exists(_installation_path):
-                os.makedirs(_installation_path)
-
-            # download the component to the installation path using urlretrieve
-            _download_path = os.path.join(
-                _installation_path, os.path.basename(_download_url))
-
-            if not os.path.exists(_download_path):
-                urlretrieve(_download_url, _download_path)
-
-        def _handle_command_installation(component):
-            """Handle command installation of application component
-
-            Parameters
-            ----------
-            component: dict
-                The component to be installed
-            """
-            _command = component["install_command"]
-            _return_dict = installer._run_command(_command)
-
-            _returncode = _return_dict["returncode"]
-            _stderr = _return_dict["stderr"]
-            _stdout = _return_dict["stdout"]
-
-            installer.log(
-                _stdout)
-
-            if _returncode != 0:
-                installer.log(
-                    f"[red]{_stderr}[/]")
-
-                raise Exception(f"Failed to install {component['name']}")
-
-        def _determine_install_type(component):
-            """Determine what type of installation is required for the component
-
-            Parameters
-            ----------
-            component: dict
-                The component to be installed
-
-            Returns
-            -------
-            str
-                The type of installation required
-            """
-            if component["package_manager_installable"]:
-                return "package_manager"
-            elif component["install_command"]:
-                return "command"
-            elif component["install_url"]:
-                return "external"
-            else:
-                raise ValueError("Couldn't determine intallation strategy")
-
-        _install_strategy2method = {
-            "package_manager": installer.install_dependecy,
-            "command": _handle_command_installation,
-            "external": _handle_external_installation
-        }
-
-        # install application components
-        for _component in _component_deps:
-            installer._progress.update(
-                task_id, description=f"Installing {_component['name']}")
-
-            _strat = _determine_install_type(_component)
-
-            if _strat == "package_manager":
-                installer.install_dependecy(_component["name"])
-            else:
-                _install_strategy2method[_strat](_component)
-
-            installer._progress.update(task_id, advance=1)
-
-        installer._progress.update(
-            task_id, description="Application components installed!")
-
-        installer._progress.update(task_id, advance=1)
-
-    def _post_install_cleanup(installer, task_name):
-        """Remove any artifacts left post-installation
-
-        Parameters
-        ----------
-        installer: :class: `install.Installer`
-            The installer object
-        task_name: str
-            Name of the task
-        """
-        task_id = installer.get_task_id(task_name)
-
-        def _remove_venv():
-            """Remove the virtual environment"""
-            installer._progress.update(
-                task_id, description="Removing virutal environment"
-            )
-
-            _venv_path = os.path.join(
-                os.path.join(os.path.abspath(os.path.dirname(__file__))),
-                "venv"
-            )
-
-            installer.log(
-                f"[green]Removing {_venv_path}[/]")
-
-            if os.path.exists(_venv_path):
-                rmtree(_venv_path)
-
-            installer._progress.update(task_id, advance=1)
-
-        def _remove_prequisite_deps():
-            """Remove prerequisite dependencies"""
-            installer._progress.update(
-                task_id, description="Removing prerequisite dependencies"
-            )
-
-            for _dependency in installer.prequisite_dependencies:
-                installer.uninstall_dependency(_dependency)
-
-            installer._progress.update(task_id, advance=1)
-
-        # skip venv cleanup for now
-        # _remove_venv()
-        _remove_prequisite_deps()
-
-        installer._progress.update(
-            task_id, description="Post installation cleanup complete!")
-
     installer.add_task(task_name="Installing prequisite dependencies",
-                       callback=_install_prequisite_dependencies, total=len(_prequisite_deps))
+                       callback=partial(
+                           _install_prequisite_dependencies, prequisite_dependencies=_prequisite_deps),
+                       total=len(_prequisite_deps))
 
     installer.add_task(task_name="Running post-installation commands",
-                       callback=_post_installation_commands, total=len(_post_install_commands))
+                       callback=partial(
+                           _post_installation_commands, post_install_commands=_post_install_commands),
+                       total=len(_post_install_commands))
 
     installer.add_task(task_name="Installing application components",
-                       callback=_install_application_components, total=len(_component_deps))
+                       callback=partial(
+                           _install_application_components, component_dependencies=_component_deps),
+                       total=len(_component_deps))
 
     # installer.add_task(task_name="Performing post-installation cleanup",
     #                    callback=_post_install_cleanup, total=1)
