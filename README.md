@@ -32,6 +32,17 @@ Plus, there is no need for a remote repository, checkpoint does everything local
 </div>
 </span>
 <br />
+
+<div align="center">
+<b>Checkpoint Installers 
+
+<br />
+
+<div align="center">
+⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/ubuntu+Installer/ubuntu-install-checkpoint">Ubuntu</li>
+⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/macos+Installer/macos-install-checkpointt">MacOS</li>
+</div>
+</div>
  
  
 ## How does it work?
