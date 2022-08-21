@@ -30,7 +30,7 @@ jobs:
           pip install pyinstaller
       - name: Build script
         run: |
-          bash "${{GITHUB_WORKSPACE}}/scripts/build-installer.sh" "${{matrix.os}}-install-checkpoint"
+          bash "${GITHUB_WORKSPACE}/scripts/build-installer.sh" "${{matrix.os}}-install-checkpoint"
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
