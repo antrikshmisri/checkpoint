@@ -16,12 +16,10 @@ Checkpoint
  <br />
  
  [![Codacy Badge](https://app.codacy.com/project/badge/Grade/db5e64ce3b644109afe0c6ed96f266b8)](https://www.codacy.com/gh/antrikshmisri/checkpoint/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=antrikshmisri/checkpoint&amp;utm_campaign=Badge_Grade) ![codecov.io](https://codecov.io/github/antrikshmisri/checkpoint/coverage.svg?branch=master) [![Maintainability](https://api.codeclimate.com/v1/badges/d530dec72a679fe43d46/maintainability)](https://codeclimate.com/github/antrikshmisri/checkpoint/maintainability)
- 
- 
-[![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![Downloads](https://pepy.tech/badge/pycheckpoint)](https://pepy.tech/project/pycheckpoint)
- 
- 
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
+
+[![Install Checkpoint Windows](https://img.shields.io/badge/Install-Windows-blue.svg?style=flat-square)](https://checkpoint-installer-bucket.s3.amazonaws.com/installers/windows+Installer/windows-install-checkpoint.exe) [![Install Checkpoint MacOS](https://img.shields.io/badge/Install-MacOS-blue.svg?style=flat-square)](https://checkpoint-installer-bucket.s3.amazonaws.com/installers/macos+Installer/macos-install-checkpoint) [![Install Checkpoint Ubuntu](https://img.shields.io/badge/Install-Ubuntu-blue.svg?style=flat-square)](https://checkpoint-installer-bucket.s3.amazonaws.com/installers/ubuntu+Installer/ubuntu-install-checkpoint) 
+
+[![GitHub release](https://img.shields.io/github/release/antrikshmisri/checkpoint)](https://GitHub.com/Naereen/StrapDown.js/releases/) [![Downloads](https://pepy.tech/badge/pycheckpoint)](https://pepy.tech/project/pycheckpoint) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) 
  
 <div>
 <b> Checkpoint is a tool that helps you to create restore points for your project <br/>
@@ -32,20 +30,6 @@ Plus, there is no need for a remote repository, checkpoint does everything local
 </div>
 </span>
 <br />
-
-<div align="center">
-<h2> Install Checkpoint </h2> 
-
-<br />
-
-<div align="center">
- <b>
-   <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/windows+Installer/windows-install-checkpoint.exe">Windows</a></li>
- ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/ubuntu+Installer/ubuntu-install-checkpoint">Ubuntu</a></li>
- ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/macos+Installer/macos-install-checkpointt">MacOS</a></li>
- </b>
-</div>
-</div>
  
  
 ## How does it work?
