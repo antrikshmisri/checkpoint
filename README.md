@@ -40,9 +40,9 @@ Plus, there is no need for a remote repository, checkpoint does everything local
 
 <div align="center">
  <b>
- ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/windows+Installer/windows-install-checkpoint.exe">Windows</li>
- ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/ubuntu+Installer/ubuntu-install-checkpoint">Ubuntu</li>
- ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/macos+Installer/macos-install-checkpointt">MacOS</li>
+ ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/windows+Installer/windows-install-checkpoint.exe">Windows</a></li>
+ ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/ubuntu+Installer/ubuntu-install-checkpoint">Ubuntu</a></li>
+ ⊛ <a href="https://checkpoint-installer-bucket.s3.amazonaws.com/installers/macos+Installer/macos-install-checkpointt">MacOS</a></li>
  </b>
 </div>
 </div>
